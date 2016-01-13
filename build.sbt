@@ -22,6 +22,9 @@ libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2"
 
 libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.2"
 
+libraryDependencies += "com.ning" % "async-http-client" % "1.9.31"
+
+
 assemblyMergeStrategy in assembly := {
   case PathList("javax", "servlet", xs @ _*) => MergeStrategy.last
   case PathList("javax", "activation", xs @ _*) => MergeStrategy.last
