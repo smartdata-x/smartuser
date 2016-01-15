@@ -1,5 +1,6 @@
 package net
 
+import dispatch.Http
 import net.SinaRequest._
 
 import scala.collection.mutable

@@ -60,7 +60,7 @@ abstract class BaseHttp {
 
     val finalUrl = getUrl(strUrl, parameters)
 
-    val post = url(finalUrl).POST
+    val post = url(finalUrl) << (parameters)
     val response : Future[String] = Http(post OK as.String)
 
     response onComplete {
