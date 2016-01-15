@@ -1,4 +1,4 @@
-package analysis
+package util
 
 import java.math.BigInteger
 import java.text.SimpleDateFormat
