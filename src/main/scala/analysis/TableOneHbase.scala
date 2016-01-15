@@ -10,6 +10,7 @@ import scala.collection.mutable
   * Created by C.J.YOU on 2016/1/15.
   */
 class TableOneHbase extends HBase{
+
   def get(rowKey:String,table:String,columnFamliy:String,column:String):Result = {
     val connection = ConnectionFactory.createConnection(HBaseConfiguration.create())
     val htable = connection.getTable(TableName.valueOf("1"))
