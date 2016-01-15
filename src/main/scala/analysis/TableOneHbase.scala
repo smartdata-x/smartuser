@@ -3,7 +3,7 @@ package analysis
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
-
+import java.util.regex.Pattern
 import scala.collection.mutable
 
 /**

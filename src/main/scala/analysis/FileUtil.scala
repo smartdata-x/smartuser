@@ -1,5 +1,8 @@
 package analysis
 
+import java.io.ByteArrayInputStream
+import java.net.URI
+
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.io.IOUtils
