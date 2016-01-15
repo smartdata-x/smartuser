@@ -1,5 +1,6 @@
 package net
 
+import config.URLConfig
 import stock.Stock
 
 import scala.collection.mutable
@@ -11,10 +12,8 @@ import scala.collection.mutable.HashMap
   */
 object TencentRequest extends BaseHttp {
 
-  val URL = "http://qt.gtimg.cn/"
-
   def sendRequest(requestParameter:mutable.HashMap[String,String]): Unit ={
-    request(URL, requestParameter, parse)
+    request(URLConfig.tencent, requestParameter, parse)
   }
 
   def parse(response: String): Unit = {
@@ -31,7 +30,6 @@ object TencentRequest extends BaseHttp {
       arr(10).toLong * 100, arr(9).toFloat,arr(12).toLong * 100, arr(11).toFloat,arr(14).toLong * 100, arr(13).toFloat,arr(16).toLong * 100, arr(15).toFloat,arr(18).toLong * 100, arr(17).toFloat,
       arr(20).toLong * 100, arr(19).toFloat,arr(22).toLong * 100, arr(21).toFloat,arr(24).toLong * 100, arr(23).toFloat,arr(26).toLong * 100, arr(25).toFloat,arr(28).toLong * 100, arr(27).toFloat,
       date, time)
-
 
     val name = stock.name
     println(name)

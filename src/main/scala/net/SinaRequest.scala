@@ -1,5 +1,6 @@
 package net
 
+import config.URLConfig
 import stock.Stock
 
 import scala.collection.mutable
@@ -10,10 +11,8 @@ import scala.collection.mutable
   */
 object SinaRequest extends BaseHttp {
 
-  val URL = "http://hq.sinajs.cn/"
-
   def sendRequest(requestParameter:mutable.HashMap[String,String]): Unit = {
-    request(URL, requestParameter, parse)
+    request(URLConfig.sina, requestParameter, parse)
   }
 
   def parse(response: String): Unit = {
