@@ -15,7 +15,6 @@ import org.apache.log4j.Logger
 abstract class BaseApiRequest() {
 
   //private var mQueue = new Queue[String]()
-  private  var mResponse:String = ""
   private  val mLog:Logger = Logger.getRootLogger
 
   def parse(response: String): Stock
@@ -45,12 +44,14 @@ abstract class BaseApiRequest() {
         strUrl += "?" + strParam
     }
 
-    request(1,strUrl,requestParameter)
+    request(strUrl,requestParameter)
   }
 
-  def request(method: Int,strUrl:String,request:mutable.HashMap[String,String]): Stock = {
+  def request(strUrl:String,request:mutable.HashMap[String,String]): Stock = {
+
     val svc = url(strUrl)
     val response : Future[String] = Http(svc OK as.String)
+
     response onComplete {
       case Success(content) => {
         parse(response.value.get.get)
@@ -63,6 +64,10 @@ abstract class BaseApiRequest() {
     }
 
     null
+  }
+
+  def post(): Unit = {
+
   }
 }
 

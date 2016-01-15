@@ -1,21 +1,93 @@
 package net
 
+import dispatch._, Defaults._
 import org.scalatest.{Matchers, FlatSpec}
+import stock.Stock
+
+import scala.util.{Failure, Success}
 
 /**
   * Created by yangshuai on 2016/1/15.
   */
 class TencentRequestTest extends FlatSpec with Matchers {
 
-  it should "" in  {
-    val source = "v_sh600123=\"1~兰花科创~600123~7.85~8.51~8.29~857874~357984~499890~7.85~129~7.84~10~7.83~10~7.81~32~7.80~1613~7.86~74~7.87~25~7.88~169~7.89~384~7.90~141~14:32:16/7.85/888/B/696521/10229|14:32:16/7.84/57/B/44623/10223|14:32:11/7.83/110/S/86140/10219|14:32:06/7.84/50/B/39149/10214|14:32:01/7.82/64/S/50098/10211|14:31:56/7.83/58/B/45414/10206~20160115143226~-0.66~-7.76~8.38~7.66~7.83/856705/683390188~857874~68431~7.51~60.26~~8.38~7.66~8.46~89.68~89.68~0.92~9.36~7.66~\";"
-    val source2 = "v_sh601006=\"1~大秦铁路~601006~7.36~7.62~7.59~614041~254610~359432~7.35~1597~7.34~3613~7.33~1986~7.32~4002~7.31~2409~7.36~570~7.37~1146~7.38~2219~7.39~944~7.40~1521~14:58:30/7.36/133/B/97888/12412|14:58:25/7.35/64/S/47074/12409|14:58:20/7.35/15/S/11039/12403|14:58:15/7.36/290/B/213350/12400|14:58:10/7.35/151/S/111094/12390|14:58:05/7.36/53/B/38962/12385~20160115145830~-0.26~-3.41~7.61~7.32~7.35/613250/456839683~614041~45742~0.41~7.70~~7.61~7.32~3.81~1094.20~1094.20~1.25~8.38~6.86~\";"
-    val arr = source2.split("~")
-    println(arr)
-    println(arr.size)
-    for (str <- arr) {
-      println(str)
+  it should "" in {
+
+    val svc = url("http://qt.gtimg.cn/?q=sh601006")
+    val response : Future[String] = Http(svc OK as.String)
+
+    var stock:Stock = null
+    var stock2:Stock = null
+    var flag = false
+    var flag2 = false
+
+
+    response onComplete {
+      case Success(content) => {
+        flag = true
+        println("success")
+        val result = response.value.get.get
+        stock = TencentRequest.parse(result)
+      }
+
+      case Failure(t) => {
+        println("fail")
+      }
     }
+
+    val svc2 = url("http://hq.sinajs.cn/?list=sh601006")
+    val response2 : Future[String] = Http(svc2 OK as.String)
+
+    response2 onComplete {
+      case Success(content) => {
+        flag2 = true
+        println("success")
+        val result = response2.value.get.get
+        stock2 = SinaRequest.parse(result)
+
+        if (flag && flag2) {
+          println("enter")
+          println(stock.name + ":" + stock2.name)
+          println(stock.todayOpeningPrice + ":" + stock2.todayOpeningPrice)
+          println(stock.yesterdayClosingPrice + ":" + stock2.yesterdayClosingPrice)
+          println(stock.currentPrice + ":" + stock2.currentPrice)
+          println(stock.todayHighestPrice + ":" + stock2.todayHighestPrice)
+          println(stock.todayLowestPrice + ":" + stock2.todayLowestPrice)
+          println(stock.transactionNumber + ":" + stock2.transactionNumber)
+          println(stock.transactionMoney + ":" + stock2.transactionMoney)
+          println(stock.highestBuyNumber + ":" + stock2.highestBuyNumber)
+          println(stock.highestBuyPrice + ":" + stock2.highestBuyPrice)
+          println(stock.secondHighestBuyNumber + ":" + stock2.secondHighestBuyNumber)
+          println(stock.secondHighestBuyPrice + ":" + stock2.secondHighestBuyPrice)
+          println(stock.thirdHighestBuyNumber + ":" + stock2.thirdHighestBuyNumber)
+          println(stock.thirdHighestBuyPrice + ":" + stock2.thirdHighestBuyPrice)
+          println(stock.fourthHighestBuyNumber + ":" + stock2.fourthHighestBuyNumber)
+          println(stock.fourthHighestBuyPrice + ":" + stock2.fourthHighestBuyPrice)
+          println(stock.fifthHighestBuyNumber + ":" + stock2.fifthHighestBuyNumber)
+          println(stock.fifthHighestBuyPrice + ":" + stock2.fifthHighestBuyPrice)
+          println(stock.lowestBuyNumber + ":" + stock2.lowestBuyNumber)
+          println(stock.lowestSellPrice + ":" + stock2.lowestSellPrice)
+          println(stock.secondLowestBuyNumber + ":" + stock2.secondLowestBuyNumber)
+          println(stock.secondLowestBuyPrice + ":" + stock2.secondLowestBuyPrice)
+          println(stock.thirdLowestBuyNumber + ":" + stock2.thirdLowestBuyNumber)
+          println(stock.thirdLowestBuyPrice + ":" + stock2.thirdLowestBuyPrice)
+          println(stock.fourthLowestBuyNumber + ":" + stock2.fourthLowestBuyNumber)
+          println(stock.fourthLowestBuyPrice + ":" + stock2.fourthLowestBuyPrice)
+          println(stock.fifthLowestBuyNumber + ":" + stock2.fifthLowestBuyNumber)
+          println(stock.fifthLowestBuyPrice + ":" + stock2.fifthLowestBuyPrice)
+          println(stock.date + ":" + stock2.date)
+          println(stock.time + ":" + stock2.time)
+        }
+      }
+
+      case Failure(t) => {
+        println("fail")
+      }
+    }
+
+    println("hello")
+
+
   }
 
 }

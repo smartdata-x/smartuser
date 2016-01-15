@@ -17,13 +17,27 @@ object SinaRequest extends BaseApiRequest {
   }
 
   override def parse(response: String): Stock = {
-    val arr = response.split(",")
-    for (i <- 0 to arr.size - 1) {
-      println(i)
-      println(arr(i))
-    }
-    new Stock(arr(0), arr(1).toFloat, arr(2).toFloat, arr(3).toFloat, arr(4).toFloat, arr(5).toFloat, arr(6).toFloat, arr(7).toFloat, arr(8).toLong, arr(9).toFloat,
+
+    val pattern = "(?<==\").*(?=\")".r
+    val arr = pattern.findFirstIn(response).get.split(",")
+
+    new Stock(
+      arr(0), arr(1).toFloat, arr(2).toFloat, arr(3).toFloat,
+      arr(4).toFloat, arr(5).toFloat, arr(8).toLong, arr(9).toFloat,
+      arr(10).toLong, arr(6).toFloat,arr(12).toLong, arr(13).toFloat, arr(14).toLong, arr(15).toFloat, arr(16).toLong, arr(17).toFloat, arr(18).toLong, arr(19).toFloat,
+      arr(20).toLong, arr(7).toFloat, arr(22).toLong, arr(23).toFloat, arr(24).toLong, arr(25).toFloat, arr(26).toLong, arr(27).toFloat, arr(28).toLong, arr(29).toFloat,
+      arr(30), arr(31))
+  }
+
+  def parse2(response: String): Array[String] = {
+
+    val pattern = "(?<==\").*(?=\")".r
+    val arr = pattern.findFirstIn(response).get.split(",")
+
+    /*new Stock(arr(0), -1, arr(1).toFloat, arr(2).toFloat, arr(3).toFloat, arr(4).toFloat, arr(5).toFloat, arr(6).toFloat, arr(7).toFloat, arr(8).toLong, arr(9).toFloat,
       arr(10).toLong, arr(12).toLong, arr(13).toFloat, arr(14).toLong, arr(15).toFloat, arr(16).toLong, arr(17).toFloat, arr(18).toLong, arr(19).toFloat, arr(20).toLong,
-      arr(22).toLong, arr(23).toFloat, arr(24).toLong, arr(25).toFloat, arr(26).toLong, arr(27).toFloat, arr(28).toLong, arr(29).toFloat, arr(30), arr(31))
+      arr(22).toLong, arr(23).toFloat, arr(24).toLong, arr(25).toFloat, arr(26).toLong, arr(27).toFloat, arr(28).toLong, arr(29).toFloat, arr(30), arr(31), 0, 0)*/
+
+    return arr
   }
 }
