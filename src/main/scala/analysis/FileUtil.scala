@@ -20,6 +20,7 @@ class FileUtil {
     val fs = FileSystem.get(new URI(hdfsUri),conf,"root")
     fs
   }
+
   def setRootDir(string:String): Unit ={
     val fs = getFileSystem()
     if(!fs.exists(new Path(getHdfsUri() +"/"+ string))){
@@ -28,15 +29,19 @@ class FileUtil {
     rootDir = getHdfsUri() +"/"+ string + "/"
     fs.close()
   }
+
   def setHdfsUri(string:String): Unit ={
     hdfsUri = string
   }
+
   def getRootDir(): String ={
     rootDir
   }
+
   def getHdfsUri(): String ={
     hdfsUri
   }
+
   def mkDir(name:String): String ={
     val fs = getFileSystem()
     if(!fs.exists(new Path(name))){
@@ -48,6 +53,7 @@ class FileUtil {
     fs.close()
     name + "/"
   }
+
   def mkFile(name:String): Unit ={
     val fs = getFileSystem()
     if(!fs.exists(new Path(name))){
@@ -58,6 +64,7 @@ class FileUtil {
     }
     fs.close()
   }
+
   def writeToFile(fileName:String,list: mutable.MutableList[String],rowkey:String): Unit ={
     val iterator: Iterator[String] =list.iterator
     val fs = getFileSystem()
@@ -85,6 +92,7 @@ class FileUtil {
     }
   }
 }
+
 object  TestFileUtil{
   def main(args: Array[String]): Unit ={
     val testFileUtil = new FileUtil

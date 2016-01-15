@@ -8,7 +8,7 @@ import org.apache.log4j.Logger
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
-  * Created by C.J.YOU on 2016/1/3.
+  * Created by C.J.YOU on 2016/1/13.
   */
 object DataAnalysis {
   def main(args: Array[String]) {
@@ -18,20 +18,24 @@ object DataAnalysis {
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .set("spark.kryoserializer.buffer.max", "2000")
       .setMaster("local")
+
     val sc = new SparkContext(SparkConf)
     /** get hbase data */
     var one = new TableOneHbase
     one.tableName_=("1")
     one.columnFamliy_=("basic")
     one.column_=("content")
+
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
     scan.setTimeRange(currentTimeStamp - 3600000,currentTimeStamp)
     val conf = one.getConfigure(one.tableName,one.columnFamliy,one.column)
     one.setScan(scan)
+
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
     val collectResult = hbaseRdd.collect()
     val logger = Logger.getRootLogger
+
     val fileUtil = new FileUtil
     fileUtil.setHdfsUri("hdfs://server:9000")
     fileUtil.setRootDir("smartuser")

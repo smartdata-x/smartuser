@@ -46,6 +46,7 @@ class HBase {
     conf.set(TableInputFormat.SCAN, scanToString)
     conf
   }
+
   def getConfigure(table:String,columnFamliy:String,column:String): Configuration = {
     conf = HBaseConfiguration.create()
     conf.set("hbase.rootdir", "hdfs://server:9000/hbase")
@@ -58,6 +59,7 @@ class HBase {
     conf
   }
 }
+
 object TestHBase{
   def main(args: Array[String]) {
     val hbase = new HBase
