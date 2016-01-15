@@ -3,6 +3,7 @@ package net
 import dispatch._, Defaults._
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.collection.mutable
 import scala.util.{Failure, Success}
 
 
@@ -12,20 +13,6 @@ import scala.util.{Failure, Success}
 class SinaRequestTest extends FlatSpec with Matchers {
 
   it should "" in {
-
-    val svc = url("http://hq.sinajs.cn/?list=sh601006")
-    val response : Future[String] = Http(svc OK as.String)
-
-    response onComplete {
-      case Success(content) => {
-        println("success")
-        val result = response.value.get.get
-        val stock = SinaRequest.parse(result)
-      }
-
-      case Failure(t) => {
-        println("fail")
-      }
-    }
+    SinaRequest.sendRequest(mutable.HashMap("list" -> "sh601006"))
   }
 }
