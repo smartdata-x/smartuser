@@ -22,7 +22,9 @@ libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2"
 
 libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.2"
 
-libraryDependencies += "com.ning" % "async-http-client" % "1.9.31"
+libraryDependencies += "com.ning" % "async-http-client" % "1.7.16"
+
+libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.10" % "0.11.0"
 
 
 assemblyMergeStrategy in assembly := {
