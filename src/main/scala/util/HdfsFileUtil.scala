@@ -1,6 +1,6 @@
-package analysis
+package util
 
-import java.io.ByteArrayInputStream
+import java.io.{InputStreamReader, BufferedReader, ByteArrayOutputStream, ByteArrayInputStream}
 import java.net.URI
 
 import org.apache.hadoop.conf.Configuration
@@ -8,12 +8,13 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.io.IOUtils
 import org.apache.log4j.Logger
 
+import scala.StringBuilder
 import scala.collection.mutable
 
 /**
   * Created by C.J.YOU on 2016/1/14.
   */
-class FileUtil {
+class HdfsFileUtil {
   private  var rootDir = new String
   private var hdfsUri = new String
 
@@ -94,11 +95,23 @@ class FileUtil {
       fs.close()
     }
   }
+  def readFileContent(path:String):mutable.MutableList[String]={
+    val list = new mutable.MutableList[String]
+    val fs = getFileSystem()
+    val in  = fs.open(new Path(path),4096)
+    val bufferReader = new BufferedReader(new InputStreamReader(in))
+    var line = bufferReader.readLine()
+    while(line !=null){
+      list.+=(line)
+      line = bufferReader.readLine()
+    }
+    list
+  }
 }
 
 object  TestFileUtil{
   def main(args: Array[String]): Unit ={
-    val testFileUtil = new FileUtil
+    val testFileUtil = new HdfsFileUtil
     testFileUtil.setHdfsUri("hdfs://server:9000")
     testFileUtil.setRootDir("smartuser")
     val currentPath = testFileUtil.mkDir("days")
