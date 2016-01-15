@@ -53,8 +53,7 @@ abstract class BaseApiRequest() {
     val response : Future[String] = Http(svc OK as.String)
     response onComplete {
       case Success(content) => {
-        mResponse = content
-        parse(mResponse)
+        parse(response.value.get.get)
       }
 
       case Failure(t) => {

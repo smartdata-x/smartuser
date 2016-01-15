@@ -12,11 +12,14 @@ object SinaRequest extends BaseApiRequest {
 
   val URL = "http://hq.sinajs.cn/"
 
-  def getRequest(requestParameter:HashMap[String,String]): Unit = {
+  def sendRequest(requestParameter:HashMap[String,String]): Unit = {
     getRequest(URL, requestParameter)
   }
 
   override def parse(response: String): Stock = {
-    null
+    val pattern = "(?<==\").*(?=\")".r
+    val source = pattern.findFirstIn(response).get
+    val arr = source.split(",")
+    new Stock(arr)
   }
 }

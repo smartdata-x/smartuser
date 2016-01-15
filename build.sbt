@@ -26,6 +26,9 @@ libraryDependencies += "com.ning" % "async-http-client" % "1.7.16"
 
 libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.10" % "0.11.0"
 
+libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % "test"
 
 assemblyMergeStrategy in assembly := {
   case PathList("javax", "servlet", xs @ _*) => MergeStrategy.last

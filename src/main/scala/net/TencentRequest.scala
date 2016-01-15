@@ -12,7 +12,7 @@ object TencentRequest extends BaseApiRequest {
 
   val URL = "http://qt.gtimg.cn/"
 
-  def getRequest(requestParameter:HashMap[String,String]): Unit ={
+  def sendRequest(requestParameter:HashMap[String,String]): Unit ={
     super.getRequest(URL, requestParameter)
   }
 
