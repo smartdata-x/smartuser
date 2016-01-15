@@ -1,4 +1,7 @@
 package net
+
+import stock.Stock
+
 import scala.collection.immutable.Queue
 import scala.collection.mutable
 import scala.collection.mutable.HashMap
@@ -9,10 +12,13 @@ import org.apache.log4j.Logger
 /**
   * Created by kerry on 16/1/13.
   */
-class BaseApiRequest() {
+abstract class BaseApiRequest() {
+
   //private var mQueue = new Queue[String]()
   private  var mResponse:String = ""
   private  val mLog:Logger = Logger.getRootLogger
+
+  def parse(response: String): Stock
 
   def getParameters(parameter: HashMap[String,String]): String = {
     var strParam:String = ""
@@ -42,25 +48,29 @@ class BaseApiRequest() {
     request(1,strUrl,requestParameter)
   }
 
-  def request(method: Int,strUrl:String,request:mutable.HashMap[String,String]): Unit = {
+  def request(method: Int,strUrl:String,request:mutable.HashMap[String,String]): Stock = {
     val svc = url(strUrl)
     val response : Future[String] = Http(svc OK as.String)
     response onComplete {
       case Success(content) => {
         mResponse = content
+        parse(mResponse)
       }
 
       case Failure(t) => {
         mLog.warn("An error has occurred: " + t.getMessage)
+        null
       }
     }
+
+    null
   }
 }
 
 
 object TestBaseApiRequest{
   def main(args: Array[String]) {
-    val test = new BaseApiRequest()
+    /*val test = new BaseApiRequest()
     val strParam = new mutable.HashMap[String,String]()
     strParam.put("uid","1")
     strParam.put("token","3213sewqesadas")
@@ -68,6 +78,6 @@ object TestBaseApiRequest{
     strParam.put("stype","2")
 
     var url = "http://api.prism.smartdata-x.com/cgi-bin/northsea/prsim/stock/1/top_twenty_stock.fcgi"
-    test.getRequest(url,strParam)
+    test.getRequest(url,strParam)*/
   }
 }
