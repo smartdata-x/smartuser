@@ -19,37 +19,8 @@ class SinaRequestTest extends FlatSpec with Matchers {
 
     val source = pattern.findFirstIn(raw).get
 
-    val arr = source.split(",")
-    /*println(arr)
-    println(arr.size)
-    for (str <- arr) {
-      println(str)
-    }*/
+    val stock = SinaRequest.parse(source)
 
-//    val map = Map("list"->"sh601006")
-
-    val svc = url("http://hq.sinajs.cn/?list=sh601006")
-    val response : Future[String]  = Http(svc OK as.String)
-    response onComplete {
-      case Success(s) => {
-        println("success")
-        val data = response.value.get.get
-        val pattern = "(?<==\").*(?=\")".r
-        val source = pattern.findFirstIn(data).get
-        println(source)
-      }
-      case Failure(t) => {
-        println("faile")
-      }
-    }
-    /*val response : Future[String] = Http(svc OK as.String)
-    response onComplete {
-      case Success(content) => {
-        println(content)
-      }
-
-      case Failure(t) => {
-      }
-    }*/
+    println(stock)
   }
 }

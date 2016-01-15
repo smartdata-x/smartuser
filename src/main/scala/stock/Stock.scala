@@ -13,7 +13,7 @@ class Stock(
   val highestBuyPrice: Float ,// arr(6).toFloat//竞买价，即“买一”报价
   val lowestSellPrice: Float ,// arr(7).toFloat//竞卖价，即“卖一”报价
   val transactionNumber: Long ,// arr(8).toLong//成交的股票数
-  val transactionMoney: Long ,// arr(9).toLong//成交金额
+  val transactionMoney: Float ,// arr(9).toLong//成交金额
   val highestBuyNumber: Long ,// arr(10).toLong//买一申请数
   val secondHighestBuyNumber: Long ,// arr(12).toLong//买二申请数
   val secondHighestBuyPrice: Float ,// arr(13).toFloat//买二报价
