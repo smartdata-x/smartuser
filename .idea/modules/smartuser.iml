@@ -195,8 +195,9 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="SBT: com.ning:async-http-client:1.9.31:jar" level="project" />
-    <orderEntry type="library" name="SBT: io.netty:netty:3.10.4.Final:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.slf4j:slf4j-api:1.7.12:jar" level="project" />
+    <orderEntry type="library" name="SBT: net.databinder.dispatch:dispatch-core_2.10:0.11.0:jar" level="project" />
+    <orderEntry type="library" name="SBT: com.ning:async-http-client:1.7.16:jar" level="project" />
+    <orderEntry type="library" name="SBT: io.netty:netty:3.8.0.Final:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.slf4j:slf4j-api:1.7.10:jar" level="project" />
   </component>
 </module>
