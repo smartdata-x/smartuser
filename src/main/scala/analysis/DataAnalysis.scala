@@ -55,6 +55,7 @@ object DataAnalysis {
 
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
     HdfsFileUtil.setRootDir("smartuser")
+
     collectResult.foreach(x => {
       try {
       val result = x._2
