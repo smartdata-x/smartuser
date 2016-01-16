@@ -10,6 +10,7 @@ import org.apache.log4j.Logger
 
 import scala.StringBuilder
 import scala.collection.mutable
+import scala.collection.mutable.HashMap
 
 /**
   * Created by C.J.YOU on 2016/1/14.
@@ -138,6 +139,21 @@ object HdfsFileUtil {
       line = bufferReader.readLine()
     }
     list
+  }
+
+  def getDirectoryContentFromHdfs(dstpath:String): HashMap[String,mutable.MutableList[String]] ={
+    var hashMap = new HashMap[String,mutable.MutableList[String]]
+    val fs = getFileSystem
+    if(fs.isDirectory(new Path(dstpath))){
+      val fileList = fs.listStatus(new Path(dstpath))
+      for(i <- 0 to fileList.length - 1){
+        val filePath = fileList(i).getPath.toString
+        val keyOfFileName = fileList(i).getPath.getName
+        hashMap.+=(keyOfFileName -> readStockCode(filePath))
+      }
+    }
+    fs.close()
+    hashMap
   }
 
   def saveStockCodes(fileName:String,list: mutable.MutableList[String]): Unit ={
