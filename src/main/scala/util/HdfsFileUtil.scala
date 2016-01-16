@@ -22,6 +22,8 @@ object HdfsFileUtil {
   def getFileSystem:FileSystem ={
     val conf:Configuration = new  Configuration()
     conf.setBoolean("dfs.support.append", true)
+    conf.set("dfs.client.block.write.replace-datanode-on-failure.policy", "NEVER")
+    conf.set("dfs.client.block.write.replace-datanode-on-failure.enable", "true")
     val fs = FileSystem.get(new URI(hdfsUri),conf,"root")
     fs
   }
