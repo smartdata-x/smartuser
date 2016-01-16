@@ -99,7 +99,7 @@ object HdfsFileUtil {
     }
   }
 
-  def writeToFile(fileName:String,list: mutable.MutableList[String]): Unit ={
+  def writeStockCode(fileName:String,list: mutable.MutableList[String]): Unit ={
     val iterator: Iterator[String] =list.iterator
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
@@ -124,7 +124,7 @@ object HdfsFileUtil {
       fs.close()
     }
   }
-  def readFileContent(path:String):mutable.MutableList[String]={
+  def readStockCode(path:String):mutable.MutableList[String]={
     val list = new mutable.MutableList[String]
     val fs = getFileSystem
     val in  = fs.open(new Path(path),4096)
@@ -135,5 +135,35 @@ object HdfsFileUtil {
       line = bufferReader.readLine()
     }
     list
+  }
+
+  def saveStockCodes(fileName:String,list: mutable.MutableList[String]): Unit ={
+    val listOfStockCodes = this.readStockCode(fileName)
+    val fs = getFileSystem
+    val strBuilder = new StringBuilder()
+    try {
+      val iterator: Iterator[String] =list.iterator
+      val out = fs.append(new Path(fileName))
+      if(listOfStockCodes != null){
+        while (iterator.hasNext) {
+          val field = iterator.next()
+          if(!listOfStockCodes.contains(field)){
+            strBuilder.append(field +"\n")
+          }
+        }
+      }
+      if(strBuilder.nonEmpty){
+        val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
+        IOUtils.copyBytes(in, out, 4096, true)
+        strBuilder.clear()
+        in.close()
+        out.close()
+      }
+    } catch {
+      case e:Exception => println("write error")
+        logger.error("[C.J.YOU]"+e.printStackTrace())
+    } finally {
+      fs.close()
+    }
   }
 }
