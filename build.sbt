@@ -8,6 +8,10 @@ libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.10.4"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.7.1"
 
+libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.7.1"
+
+libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.1"
+
 libraryDependencies += "org.apache.kafka" % "kafka_2.10" % "0.8.2.1"
 
 libraryDependencies += "org.apache.hbase" % "hbase-server" % "1.1.2"
