@@ -62,7 +62,7 @@ object DataAnalysis {
       val result = x._2
       val value = Bytes.toString(result.getValue(Bytes.toBytes(one.columnFamliy), Bytes.toBytes(one.column)))
       val timeStamp = result.getColumnLatestCell(Bytes.toBytes(one.columnFamliy), Bytes.toBytes(one.column)).getTimestamp
-      val days = TimeUtil.GetDayAndHour(String.valueOf(timeStamp))
+      val days = TimeUtil.getDayAndHour(String.valueOf(timeStamp))
       g_day = days
       val followList = one.parseDocument(value)
       val userId = one.getUserId(value)

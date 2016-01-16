@@ -192,7 +192,7 @@ object HdfsFileUtil {
     /** 创建对应的目录 */
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
     HdfsFileUtil.setRootDir("smartuser/strategyone")
-    val fileDayDir = TimeUtil.GetDay(System.currentTimeMillis().toString)
+    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
     val destPath = currentDir + fileName
     HdfsFileUtil.mkFile(destPath)
