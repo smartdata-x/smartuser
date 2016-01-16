@@ -1,17 +1,15 @@
 package util
 
-import stock.Stock
+import scala.collection.mutable
 
 /**
   * Created by yangshuai on 2016/1/16.
-  * 股票相关计算工具类
   */
 object StockUtil {
-
-  /**
-    * 计算回报率
-    */
-  def getRateOfReturn(oldStock:Stock, newStock:Stock):Float = {
-    (newStock.currentPrice - oldStock.currentPrice) / newStock.currentPrice
+  def getUserStock(date:String,id:String): mutable.MutableList[String] ={
+    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setRootDir("smartuser")
+    val stockList = HdfsFileUtil.readFileContent(HdfsFileUtil.getRootDir + date + "/" + id)
+    stockList
   }
 }
