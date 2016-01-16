@@ -77,6 +77,7 @@ object HdfsFileUtil {
     val split = str.split("\t")
     val strBuilder = new StringBuilder()
     try {
+      println("fileName:" + fileName)
       val out = fs.append(new Path(fileName))
       if(split.length > 1){
         for(i <- 0 to split.length - 1){

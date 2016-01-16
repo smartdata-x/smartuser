@@ -14,9 +14,11 @@ class HdfsFileUtilTest extends FlatSpec with Matchers {
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
     HdfsFileUtil.setRootDir("smartuser")
     val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+"days")
-    HdfsFileUtil.mkFile(currentPath+"file1")
+    HdfsFileUtil.mkFile(currentPath+"file5")
+    val stri2 = "onetwothree"
     val stri = "one\ttwo\tthree"
-    HdfsFileUtil.writeString(currentPath +"file1",stri)
+    HdfsFileUtil.writeString(currentPath +"file5",stri)
+    HdfsFileUtil.writeString(currentPath +"file5",stri2)
 
   }
 }
