@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.log4j.Logger
 import org.apache.spark.{SparkConf, SparkContext}
+import util.{TimeUtil, HdfsFileUtil}
 
 /**
   * Created by C.J.YOU on 2016/1/13.
@@ -36,7 +37,7 @@ object DataAnalysis {
     val collectResult = hbaseRdd.collect()
     val logger = Logger.getRootLogger
 
-    val fileUtil = new FileUtil
+    val fileUtil = new HdfsFileUtil
     fileUtil.setHdfsUri("hdfs://server:9000")
     fileUtil.setRootDir("smartuser")
     collectResult.foreach(x => {
