@@ -1,3 +1,5 @@
+mainClass in Compile := Some("scheduler.Scheduler")
+
 name := "smartuser"
 
 version := "1.0"
