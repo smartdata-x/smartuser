@@ -36,7 +36,6 @@ class HBase {
   def column_=(value: String): Unit = {
     _column = value
   }
-  private  var scan = new Scan()
 
   private var conf = new Configuration()
 
@@ -44,7 +43,6 @@ class HBase {
     val proto:ClientProtos.Scan = ProtobufUtil.toScan(scan)
     val scanToString = Base64.encodeBytes(proto.toByteArray)
     conf.set(TableInputFormat.SCAN, scanToString)
-    conf
   }
 
   def getConfigure(table:String,columnFamliy:String,column:String): Configuration = {
@@ -57,20 +55,5 @@ class HBase {
     conf.set(TableInputFormat.SCAN_COLUMN_FAMILY,columnFamliy)
     conf.set(TableInputFormat.SCAN_COLUMNS,column)
     conf
-  }
-}
-
-object TestHBase{
-  def main(args: Array[String]) {
-    val hbase = new HBase
-    hbase.tableName=("1")
-    hbase.column=("content")
-    hbase.columnFamliy=("basic")
-    val scan  = new Scan()
-    val currentTimeStamp = System.currentTimeMillis()
-    scan.setTimeRange(currentTimeStamp - 3600000,currentTimeStamp)
-    hbase.getConfigure(hbase.tableName,hbase.columnFamliy,hbase.column)
-    hbase.setScan(scan)
-
   }
 }

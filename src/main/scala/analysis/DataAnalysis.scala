@@ -44,7 +44,6 @@ object DataAnalysis {
       val result = x._2
       val value = Bytes.toString(result.getValue(Bytes.toBytes(one.columnFamliy), Bytes.toBytes(one.column)))
       val timeStamp = result.getColumnLatestCell(Bytes.toBytes(one.columnFamliy), Bytes.toBytes(one.column)).getTimestamp
-      val rowKey = Bytes.toString(result.getColumnLatestCell(Bytes.toBytes(one.columnFamliy), Bytes.toBytes(one.column)).getRow)
       val days = TimeUtil.GetDate(String.valueOf(timeStamp))
       val followList = one.parseDocument(value)
       val userId = one.getUserId(value)
@@ -53,10 +52,10 @@ object DataAnalysis {
       if(userId != null && followList !=null){
         HdfsFileUtil.mkFile(currentPath+userId)
         // System.out.println("rowKey----"+rowKey)
-        HdfsFileUtil.writeToFile(currentPath + userId,followList,rowKey)
+        HdfsFileUtil.writeToFile(currentPath + userId,followList)
       }
       } catch {
-        case e:Exception => println("[C.J.YOU]writeToHdfsFile error")
+        case e:Exception => println("[C.J.YOU] writeToHdfsFile error")
           logger.error("[C.J.YOU]"+e.printStackTrace)
       }
     })

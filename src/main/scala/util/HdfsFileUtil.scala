@@ -69,7 +69,7 @@ object HdfsFileUtil {
     fs.close()
   }
 
-  def writeToFile(fileName:String,list: mutable.MutableList[String],rowkey:String): Unit ={
+  def writeToFile(fileName:String,list: mutable.MutableList[String]): Unit ={
     val iterator: Iterator[String] =list.iterator
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
@@ -79,7 +79,7 @@ object HdfsFileUtil {
       while (iterator.hasNext) {
         val field = iterator.next()
         // println("field:" + field)
-        strBuilder.append(field +"\t"+rowkey+"\n")
+        strBuilder.append(field +"\n")
       }
       if(strBuilder.nonEmpty){
         val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
