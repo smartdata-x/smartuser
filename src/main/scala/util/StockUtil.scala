@@ -9,7 +9,7 @@ object StockUtil {
   def getUserStock(date:String,id:String): mutable.MutableList[String] ={
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
     HdfsFileUtil.setRootDir("smartuser")
-    val stockList = HdfsFileUtil.readFileContent(HdfsFileUtil.getRootDir + date + "/" + id)
+    val stockList = HdfsFileUtil.readStockCode(HdfsFileUtil.getRootDir + date + "/" + id)
     stockList
   }
 }
