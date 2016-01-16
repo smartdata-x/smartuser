@@ -13,7 +13,6 @@ import scala.util.{Failure, Success}
 class TencentRequestTest extends FlatSpec with Matchers {
 
   it should "" in {
-
     TencentRequest.sendRequest(mutable.HashMap("q" -> "sh601006"))
   }
 }

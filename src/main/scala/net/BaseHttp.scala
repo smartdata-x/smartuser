@@ -58,9 +58,7 @@ abstract class BaseHttp {
 
   def post(strUrl:String, parameters:mutable.HashMap[String,String], parse: String => Unit): Unit = {
 
-    val finalUrl = getUrl(strUrl, parameters)
-
-    val post = url(finalUrl) << (parameters)
+    val post = url(strUrl) << parameters
     val response : Future[String] = Http(post OK as.String)
 
     response onComplete {

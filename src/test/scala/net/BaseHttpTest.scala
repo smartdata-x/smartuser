@@ -24,9 +24,8 @@ class BaseHttpTest extends FlatSpec with Matchers {
 
     def method(str: String): Unit = {
       val a = 0
-//      println(str)
+      println(str)
     }
-
   }
 
   it should "" in {
@@ -38,5 +37,4 @@ class BaseHttpTest extends FlatSpec with Matchers {
     val url = "http://www.penging.com/debt/debtInvestList.do"
     TestHttp.sendPost(url, map)
   }
-
 }
