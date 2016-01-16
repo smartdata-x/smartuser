@@ -15,7 +15,14 @@ import java.text.SimpleDateFormat
     date
   }
 
-  def GetDate(timeStamp: String): String = {
+  def GetDay(timeStamp: String): String = {
+    val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    val bigInt: BigInteger = new BigInteger(timeStamp)
+    val date: String = sdf.format(bigInt)
+    date
+  }
+
+  def GetDayAndHour(timeStamp: String): String = {
     val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH")
     val bigInt: BigInteger = new BigInteger(timeStamp)
     val date: String = sdf.format(bigInt)
