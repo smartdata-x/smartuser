@@ -1,12 +1,6 @@
 package util
-
 import java.util.Calendar
-
-import analysis.DataAnalysis
 import org.scalatest.{FlatSpec, Matchers}
-
-import scala.collection.mutable
-
 /**
   * Created by C.J.YOU on 2016/1/16.
   */
