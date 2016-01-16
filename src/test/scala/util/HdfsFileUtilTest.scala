@@ -12,6 +12,7 @@ import scala.collection.mutable
   */
 class HdfsFileUtilTest extends FlatSpec with Matchers {
 
+  /*
   "writeString method" should "work" in {
     val today = Calendar.getInstance.getTime
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
@@ -23,6 +24,17 @@ class HdfsFileUtilTest extends FlatSpec with Matchers {
     val stri = "one\ttwo\tthree"
     HdfsFileUtil.writeString(file,stri)
     HdfsFileUtil.writeString(file,stri2)
+
+  }
+  */
+
+  "getDirectoryContentFromHdfs method" should "work" in {
+    val today = Calendar.getInstance.getTime
+    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setRootDir("smartuser")
+    val hashmap = HdfsFileUtil.getDirectoryContentFromHdfs("hdfs://server:9000/smartuser/days")
+    val value = hashmap.get("file1")
+    println(value)
 
   }
 }
