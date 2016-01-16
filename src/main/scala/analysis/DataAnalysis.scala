@@ -8,10 +8,26 @@ import org.apache.log4j.Logger
 import org.apache.spark.{SparkConf, SparkContext}
 import util.{TimeUtil, HdfsFileUtil}
 
+import scala.collection.mutable
+
 /**
   * Created by C.J.YOU on 2016/1/13.
   */
 object DataAnalysis {
+
+  def MergeList(globle_list: mutable.MutableList[String],temp_list:mutable.MutableList[String]): mutable.MutableList[String] ={
+    if(temp_list != null) {
+      val iterator = temp_list.iterator
+      while (iterator.hasNext) {
+        val value = iterator.next()
+        if (!globle_list.contains(value)) {
+          globle_list.+=(value)
+        }
+      }
+    }
+    globle_list
+  }
+
   def main(args: Array[String]) {
 
     val  SparkConf = new SparkConf()
@@ -52,7 +68,7 @@ object DataAnalysis {
       if(userId != null && followList !=null){
         HdfsFileUtil.mkFile(currentPath+userId)
         // System.out.println("rowKey----"+rowKey)
-        HdfsFileUtil.writeToFile(currentPath + userId,followList)
+        HdfsFileUtil.writeStockCode(currentPath + userId,followList)
       }
       } catch {
         case e:Exception => println("[C.J.YOU] writeToHdfsFile error")
