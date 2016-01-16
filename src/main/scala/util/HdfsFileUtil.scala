@@ -14,11 +14,11 @@ import scala.collection.mutable
 /**
   * Created by C.J.YOU on 2016/1/14.
   */
-class HdfsFileUtil {
+object HdfsFileUtil {
   private  var rootDir = new String
   private var hdfsUri = new String
 
-  def getFileSystem():FileSystem ={
+  def getFileSystem:FileSystem ={
     val conf:Configuration = new  Configuration()
     conf.setBoolean("dfs.support.append", true)
     val fs = FileSystem.get(new URI(hdfsUri),conf,"root")
@@ -26,11 +26,11 @@ class HdfsFileUtil {
   }
 
   def setRootDir(string:String): Unit ={
-    val fs = getFileSystem()
-    if(!fs.exists(new Path(getHdfsUri() +"/"+ string))){
-      fs.mkdirs(new Path(getHdfsUri() +"/"+ string))
+    val fs = getFileSystem
+    if(!fs.exists(new Path(getHdfsUri +"/"+ string))){
+      fs.mkdirs(new Path(getHdfsUri +"/"+ string))
     }
-    rootDir = getHdfsUri() +"/"+ string + "/"
+    rootDir = getHdfsUri +"/"+ string + "/"
     fs.close()
   }
 
@@ -38,16 +38,16 @@ class HdfsFileUtil {
     hdfsUri = string
   }
 
-  def getRootDir(): String ={
+  def getRootDir: String ={
     rootDir
   }
 
-  def getHdfsUri(): String ={
+  def getHdfsUri: String ={
     hdfsUri
   }
 
   def mkDir(name:String): String ={
-    val fs = getFileSystem()
+    val fs = getFileSystem
     if(!fs.exists(new Path(name))){
       fs.mkdirs(new Path(name))
       // System.out.println("mkDir sucess")
@@ -59,7 +59,7 @@ class HdfsFileUtil {
   }
 
   def mkFile(name:String): Unit ={
-    val fs = getFileSystem()
+    val fs = getFileSystem
     if(!fs.exists(new Path(name))){
       fs.create(new Path(name))
       // System.out.println("mkfile sucess")
@@ -71,7 +71,7 @@ class HdfsFileUtil {
 
   def writeToFile(fileName:String,list: mutable.MutableList[String],rowkey:String): Unit ={
     val iterator: Iterator[String] =list.iterator
-    val fs = getFileSystem()
+    val fs = getFileSystem
     val strBuilder = new StringBuilder()
     val logger = Logger.getRootLogger
     try {
@@ -81,7 +81,7 @@ class HdfsFileUtil {
         // println("field:" + field)
         strBuilder.append(field +"\t"+rowkey+"\n")
       }
-      if(!strBuilder.isEmpty){
+      if(strBuilder.nonEmpty){
         val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
         IOUtils.copyBytes(in, out, 4096, true)
         strBuilder.clear()
@@ -97,7 +97,7 @@ class HdfsFileUtil {
   }
   def readFileContent(path:String):mutable.MutableList[String]={
     val list = new mutable.MutableList[String]
-    val fs = getFileSystem()
+    val fs = getFileSystem
     val in  = fs.open(new Path(path),4096)
     val bufferReader = new BufferedReader(new InputStreamReader(in))
     var line = bufferReader.readLine()
@@ -106,18 +106,5 @@ class HdfsFileUtil {
       line = bufferReader.readLine()
     }
     list
-  }
-}
-
-object  TestFileUtil{
-  def main(args: Array[String]): Unit ={
-    val testFileUtil = new HdfsFileUtil
-    testFileUtil.setHdfsUri("hdfs://server:9000")
-    testFileUtil.setRootDir("smartuser")
-    val currentPath = testFileUtil.mkDir("days")
-    val list = new mutable.MutableList[String]
-    list.+=("000001")
-    list.+=("000002")
-    testFileUtil.writeToFile(testFileUtil.getRootDir()+currentPath +"file1",list,"rowKey")
   }
 }

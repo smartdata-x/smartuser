@@ -14,14 +14,13 @@ class HdfsFileUtilTest extends FlatSpec with Matchers {
   }
 
   "read and write method" should "work" in {
-    val testFileUtil = new HdfsFileUtil
-    testFileUtil.setHdfsUri("hdfs://server:9000")
-    testFileUtil.setRootDir("smartuser")
-    val currentPath = testFileUtil.mkDir("days")
+    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setRootDir("smartuser")
+    val currentPath = HdfsFileUtil.mkDir("days")
     val list = new mutable.MutableList[String]
     list.+=("000001")
     list.+=("000002")
-    testFileUtil.writeToFile(testFileUtil.getRootDir()+currentPath +"file1",list,"rowKey")
+    HdfsFileUtil.writeToFile(HdfsFileUtil.getRootDir + currentPath + "file1",list,"rowKey")
 
 
   }

@@ -37,9 +37,8 @@ object DataAnalysis {
     val collectResult = hbaseRdd.collect()
     val logger = Logger.getRootLogger
 
-    val fileUtil = new HdfsFileUtil
-    fileUtil.setHdfsUri("hdfs://server:9000")
-    fileUtil.setRootDir("smartuser")
+    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setRootDir("smartuser")
     collectResult.foreach(x => {
       try {
       val result = x._2
@@ -50,11 +49,11 @@ object DataAnalysis {
       val followList = one.parseDocument(value)
       val userId = one.getUserId(value)
       /** HDFS 操作*/
-      val currentPath = fileUtil.mkDir(fileUtil.getRootDir()+days)
+      val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+days)
       if(userId != null && followList !=null){
-        fileUtil.mkFile(currentPath+userId)
+        HdfsFileUtil.mkFile(currentPath+userId)
         // System.out.println("rowKey----"+rowKey)
-        fileUtil.writeToFile(currentPath + userId,followList,rowKey)
+        HdfsFileUtil.writeToFile(currentPath + userId,followList,rowKey)
       }
       } catch {
         case e:Exception => println("[C.J.YOU]writeToHdfsFile error")
