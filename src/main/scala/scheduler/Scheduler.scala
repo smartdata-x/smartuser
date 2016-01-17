@@ -4,7 +4,6 @@ import java.io.{BufferedWriter, FileWriter, File}
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import analysis.TableHbase
 import dispatch._,Defaults._
 import log.SULogger
 import org.apache.commons.io.FileUtils
