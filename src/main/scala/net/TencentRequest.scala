@@ -58,7 +58,7 @@ object TencentRequest extends BaseHttp {
     val date = arr(DATE).substring(0, 4) + "-" + arr(DATE).substring(4, 6) + "-" + arr(DATE).substring(6, 8)
     val time = arr(DATE).substring(8, 10) + ":" + arr(DATE).substring(10, 12) + ":" + arr(DATE).substring(12, 14)
 
-    val stock = new Stock(
+    val stock = new Stock("",
       arr(NAME), arr(TODAYOPENINGPRICE).toFloat, arr(YESTERDAYCLOSINGPRICE).toFloat, arr(CURRENTPRICE).toFloat,
       arr(TODAYHIGHESTPRICE).toFloat, arr(TODAYLOWESTPRICE).toFloat, arr(TRANSACTIONNUMBER).toLong * 100, arr(TRANSACTIONMONEY).toFloat * 10000,
       arr(HIGHESTBUYNUMBER).toLong * 100, arr(HIGHESTBUYPRICE).toFloat,arr(SECONDHIGHESTBUYNUMBER).toLong * 100, arr(SECONDHIGHESTBUYPRICE).toFloat,arr(THIRDHIGHESTBUYNUMBER).toLong * 100, arr(THIRDHIGHESTBUYPRICE).toFloat,arr(FOURTHHIGHESTBUYNUMBER).toLong * 100, arr(FOURTHHIGHESTBUYPRICE).toFloat,arr(FIFTHHIGHESTBUYNUMBER).toLong * 100, arr(FIFTHHIGHESTBUYPRICE).toFloat,

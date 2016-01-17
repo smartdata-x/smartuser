@@ -55,7 +55,7 @@ object SinaRequest extends BaseHttp {
     val pattern = "(?<==\").*(?=\")".r
     val arr = pattern.findFirstIn(response).get.split(",")
 
-    val stock = new Stock(
+    val stock = new Stock("",
       arr(NAME), arr(TODAYOPENINGPRICE).toFloat, arr(YESTERDAYCLOSINGPRICE).toFloat, arr(CURRENTPRICE).toFloat,
       arr(TODAYHIGHESTPRICE).toFloat, arr(TODAYLOWESTPRICE).toFloat, arr(TRANSACTIONNUMBER).toLong, arr(TRANSACTIONMONEY).toFloat,
       arr(HIGHESTBUYNUMBER).toLong, arr(HIGHESTBUYPRICE).toFloat,arr(SECONDHIGHESTBUYNUMBER).toLong, arr(SECONDHIGHESTBUYPRICE).toFloat, arr(THIRDHIGHESTBUYNUMBER).toLong, arr(THIRDHIGHESTBUYPRICE).toFloat, arr(FOURTHHIGHESTBUYNUMBER).toLong, arr(FOURTHHIGHESTBUYPRICE).toFloat, arr(FIFTHHIGHESTBUYNUMBER).toLong, arr(FIFTHHIGHESTBUYPRICE).toFloat,
