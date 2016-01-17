@@ -7,7 +7,7 @@ import org.scalatest.{Matchers, FlatSpec}
 /**
   * Created by C.J.YOU on 2016/1/16.
   */
-class TableOneHBaseTest extends FlatSpec with Matchers {
+class TableHBaseTest extends FlatSpec with Matchers {
 
   "hbase get data and save stockCode method" should "work" in{
     val  sparkConf = new SparkConf()
@@ -16,8 +16,12 @@ class TableOneHBaseTest extends FlatSpec with Matchers {
       .set("spark.kryoserializer.buffer.max", "2000")
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
-    val tableOne = new TableOneHbase
-    tableOne.dataAnalysis(sparkConf,sc)
+    val tableOne = new TableHbase
+    var one = new TableHbase
+    one.tableName_=("1")
+    one.columnFamliy_=("basic")
+    one.column_=("content")
+    tableOne.dataAnalysis(sparkConf,sc,1)
     sc.stop()
 
   }

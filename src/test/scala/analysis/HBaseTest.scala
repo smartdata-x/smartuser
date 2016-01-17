@@ -9,7 +9,7 @@ import org.scalatest.{Matchers, FlatSpec}
 class HBaseTest extends FlatSpec with Matchers{
 
   "hbase class method function " should "work" in {
-    val ttoh = new TableOneHbase
+    val ttoh = new TableHbase
     ttoh.tableName=("1")
     ttoh.column=("content")
     ttoh.columnFamliy=("basic")
