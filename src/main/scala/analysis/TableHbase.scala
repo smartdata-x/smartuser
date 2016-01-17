@@ -131,10 +131,14 @@ object TableHbase{
       }
     })
     /** 保存全局股票代码 */
-    HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
-    HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
-    HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
-    stockCodes
+    if(stockCodes.nonEmpty){
+      HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
+      HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
+      HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
+      stockCodes
+    }else{
+     null
+    }
   }
 
   /** 直接获取Hbase股票信息,不使用spark运行 */
