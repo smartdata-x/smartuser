@@ -4,6 +4,7 @@ package stock
   * Created by yangshuai on 2016/1/15.
   */
 class Stock(
+  val code:String, //股票代碼
   val name:String ,//股票名称
   val todayOpeningPrice: Float ,//今日开盘价
   val yesterdayClosingPrice: Float ,//昨日收盘价

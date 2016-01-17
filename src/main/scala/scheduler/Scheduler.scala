@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 import analysis.TableHbase
+import log.SULogger
 import org.apache.spark.{SparkConf, SparkContext}
 import util.HdfsFileUtil
 
