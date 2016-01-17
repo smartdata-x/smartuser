@@ -1,5 +1,6 @@
 package analysis
 
+import org.apache.hadoop.hbase.client.Scan
 import org.scalatest.{Matchers, FlatSpec}
 
 /**
@@ -7,4 +8,21 @@ import org.scalatest.{Matchers, FlatSpec}
   */
 class HBaseTest extends FlatSpec with Matchers {
 
+  "hbase op" should "work" in{
+    val ttoh = new TableOneHbase
+    ttoh.tableName=("1")
+    ttoh.column=("content")
+    ttoh.columnFamliy=("basic")
+
+    val scan  = new Scan()
+    val currentTimeStamp = System.currentTimeMillis()
+    scan.setTimeRange(currentTimeStamp - 3600000,currentTimeStamp)
+    ttoh.getConfigure(ttoh.tableName,ttoh.columnFamliy,ttoh.column)
+    ttoh.setScan(scan)
+    ttoh.get("rowKey",ttoh.tableName,ttoh.columnFamliy,ttoh.column)
+
+    val htmlSource ="<html info >"
+    ttoh.getUserId(htmlSource)
+    ttoh.parseDocument(htmlSource)
+  }
 }

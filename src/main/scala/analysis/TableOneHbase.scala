@@ -56,22 +56,3 @@ class TableOneHbase extends HBase{
     userId
   }
 }
-object  TestTableOneHbase{
-  def main(args: Array[String]) {
-    val ttoh = new TableOneHbase
-    ttoh.tableName=("1")
-    ttoh.column=("content")
-    ttoh.columnFamliy=("basic")
-
-    val scan  = new Scan()
-    val currentTimeStamp = System.currentTimeMillis()
-    scan.setTimeRange(currentTimeStamp - 3600000,currentTimeStamp)
-    ttoh.getConfigure(ttoh.tableName,ttoh.columnFamliy,ttoh.column)
-    ttoh.setScan(scan)
-    ttoh.get("rowKey",ttoh.tableName,ttoh.columnFamliy,ttoh.column)
-
-    val htmlSource ="<html info >"
-    ttoh.getUserId(htmlSource)
-    ttoh.parseDocument(htmlSource)
-  }
-}
