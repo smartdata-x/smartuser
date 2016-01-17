@@ -27,6 +27,7 @@ object TableHbase{
   sinaTable.tableName_=(SINA_TABLE)
   sinaTable.columnFamliy_=(SINA_COLUMN_FAMILY)
   sinaTable.column_=(SINA_COLUMN_MEMBER)
+
   /** 按照rowKey 将获取hbase的数据 */
   def get(rowKey:String,table:String,columnFamliy:String,column:String):Result = {
     val connection = ConnectionFactory.createConnection(HBaseConfiguration.create())
