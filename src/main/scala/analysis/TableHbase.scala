@@ -78,14 +78,8 @@ class TableHbase extends HBase{
     global_list
   }
 
-  def dataAnalysis(sc:SparkContext,timeRange:Int):  mutable.MutableList[String] ={
+  def dataAnalysis(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
     /** get hbase data */
-
-    var one = new TableOneHbase
-    one.tableName_=("1")
-    one.columnFamliy_=("basic")
-    one.column_=("content")
-
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
     scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
