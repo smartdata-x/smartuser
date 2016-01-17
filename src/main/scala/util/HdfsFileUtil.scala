@@ -3,6 +3,7 @@ package util
 import java.io.{BufferedReader, ByteArrayInputStream, InputStreamReader}
 import java.net.URI
 
+import config.HbaseConfig
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.io.IOUtils
@@ -203,7 +204,7 @@ object HdfsFileUtil {
   /** 写入股票对象,包括股票代码和当前价格 */
   def writeStockObject(list: mutable.MutableList[Stock]): Unit = {
     /** 创建对应的目录 */
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/strategyone")
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)

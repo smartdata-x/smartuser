@@ -2,6 +2,7 @@ package analysis
 
 import java.util.regex.Pattern
 
+import config.HbaseConfig
 import log.SULogger
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
@@ -109,7 +110,7 @@ object TableHbase{
     // val collectResult = hbaseRdd.collect
     SULogger.warn("before hdfsutil")
 
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
     var g_day = new String
     var stockCodes = new mutable.MutableList[String]
@@ -153,7 +154,7 @@ object TableHbase{
   /** 直接获取Hbase股票信息,不使用spark运行 */
   def getStockCodesFromHbaseNoSpark(timeRange:Int): mutable.MutableList[String] ={
     var stockCodes = new mutable.MutableList[String]
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
     /** get hbase data */
     val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
