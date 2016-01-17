@@ -80,8 +80,9 @@ class TableOneHbase extends HBase{
     global_list
   }
 
-  def dataAnalysis(sparkConf:SparkConf,sc:SparkContext,timeRange:Int):  mutable.MutableList[String] ={
+  def dataAnalysis(sc:SparkContext,timeRange:Int):  mutable.MutableList[String] ={
     /** get hbase data */
+
     var one = new TableOneHbase
     one.tableName_=("1")
     one.columnFamliy_=("basic")
