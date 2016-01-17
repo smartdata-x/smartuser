@@ -221,7 +221,7 @@ object HdfsFileUtil {
         /** 待完善 根据股票名称获取股票代码的函数
           * ？？？？
           * */
-        strBuilder.append(field.name + "\t"+field.currentPrice)
+        strBuilder.append(field.name + "\t"+field.currentPrice+"\n")
       }
       if (strBuilder.nonEmpty) {
         val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
