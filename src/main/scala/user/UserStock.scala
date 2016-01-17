@@ -16,7 +16,7 @@ class UserStock {
   }
 
   def setStock(stock: Stock): Unit ={
-    this._hash(stock.name) = stock
+    this._hash(stock.code) = stock
   }
 
   def setStockes(stockes:mutable.HashMap[String,String]): Unit ={
