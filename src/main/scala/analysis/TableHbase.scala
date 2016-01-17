@@ -106,7 +106,7 @@ object TableHbase{
     SULogger.warn(sinaTable.column)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-    val collectResult = hbaseRdd.collect()
+    // val collectResult = hbaseRdd.collect
     SULogger.warn("before hdfsutil")
 
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
@@ -114,7 +114,7 @@ object TableHbase{
     var g_day = new String
     var stockCodes = new mutable.MutableList[String]
     SULogger.warn("before foreach")
-    collectResult.foreach(x => {
+    hbaseRdd.foreach(x => {
       try {
         SULogger.warn("enter foreach")
         val result = x._2
