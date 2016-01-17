@@ -4,11 +4,11 @@ import org.apache.hadoop.hbase.client.Scan
 import org.scalatest.{Matchers, FlatSpec}
 
 /**
-  * Created by C.J.YOU on 2016/1/16.
+  * Created by C.J.YOU on 2016/1/17.
   */
-class HBaseTest extends FlatSpec with Matchers {
+class HBaseTest extends FlatSpec with Matchers{
 
-  "hbase op" should "work" in{
+  "hbase class method function " should "work" in {
     val ttoh = new TableOneHbase
     ttoh.tableName=("1")
     ttoh.column=("content")
@@ -25,4 +25,5 @@ class HBaseTest extends FlatSpec with Matchers {
     ttoh.getUserId(htmlSource)
     ttoh.parseDocument(htmlSource)
   }
+
 }
