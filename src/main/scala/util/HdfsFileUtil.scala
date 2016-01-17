@@ -14,12 +14,14 @@ import scala.collection.mutable.HashMap
 
 /**
   * Created by C.J.YOU on 2016/1/14.
+  * HDFS操作的工具类
   */
 object HdfsFileUtil {
   private var rootDir = new String
   private var hdfsUri = new String
   val logger = Logger.getRootLogger
 
+  /** 获取能操作hdfs的对象 */
   def getFileSystem: FileSystem = {
     val conf: Configuration = new Configuration()
     conf.setBoolean("dfs.support.append", true)
@@ -29,6 +31,7 @@ object HdfsFileUtil {
     fs
   }
 
+  /** 设置操作的根目录 */
   def setRootDir(string: String): Unit = {
     val fs = getFileSystem
     if (!fs.exists(new Path(getHdfsUri + "/" + string))) {
@@ -38,18 +41,22 @@ object HdfsFileUtil {
     fs.close()
   }
 
+  /** 设置hdfs的访问地址 */
   def setHdfsUri(string: String): Unit = {
     hdfsUri = string
   }
 
+  /** 获取根目录 */
   def getRootDir: String = {
     rootDir
   }
 
+  /** 获取hdfs的访问地址 */
   def getHdfsUri: String = {
     hdfsUri
   }
 
+  /** 创建目录 */
   def mkDir(name: String): String = {
     val fs = getFileSystem
     if (!fs.exists(new Path(name))) {
@@ -62,6 +69,7 @@ object HdfsFileUtil {
     name + "/"
   }
 
+  /** 创建文件 */
   def mkFile(name: String): Unit = {
     val fs = getFileSystem
     if (!fs.exists(new Path(name))) {
@@ -73,6 +81,7 @@ object HdfsFileUtil {
     fs.close()
   }
 
+  /** 写入按tab分割的字符数据 */
   def writeString(fileName: String, str: String): Unit = {
     val fs = getFileSystem
     val split = str.split("\t")
@@ -103,6 +112,7 @@ object HdfsFileUtil {
     }
   }
 
+  /** 写入股票代码 */
   def writeStockCode(fileName: String, list: mutable.MutableList[String]): Unit = {
     val iterator: Iterator[String] = list.iterator
     val fs = getFileSystem
@@ -129,6 +139,7 @@ object HdfsFileUtil {
     }
   }
 
+  /** 读取股票代码 */
   def readStockCode(path: String): mutable.MutableList[String] = {
     val list = new mutable.MutableList[String]
     val fs = getFileSystem
@@ -142,6 +153,7 @@ object HdfsFileUtil {
     list
   }
 
+  /** 遍历目录，获取对应目录下文件与文件内容的Map集合  */
   def getDirectoryContentFromHdfs(dstpath: String): HashMap[String, mutable.MutableList[String]] = {
     var hashMap = new HashMap[String, mutable.MutableList[String]]
     val fs = getFileSystem
@@ -188,15 +200,17 @@ object HdfsFileUtil {
     }
   }
 
-  def writeStockObject(fileName: String, list: mutable.MutableList[Stock]): Unit = {
+  /** 写入股票对象,包括股票代码和当前价格 */
+  def writeStockObject(list: mutable.MutableList[Stock]): Unit = {
     /** 创建对应的目录 */
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
     HdfsFileUtil.setRootDir("smartuser/strategyone")
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
+    val fileName = TimeUtil.getDayAndHour(System.currentTimeMillis().toString).split("_")(1)
     val destPath = currentDir + fileName
     HdfsFileUtil.mkFile(destPath)
-    /*　写数据到HDFS */
+    /*　写数据到HDFS操作  */
     val iterator: Iterator[Stock] = list.iterator
     val fs = getFileSystem
     val strBuilder = new StringBuilder()

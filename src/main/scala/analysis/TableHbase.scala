@@ -2,7 +2,6 @@ package analysis
 
 import java.util.regex.Pattern
 
-import analysis.analysis.DataAnalysis
 import log.SULogger
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable

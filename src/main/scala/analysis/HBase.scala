@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.util.Base64
 
 /**
   * Created by C.J.YOU on 2016/1/13.
-  * Hbase 操作的基类实现
+  * Hbase 操作子类的实现，用于操作hbase具体表中的信息
   */
 class HBase {
 
@@ -40,12 +40,14 @@ class HBase {
 
   private var conf = new Configuration()
 
+  /** 设置自定义扫描hbase的scan */
   def setScan(scan:Scan): Unit ={
     val proto:ClientProtos.Scan = ProtobufUtil.toScan(scan)
     val scanToString = Base64.encodeBytes(proto.toByteArray)
     conf.set(TableInputFormat.SCAN, scanToString)
   }
 
+  /** 获取hbase的配置  */
   def getConfigure(table:String,columnFamliy:String,column:String): Configuration = {
     conf = HBaseConfiguration.create()
     conf.set("hbase.rootdir", "hdfs://server:9000/hbase")

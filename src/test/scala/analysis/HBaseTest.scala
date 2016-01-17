@@ -23,7 +23,7 @@ class HBaseTest extends FlatSpec with Matchers{
 
     val htmlSource ="<html info >"
     ttoh.getUserId(htmlSource)
-    ttoh.parseDocument(htmlSource)
+    ttoh.getStockCodes(htmlSource)
   }
 
 }
