@@ -16,12 +16,7 @@ class TableHBaseTest extends FlatSpec with Matchers {
       .set("spark.kryoserializer.buffer.max", "2000")
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
-    val tableOne = new TableHbase
-    var one = new TableHbase
-    one.tableName_=("1")
-    one.columnFamliy_=("basic")
-    one.column_=("content")
-    tableOne.getStockCodesFromHbase(sc,1)
+    TableHbase.getStockCodesFromHbase(sc,1)
     sc.stop()
 
   }

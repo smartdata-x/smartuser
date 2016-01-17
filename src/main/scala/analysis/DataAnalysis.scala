@@ -15,8 +15,7 @@ object DataAnalysis {
       .set("spark.kryoserializer.buffer.max", "2000")
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
-    val tableOne = new TableHbase
-    tableOne.getStockCodesFromHbase(sc,1)
+    TableHbase.getStockCodesFromHbase(sc,1)
     sc.stop()
   }
 }

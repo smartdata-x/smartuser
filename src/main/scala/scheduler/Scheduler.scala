@@ -38,8 +38,7 @@ object Scheduler extends App {
 
   val conf =  new SparkConf().setMaster("local").setAppName("su")
   val sc = new SparkContext(conf)
-  val table = new TableHbase
-  val stockList = table.getStockCodesFromHbase(sc, 1)
+  val stockList = TableHbase.getStockCodesFromHbase(sc, 1)
 //  val lines = sc.wholeTextFiles("hdfs://server:9000/smartuser/hbasedata/2016-01-16_21/")
 //  lines.values.flatMap(_.split("\n")).map((_, 1)).reduceByKey(_+_).sortByKey(ascending = true).keys.filter(validCode).saveAsTextFile("hdfs://server:9000/smartuser/hbasedata/stockCodes")
   sc.stop

@@ -18,7 +18,15 @@ import scala.collection.mutable
   * Created by C.J.YOU on 2016/1/15.
   * Hbase 操作子类，用来操作Hbase中的表1
   */
-class TableHbase extends HBase{
+object TableHbase{
+
+  val SINA_TABLE = "1"
+  val SINA_COLUMN_FAMILY = "basic"
+  val SINA_COLUMN_MEMBER = "content"
+  val sinaTable = new HBase
+  sinaTable.tableName_=(SINA_TABLE)
+  sinaTable.columnFamliy_=(SINA_COLUMN_FAMILY)
+  sinaTable.column_=(SINA_COLUMN_MEMBER)
   /** 按照rowKey 将获取hbase的数据 */
   def get(rowKey:String,table:String,columnFamliy:String,column:String):Result = {
     val connection = ConnectionFactory.createConnection(HBaseConfiguration.create())
@@ -84,12 +92,13 @@ class TableHbase extends HBase{
 
   /** 使用spark运行获取Hbase股票信息 */
   def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
+    
     /** get hbase data */
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
     scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
-    val conf = this.getConfigure(this.tableName,this.columnFamliy,this.column)
-    this.setScan(scan)
+    val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
+    sinaTable.setScan(scan)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
     val collectResult = hbaseRdd.collect()
@@ -101,12 +110,12 @@ class TableHbase extends HBase{
     collectResult.foreach(x => {
       try {
         val result = x._2
-        val value = Bytes.toString(result.getValue(Bytes.toBytes(this.columnFamliy), Bytes.toBytes(this.column)))
-        val timeStamp = result.getColumnLatestCell(Bytes.toBytes(this.columnFamliy), Bytes.toBytes(this.column)).getTimestamp
+        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
+        val timeStamp = result.getColumnLatestCell(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)).getTimestamp
         val days = TimeUtil.getDayAndHour(String.valueOf(timeStamp))
         g_day = days
-        val followList = this.getStockCodes(value)
-        val userId = this.getUserId(value)
+        val followList = getStockCodes(value)
+        val userId = getUserId(value)
         /** HDFS 操作*/
         val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+days)
         if(userId.trim.length > 0 && followList !=null){
@@ -133,25 +142,25 @@ class TableHbase extends HBase{
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
     /** get hbase data */
-    val conf = this.getConfigure(this.tableName,this.columnFamliy,this.column)
+    val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
     val connection = ConnectionFactory.createConnection(conf)
-    val htable = connection.getTable(TableName.valueOf(this.tableName))
+    val htable = connection.getTable(TableName.valueOf(sinaTable.tableName))
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
     scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
-    this.setScan(scan)
+    sinaTable.setScan(scan)
     val resultScanner = htable.getScanner(scan)
     val resultScannerIterator = resultScanner.iterator()
     var g_day = new String
     try{
       while(resultScannerIterator.hasNext){
         val result = resultScannerIterator.next()
-        val value = Bytes.toString(result.getValue(Bytes.toBytes(this.columnFamliy), Bytes.toBytes(this.column)))
-        val timeStamp = result.getColumnLatestCell(Bytes.toBytes(this.columnFamliy), Bytes.toBytes(this.column)).getTimestamp
+        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
+        val timeStamp = result.getColumnLatestCell(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)).getTimestamp
         val days = TimeUtil.getDay(String.valueOf(timeStamp))
         g_day = days
-        val followList = this.getStockCodes(value)
-        val userId = this.getUserId(value)
+        val followList =getStockCodes(value)
+        val userId = getUserId(value)
         /** HDFS 操作*/
         var currentPath = HdfsFileUtil.getRootDir + days
         currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + days)

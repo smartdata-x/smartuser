@@ -9,21 +9,20 @@ import org.scalatest.{Matchers, FlatSpec}
 class HBaseTest extends FlatSpec with Matchers{
 
   "hbase class method function " should "work" in {
-    val ttoh = new TableHbase
-    ttoh.tableName=("1")
-    ttoh.column=("content")
-    ttoh.columnFamliy=("basic")
 
-    val scan  = new Scan()
-    val currentTimeStamp = System.currentTimeMillis()
-    scan.setTimeRange(currentTimeStamp - 3600000,currentTimeStamp)
-    ttoh.getConfigure(ttoh.tableName,ttoh.columnFamliy,ttoh.column)
-    ttoh.setScan(scan)
-    ttoh.get("rowKey",ttoh.tableName,ttoh.columnFamliy,ttoh.column)
-
-    val htmlSource ="<html info >"
-    ttoh.getUserId(htmlSource)
-    ttoh.getStockCodes(htmlSource)
+//    TableHbase.column=("content")
+//    TableHbase.columnFamliy=("basic")
+//
+//    val scan  = new Scan()
+//    val currentTimeStamp = System.currentTimeMillis()
+//    scan.setTimeRange(currentTimeStamp - 3600000,currentTimeStamp)
+//    ttoh.getConfigure(ttoh.tableName,ttoh.columnFamliy,ttoh.column)
+//    ttoh.setScan(scan)
+//    ttoh.get("rowKey",ttoh.tableName,ttoh.columnFamliy,ttoh.column)
+//
+//    val htmlSource ="<html info >"
+//    ttoh.getUserId(htmlSource)
+//    ttoh.getStockCodes(htmlSource)
   }
 
 }

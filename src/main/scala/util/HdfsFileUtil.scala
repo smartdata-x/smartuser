@@ -215,7 +215,7 @@ object HdfsFileUtil {
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
     try {
-      val out = fs.append(new Path(fileName))
+      val out = fs.append(new Path(destPath))
       while (iterator.hasNext) {
         val field = iterator.next()
         /** 待完善 根据股票名称获取股票代码的函数
