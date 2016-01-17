@@ -103,36 +103,6 @@ object HdfsFileUtil {
     }
   }
 
-  def readString(fileName: String): Unit = {
-    val fs = getFileSystem
-    val split = str.split("\t")
-    val strBuilder = new StringBuilder()
-    try {
-      println("fileName:" + fileName)
-      val out = fs.append(new Path(fileName))
-      if (split.length > 1) {
-        for (i <- 0 to split.length - 1) {
-          strBuilder.append(split(i) + "\t")
-        }
-        strBuilder.append("\n")
-      } else {
-        strBuilder.append(str + "\n")
-      }
-      if (strBuilder.nonEmpty) {
-        val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
-        IOUtils.copyBytes(in, out, 4096, true)
-        strBuilder.clear()
-        in.close()
-        out.close()
-      }
-    } catch {
-      case e: Exception => println("writeString error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
-    } finally {
-      fs.close()
-    }
-  }
-
   def writeStockCode(fileName: String, list: mutable.MutableList[String]): Unit = {
     val iterator: Iterator[String] = list.iterator
     val fs = getFileSystem
