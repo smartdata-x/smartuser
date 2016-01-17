@@ -1,19 +1,23 @@
 package analysis
 
+import log.SULogger
+
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
-import java.util.regex.Pattern
-import org.apache.log4j.Logger
 import org.apache.spark.{SparkContext, SparkConf}
+
+import java.util.regex.Pattern
+
 import util.{TimeUtil, HdfsFileUtil}
 
 import scala.collection.mutable
 
 /**
   * Created by C.J.YOU on 2016/1/15.
+  * Hbase 操作子类，用来操作Hbase中的表1
   */
 class TableOneHbase extends HBase{
 
@@ -42,6 +46,7 @@ class TableOneHbase extends HBase{
     }
     followStockCodeList
   }
+
   def getUserId(sc:String):String = {
     var userId = new String
     val pattern = Pattern.compile("\\[\'userid\'\\]\\s*=\\s*\'\\d{1,}\'")
@@ -62,20 +67,20 @@ class TableOneHbase extends HBase{
     userId
   }
 
-  def MergeList(globle_list: mutable.MutableList[String],temp_list:mutable.MutableList[String]): mutable.MutableList[String] ={
+  def mergeList(global_list: mutable.MutableList[String],temp_list:mutable.MutableList[String]): mutable.MutableList[String] ={
     if(temp_list != null) {
       val iterator = temp_list.iterator
       while (iterator.hasNext) {
         val value = iterator.next()
-        if (!globle_list.contains(value)) {
-          globle_list.+=(value)
+        if (!global_list.contains(value)) {
+          global_list.+=(value)
         }
       }
     }
-    globle_list
+    global_list
   }
 
-  def DataAnalysis(sparkConf:SparkConf,sc:SparkContext): Unit ={
+  def dataAnalysis(sparkConf:SparkConf,sc:SparkContext,timeRange:Int):  mutable.MutableList[String] ={
     /** get hbase data */
     var one = new TableOneHbase
     one.tableName_=("1")
@@ -84,13 +89,12 @@ class TableOneHbase extends HBase{
 
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
-    scan.setTimeRange(currentTimeStamp - 3600000,currentTimeStamp)
+    scan.setTimeRange(currentTimeStamp - timeRange*60*60*1000,currentTimeStamp)
     val conf = one.getConfigure(one.tableName,one.columnFamliy,one.column)
     one.setScan(scan)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
     val collectResult = hbaseRdd.collect()
-    val logger = Logger.getRootLogger
 
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
@@ -108,19 +112,20 @@ class TableOneHbase extends HBase{
         /** HDFS 操作*/
         val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+days)
         if(userId != null && followList !=null){
-          stockCodes = MergeList(stockCodes,followList)
+          stockCodes = mergeList(stockCodes,followList)
           HdfsFileUtil.mkFile(currentPath+userId)
           // System.out.println("rowKey----"+rowKey)
           HdfsFileUtil.writeStockCode(currentPath + userId,followList)
         }
       } catch {
         case e:Exception => println("[C.J.YOU] writeToHdfsFile error")
-          logger.error("[C.J.YOU]"+e.printStackTrace)
+          SULogger.error("[C.J.YOU]"+e.printStackTrace)
       }
     })
     /** 保存全局股票代码 */
     HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
     HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
     HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
+    stockCodes
   }
 }

@@ -1,14 +1,8 @@
 package analysis
 
-import org.apache.hadoop.hbase.client.{Result, Scan}
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable
-import org.apache.hadoop.hbase.mapreduce.TableInputFormat
-import org.apache.hadoop.hbase.util.Bytes
-import org.apache.log4j.Logger
+import org.apache.hadoop.hbase.client._
 import org.apache.spark.{SparkConf, SparkContext}
-import util.{HdfsFileUtil, TimeUtil}
 
-import scala.collection.mutable
 
 /**
   * Created by C.J.YOU on 2016/1/13.
@@ -23,7 +17,7 @@ object DataAnalysis {
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
     val tableOne = new TableOneHbase
-    tableOne.DataAnalysis(sparkConf,sc)
+    tableOne.dataAnalysis(sparkConf,sc,1)
     sc.stop()
   }
 }

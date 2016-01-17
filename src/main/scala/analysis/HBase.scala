@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.util.Base64
 
 /**
   * Created by C.J.YOU on 2016/1/13.
+  * Hbase 操作的基类实现
   */
 class HBase {
 

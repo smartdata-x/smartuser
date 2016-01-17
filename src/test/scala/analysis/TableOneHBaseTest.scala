@@ -17,7 +17,7 @@ class TableOneHBaseTest extends FlatSpec with Matchers {
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
     val tableOne = new TableOneHbase
-    tableOne.DataAnalysis(sparkConf,sc)
+    tableOne.dataAnalysis(sparkConf,sc)
     sc.stop()
 
   }
