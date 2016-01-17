@@ -16,7 +16,7 @@ object DataAnalysis {
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
     val tableOne = new TableHbase
-    tableOne.dataAnalysis(sparkConf,sc,1)
+    tableOne.getStockCodesFromHbase(sc,1)
     sc.stop()
   }
 }

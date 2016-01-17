@@ -21,7 +21,7 @@ class TableHBaseTest extends FlatSpec with Matchers {
     one.tableName_=("1")
     one.columnFamliy_=("basic")
     one.column_=("content")
-    tableOne.dataAnalysis(sparkConf,sc,1)
+    tableOne.getStockCodesFromHbase(sc,1)
     sc.stop()
 
   }

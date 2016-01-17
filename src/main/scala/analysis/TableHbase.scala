@@ -78,7 +78,7 @@ class TableHbase extends HBase{
     global_list
   }
 
-  def dataAnalysis(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
+  def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
     /** get hbase data */
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
@@ -104,7 +104,7 @@ class TableHbase extends HBase{
         val userId = this.getUserId(value)
         /** HDFS 操作*/
         val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+days)
-        if(userId != null && followList !=null){
+        if(userId.trim.length > 0 && followList !=null){
           stockCodes = mergeList(stockCodes,followList)
           HdfsFileUtil.mkFile(currentPath+userId)
           // System.out.println("rowKey----"+rowKey)
