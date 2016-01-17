@@ -1,17 +1,15 @@
 package analysis
 
-import log.SULogger
+import java.util.regex.Pattern
 
+import log.SULogger
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
-import org.apache.spark.{SparkContext, SparkConf}
-
-import java.util.regex.Pattern
-
-import util.{TimeUtil, HdfsFileUtil}
+import org.apache.spark.SparkContext
+import util.{HdfsFileUtil, TimeUtil}
 
 import scala.collection.mutable
 
@@ -19,7 +17,7 @@ import scala.collection.mutable
   * Created by C.J.YOU on 2016/1/15.
   * Hbase 操作子类，用来操作Hbase中的表1
   */
-class TableOneHbase extends HBase{
+class TableHbase extends HBase{
 
   def get(rowKey:String,table:String,columnFamliy:String,column:String):Result = {
     val connection = ConnectionFactory.createConnection(HBaseConfiguration.create())
@@ -90,9 +88,9 @@ class TableOneHbase extends HBase{
 
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
-    scan.setTimeRange(currentTimeStamp - timeRange*60*60*1000,currentTimeStamp)
-    val conf = one.getConfigure(one.tableName,one.columnFamliy,one.column)
-    one.setScan(scan)
+    scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
+    val conf = this.getConfigure(this.tableName,this.columnFamliy,this.column)
+    this.setScan(scan)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
     val collectResult = hbaseRdd.collect()
@@ -104,12 +102,12 @@ class TableOneHbase extends HBase{
     collectResult.foreach(x => {
       try {
         val result = x._2
-        val value = Bytes.toString(result.getValue(Bytes.toBytes(one.columnFamliy), Bytes.toBytes(one.column)))
-        val timeStamp = result.getColumnLatestCell(Bytes.toBytes(one.columnFamliy), Bytes.toBytes(one.column)).getTimestamp
+        val value = Bytes.toString(result.getValue(Bytes.toBytes(this.columnFamliy), Bytes.toBytes(this.column)))
+        val timeStamp = result.getColumnLatestCell(Bytes.toBytes(this.columnFamliy), Bytes.toBytes(this.column)).getTimestamp
         val days = TimeUtil.getDayAndHour(String.valueOf(timeStamp))
         g_day = days
-        val followList = one.parseDocument(value)
-        val userId = one.getUserId(value)
+        val followList = this.parseDocument(value)
+        val userId = this.getUserId(value)
         /** HDFS 操作*/
         val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+days)
         if(userId != null && followList !=null){
@@ -129,4 +127,6 @@ class TableOneHbase extends HBase{
     HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
     stockCodes
   }
+
+
 }

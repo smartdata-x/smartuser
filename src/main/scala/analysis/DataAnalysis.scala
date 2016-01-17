@@ -1,6 +1,5 @@
 package analysis
 
-import org.apache.hadoop.hbase.client._
 import org.apache.spark.{SparkConf, SparkContext}
 
 
@@ -16,7 +15,7 @@ object DataAnalysis {
       .set("spark.kryoserializer.buffer.max", "2000")
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
-    val tableOne = new TableOneHbase
+    val tableOne = new TableHbase
     tableOne.dataAnalysis(sparkConf,sc,1)
     sc.stop()
   }
