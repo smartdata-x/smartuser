@@ -38,6 +38,8 @@ class Stock(
 
   val date: String,// arr(30)//日期
   val time: String // arr(31)//时间
+
+
   ) {
 
   override def toString: String = {
