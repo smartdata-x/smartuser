@@ -24,9 +24,9 @@ object TableHbase{
   val SINA_COLUMN_FAMILY = "basic"
   val SINA_COLUMN_MEMBER = "content"
   val sinaTable = new HBase
-  sinaTable.tableName_=(SINA_TABLE)
-  sinaTable.columnFamliy_=(SINA_COLUMN_FAMILY)
-  sinaTable.column_=(SINA_COLUMN_MEMBER)
+  sinaTable.tableName = SINA_TABLE
+  sinaTable.columnFamliy = SINA_COLUMN_FAMILY
+  sinaTable.column = SINA_COLUMN_MEMBER
 
   /** 按照rowKey 将获取hbase的数据 */
   def get(rowKey:String,table:String,columnFamliy:String,column:String):Result = {
@@ -93,28 +93,37 @@ object TableHbase{
 
   /** 使用spark运行获取Hbase股票信息 */
   def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
-    
+    SULogger.warn("enter <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
     /** get hbase data */
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
     scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
     val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
     sinaTable.setScan(scan)
+    SULogger.warn(sinaTable.tableName)
+    SULogger.warn(sinaTable.columnFamliy)
+    SULogger.warn(sinaTable.column)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
     val collectResult = hbaseRdd.collect()
+    SULogger.warn("before hdfsutil")
 
     HdfsFileUtil.setHdfsUri("hdfs://server:9000")
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
     var g_day = new String
     var stockCodes = new mutable.MutableList[String]
+    SULogger.warn("before foreach")
     collectResult.foreach(x => {
       try {
+        SULogger.warn("enter foreach")
         val result = x._2
         val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
         val timeStamp = result.getColumnLatestCell(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)).getTimestamp
+        SULogger.warn(timeStamp.toString)
         val days = TimeUtil.getDayAndHour(String.valueOf(timeStamp))
         g_day = days
+        SULogger.warn(g_day)
         val followList = getStockCodes(value)
         val userId = getUserId(value)
         /** HDFS 操作*/

@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 import analysis.TableHbase
-
+import log.SULogger
 import org.apache.spark.{SparkConf, SparkContext}
 import util.HdfsFileUtil
 
@@ -39,6 +39,7 @@ object Scheduler extends App {
   val conf =  new SparkConf().setMaster("local").setAppName("su")
   val sc = new SparkContext(conf)
   val stockList = TableHbase.getStockCodesFromHbase(sc, 1)
+  val rdd = sc.makeRDD(stockList).filter(_.length > 0).sortBy(_.toInt).foreach(println)
 //  val lines = sc.wholeTextFiles("hdfs://server:9000/smartuser/hbasedata/2016-01-16_21/")
 //  lines.values.flatMap(_.split("\n")).map((_, 1)).reduceByKey(_+_).sortByKey(ascending = true).keys.filter(validCode).saveAsTextFile("hdfs://server:9000/smartuser/hbasedata/stockCodes")
   sc.stop
