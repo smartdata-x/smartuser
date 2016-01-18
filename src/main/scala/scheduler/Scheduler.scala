@@ -4,10 +4,12 @@ import java.io.{BufferedWriter, FileWriter, File}
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
+import config.SparkConfig
 import dispatch._,Defaults._
 import log.SULogger
 import org.apache.commons.io.FileUtils
 import org.apache.spark.{SparkConf, SparkContext}
+import stock.StockUtil
 import util.HdfsFileUtil
 
 import scala.util.{Failure, Success}
@@ -42,7 +44,7 @@ object Scheduler extends App {
 
 //  SinaRequest.sendRequest(mutable.HashMap("list" -> "sh601006"))
 
-  val conf =  new SparkConf().setMaster("local").setAppName("su").set("spark.serializer", "org.apache.spark.serializer.KryoSerializer").set("spark.kryoserializer.buffer.max", "2000")
+  val conf =  new SparkConf().setMaster("local").setAppName("su").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
   val sc = new SparkContext(conf)
 //  val stockList = TableHbase.getStockCodesFromHbase(sc, args(0).toInt)
 //  val arr = sc.makeRDD(stockList).filter(validCode).sortBy(_.toInt).collect
@@ -84,12 +86,17 @@ object Scheduler extends App {
 
   def send(finalUrl: String): Unit = {
 
+    val arr = finalUrl.substring(25).split(",")
+
     val req = url(finalUrl)
     val response = Http(req OK as.String)
 
     response onComplete {
       case Success(content) =>
-        bufferWriter.write(content)
+        val stockList = StockUtil(1).parseStockList(arr, content)
+        HdfsFileUtil.writeStockObject(stockList)
+        SULogger.warn(stockList.size.toString)
+        bufferWriter.write(stockList.length.toString)
         requestNum -= 1
         if (requestNum == 0) {
           bufferWriter.close()

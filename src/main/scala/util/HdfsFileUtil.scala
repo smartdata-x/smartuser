@@ -11,7 +11,7 @@ import org.apache.log4j.Logger
 import stock.Stock
 
 import scala.collection.mutable
-import scala.collection.mutable.HashMap
+import scala.collection.mutable.{ListBuffer, HashMap}
 
 /**
   * Created by C.J.YOU on 2016/1/14.
@@ -201,8 +201,28 @@ object HdfsFileUtil {
     }
   }
 
+  def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, String] = {
+
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
+    HdfsFileUtil.setRootDir("smartuser/strategyone")
+    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
+    val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
+    val destPath = currentDir + hour.toString
+
+    val list = readStockCode(destPath)
+
+    val map = mutable.HashMap[String, String]()
+
+    for (item <- list) {
+      val arr = item.split("\t")
+      map.put(arr(0), arr(1))
+    }
+
+    map
+  }
+
   /** 写入股票对象,包括股票代码和当前价格 */
-  def writeStockObject(list: mutable.MutableList[Stock]): Unit = {
+  def writeStockObject(list: ListBuffer[Stock]): Unit = {
     /** 创建对应的目录 */
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/strategyone")
@@ -222,7 +242,7 @@ object HdfsFileUtil {
         /** 待完善 根据股票名称获取股票代码的函数
           * ？？？？
           * */
-        strBuilder.append(field.name + "\t"+field.currentPrice+"\n")
+        strBuilder.append(field.code + "\t"+field.currentPrice+"\n")
       }
       if (strBuilder.nonEmpty) {
         val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))

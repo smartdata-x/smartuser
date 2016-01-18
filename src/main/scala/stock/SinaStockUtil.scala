@@ -1,15 +1,13 @@
-package net
+package stock
 
-import config.URLConfig
-import stock.Stock
+import log.SULogger
 
-import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
-  * Created by yangshuai on 2016/1/15.
-  * 新浪api请求
+  * Created by yangshuai on 2016/1/18.
   */
-object SinaRequest extends BaseHttp {
+class SinaStockUtil extends StockUtil {
 
   val NAME = 0//股票名称
   val TODAYOPENINGPRICE = 1//今日开盘价
@@ -46,11 +44,23 @@ object SinaRequest extends BaseHttp {
   val DATE = 30// ARR(30)//日期
   val TIME = 31// ARR(31)//时间
 
-  def sendRequest(requestParameter:mutable.HashMap[String,String]): Unit = {
-    request(URLConfig.sina, requestParameter, parse)
+  override def parseStockList(stockCodes: Array[String], content: String): ListBuffer[Stock] = {
+
+    var stockList = new ListBuffer[Stock]()
+
+    val contentArr = content.split("\n")
+
+    for (i <- 0 to stockCodes.size - 1) {
+      if (contentArr(i).length > 30) {
+        val stock = parseStock(contentArr(i), stockCodes(i))
+        stockList += stock
+      }
+    }
+
+    stockList
   }
 
-  def parseStock(response: String, code: String): Stock = {
+  override def parseStock(response: String, code: String): Stock = {
 
     val pattern = "(?<==\").*(?=\")".r
     val arr = pattern.findFirstIn(response).get.split(",")
@@ -61,9 +71,5 @@ object SinaRequest extends BaseHttp {
       arr(HIGHESTBUYNUMBER).toLong, arr(HIGHESTBUYPRICE).toFloat,arr(SECONDHIGHESTBUYNUMBER).toLong, arr(SECONDHIGHESTBUYPRICE).toFloat, arr(THIRDHIGHESTBUYNUMBER).toLong, arr(THIRDHIGHESTBUYPRICE).toFloat, arr(FOURTHHIGHESTBUYNUMBER).toLong, arr(FOURTHHIGHESTBUYPRICE).toFloat, arr(FIFTHHIGHESTBUYNUMBER).toLong, arr(FIFTHHIGHESTBUYPRICE).toFloat,
       arr(LOWESTBUYNUMBER).toLong, arr(LOWESTSELLPRICE).toFloat, arr(SECONDLOWESTBUYNUMBER).toLong, arr(SECONDLOWESTBUYPRICE).toFloat, arr(THIRDLOWESTBUYNUMBER).toLong, arr(THIRDLOWESTBUYPRICE).toFloat, arr(FOURTHLOWESTBUYNUMBER).toLong, arr(FOURTHLOWESTBUYPRICE).toFloat, arr(FIFTHLOWESTBUYNUMBER).toLong, arr(FIFTHLOWESTBUYPRICE).toFloat,
       arr(DATE), arr(TIME))
-  }
-
-  def parse(response: String): Unit = {
-    val stock = parseStock(response, "")
   }
 }
