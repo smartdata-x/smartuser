@@ -5,7 +5,7 @@ package config
   */
 object URLConfig {
 
-  val tencent = "http://qt.gtimg.cn/"
-  val sina = "http://hq.sinajs.cn/"
+  val TENCENT = "http://qt.gtimg.cn/"
+  val SINA = "http://hq.sinajs.cn/list="
 
 }

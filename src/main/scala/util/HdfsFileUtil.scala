@@ -76,11 +76,9 @@ object HdfsFileUtil {
     SULogger.warn(name)
     val fs = getFileSystem
     if (!fs.exists(new Path(name))) {
-      SULogger.warn("nonexist")
       fs.create(new Path(name))
       // System.out.println("mkfile sucess")
     } else {
-      SULogger.warn("exist")
       // System.out.println("file exist")
     }
     fs.close()
@@ -205,7 +203,7 @@ object HdfsFileUtil {
     }
   }
 
-  def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, String] = {
+  def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Float] = {
 
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/strategyone")
@@ -215,11 +213,11 @@ object HdfsFileUtil {
 
     val list = readStockCode(destPath)
 
-    val map = mutable.HashMap[String, String]()
+    val map = mutable.HashMap[String, Float]()
 
     for (item <- list) {
       val arr = item.split("\t")
-      map.put(arr(0), arr(1))
+      map.put(arr(0), arr(1).toFloat)
     }
 
     map
@@ -262,4 +260,5 @@ object HdfsFileUtil {
       fs.close()
     }
   }
+
 }

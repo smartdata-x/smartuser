@@ -25,4 +25,16 @@ object StockUtil {
     null
   }
 
+  def validCode(code: String): Boolean = {
+    if (code.length == 0)
+      return false
+    val head = code.charAt(0)
+    if (head == '0' || head == '3' || head == '6' || head == '9')
+      return true
+    false
+  }
+
+  def getRateOfReturn(code: String, price: Float): Unit = {
+
+  }
 }

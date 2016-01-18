@@ -8,7 +8,7 @@ import stock.Stock
   */
 class StockStrategyOne extends RateOfReturnStrategy {
 
-  override def calculate(t:Stock, r:Stock): Float = {
-    return 1 * (r.currentPrice - t.currentPrice) / (t.currentPrice)
+  override def calculate(t:Float, r:Float): Float = {
+    1 * (r - t) / t
   }
 }

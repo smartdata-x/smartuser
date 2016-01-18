@@ -1,9 +1,15 @@
 package net
 
 import config.URLConfig
-import stock.Stock
+import dispatch.{Http, as, url}
+import log.SULogger
+import scheduler.Scheduler
+import stock.{StockUtil, Stock}
+import util.HdfsFileUtil
+import dispatch._,Defaults._
 
 import scala.collection.mutable
+import scala.util.{Failure, Success}
 
 /**
   * Created by yangshuai on 2016/1/15.
@@ -46,8 +52,12 @@ object SinaRequest extends BaseHttp {
   val DATE = 30// ARR(30)//日期
   val TIME = 31// ARR(31)//时间
 
+  val MAX_CODE_NUMBER = 890.0
+
+  var requestNum = 0
+
   def sendRequest(requestParameter:mutable.HashMap[String,String]): Unit = {
-    get(URLConfig.sina, requestParameter, parse)
+    get(URLConfig.SINA, requestParameter, parse)
   }
 
   def parseStock(response: String, code: String): Stock = {
@@ -65,5 +75,54 @@ object SinaRequest extends BaseHttp {
 
   def parse(response: String): Unit = {
     val stock = parseStock(response, "")
+  }
+
+  def requestStockList(arr: Array[String], callBack: () => Unit): Unit = {
+
+    var finalUrl = URLConfig.SINA
+    var i = 0
+    requestNum = Math.ceil(arr.length / MAX_CODE_NUMBER).toInt
+
+    while (i < arr.length) {
+      val head = arr(i).charAt(0)
+      if (head == '0' || head == '3') {
+        finalUrl += "sz" + arr(i) + ","
+      } else if (head == '6' || head == '9') {
+        finalUrl += "sh" + arr(i) + ","
+      }
+
+      if ((i > 0 && i % MAX_CODE_NUMBER == 0) || i == arr.length - 1) {
+        SULogger.warn("Send Request")
+        println(finalUrl)
+        request(finalUrl, callBack)
+        finalUrl = "http://hq.sinajs.cn/list="
+      }
+      i += 1
+    }
+  }
+
+  def request(finalUrl: String, callBack: () => Unit): Unit = {
+
+    val arr = finalUrl.substring(25).split(",")
+
+    val req = url(finalUrl)
+    val response = Http(req OK as.String)
+
+    response onComplete {
+      case Success(content) =>
+        val stockList = StockUtil(1).parseStockList(arr, content)
+        Scheduler.stockList.++=(stockList)
+        SULogger.warn(stockList.size.toString)
+        requestNum -= 1
+        if (requestNum == 0) {
+          Http.shutdown
+          HdfsFileUtil.writeStockList(Scheduler.stockList)
+          SULogger.warn("before callback")
+          callBack()
+        }
+
+      case Failure(t) =>
+        SULogger.warn("An error has occurred: " + t.getMessage)
+    }
   }
 }

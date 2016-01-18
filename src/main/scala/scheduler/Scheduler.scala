@@ -1,110 +1,99 @@
 package scheduler
 
-import java.io.{BufferedWriter, FileWriter, File}
-import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
-import config.SparkConfig
-import dispatch._,Defaults._
+import calculate.RateOfReturnStrategy
+import config.{StrategyConfig, SparkConfig}
 import log.SULogger
-import org.apache.commons.io.FileUtils
+import net.SinaRequest
 import org.apache.spark.{SparkConf, SparkContext}
-import stock.StockUtil
+import stock.{Stock, StockUtil}
 import util.HdfsFileUtil
-
-import scala.util.{Failure, Success}
+import scala.collection.mutable
+import scala.collection.mutable.{ListBuffer, HashMap}
 
 /**
   * Created by yangshuai on 2016/1/16.
   */
-object Scheduler extends App {
+object Scheduler {
 
-  val MAX_CODE_NUMBER = 800.0
+  val prePriceMap = new mutable.HashMap[String, Float]()
+  var stockList = new ListBuffer[Stock]()
 
-  def writeSth(str: String): Unit = {
-    val today = Calendar.getInstance.getTime
-    val format = new SimpleDateFormat("HH-mm-ss")
-    val timeStr = format.format(today)
-
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
-    HdfsFileUtil.setRootDir("smartuser")
-    val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+"test")
-    HdfsFileUtil.mkFile(currentPath + timeStr)
-    HdfsFileUtil.writeString(currentPath + timeStr, str)
-  }
-
-  def validCode(code: String): Boolean = {
-    if (code.length == 0)
-      return false
-    val head = code.charAt(0)
-    if (head == '0' || head == '3' || head == '6' || head == '9')
-      return true
-    false
-  }
-
-//  SinaRequest.sendRequest(mutable.HashMap("list" -> "sh601006"))
+  val taskHour = Array[Int](9, 11, 13, 15)
+  val taskMinute = Array[Int](30, 30, 0, 0)
+  var taskIndex = 0
+  var requesting = false
+  var calculating = false
 
   val conf =  new SparkConf().setMaster("local").setAppName("su").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
   val sc = new SparkContext(conf)
-//  val stockList = TableHbase.getStockCodesFromHbase(sc, args(0).toInt)
-//  val arr = sc.makeRDD(stockList).filter(validCode).sortBy(_.toInt).collect
-  val arr = sc.textFile("/smartuser/hbasedata/codes").filter(validCode).collect
+
+  def main(args: Array[String]): Unit = {
+
+//    while (begin()) {
+
+      requesting = true
+      val arr = sc.textFile("/smartuser/hbasedata/codes").filter(StockUtil.validCode).collect
+
+      stockList.clear
+      SinaRequest.requestStockList(arr, afterRequest)
+
+//    }
 
 
-  var finalUrl = "http://hq.sinajs.cn/list="
-  var i = 0
-  val path = "/home/ys/code/smartuser/result"
-  FileUtils.deleteQuietly(new File(path))
-  val file = new File(path)
-  file.createNewFile
-  val fileWriter = new FileWriter(path, true)
-  val bufferWriter = new BufferedWriter(fileWriter)
-
-  var requestNum = Math.ceil(arr.length / MAX_CODE_NUMBER)
-
-  while (i < arr.length) {
-    val head = arr(i).charAt(0)
-    if (head == '0' || head == '3') {
-      finalUrl += "sz" + arr(i) + ","
-    } else if (head == '6' || head == '9') {
-      finalUrl += "sh" + arr(i) + ","
-    }
-
-    if ((i > 0 && i % MAX_CODE_NUMBER == 0) || i == arr.length - 1) {
-      SULogger.warn("Send Request")
-      println(finalUrl)
-      send(finalUrl)
-      finalUrl = "http://hq.sinajs.cn/list="
-    }
-    i += 1
-  }
-
-  sc.stop
-
-  def send(finalUrl: String): Unit = {
-
-    val arr = finalUrl.substring(25).split(",")
-
-    val req = url(finalUrl)
-    val response = Http(req OK as.String)
-
-    response onComplete {
-      case Success(content) =>
-        val stockList = StockUtil(1).parseStockList(arr, content)
-        HdfsFileUtil.writeStockList(stockList)
-        SULogger.warn(stockList.size.toString)
-        bufferWriter.write(stockList.length.toString)
-        requestNum -= 1
-        if (requestNum == 0) {
-          bufferWriter.close()
-          Http.shutdown
-        }
-
-      case Failure(t) =>
-        SULogger.warn("An error has occurred: " + t.getMessage)
+    while (!requesting) {
+      sc.stop
+      requesting = true
     }
   }
 
-//  val lines = sc.wholeTextFiles("hdfs://server:9000/smartuser/hbasedata/2016-01-16_21/")
-//  lines.values.flatMap(_.split("\n")).map((_, 1)).reduceByKey(_+_).sortByKey(ascending = true).keys.filter(validCode).saveAsTextFile("hdfs://server:9000/smartuser/hbasedata/stockCodes")
+  def afterRequest(): Unit = {
+
+    SULogger.warn("enter callback")
+
+
+//    if (taskIndex % 2 == 1) {
+      val prePrice = HdfsFileUtil.readTodayStockCodeByHour(9)
+    SULogger.warn("pre size: " + prePrice.size)
+      val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(15)
+    SULogger.warn("current size: " + currentPrice.size)
+      val rdd = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).foreach(SULogger.warn(_))
+//    } else if (taskIndex == 3) {
+//
+//    }
+    requesting = false
+  }
+
+  def getRateOfReturn(code: String, price: Float): String = {
+    val pre = prePriceMap.get(code)
+    if (pre.isEmpty) {
+      ""
+    } else {
+      val rate = RateOfReturnStrategy(StrategyConfig.STRATEGY_ONE).calculate(pre.get, price)
+      code + "\t" + rate.toString
+    }
+  }
+
+  def begin(): Boolean = {
+
+    TimeUnit.SECONDS.sleep(10)
+
+    val calendar = Calendar.getInstance
+    val hour = calendar.get(Calendar.HOUR_OF_DAY)
+    val minute = calendar.get(Calendar.MINUTE)
+
+    if (hour >= taskHour(taskIndex) && minute >= taskMinute(taskIndex)) {
+      if (taskIndex == taskHour.length - 1) {
+        taskIndex = 0
+      } else {
+        taskIndex += 1
+      }
+
+      return true
+    }
+
+    false
+  }
 }

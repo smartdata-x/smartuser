@@ -50,7 +50,7 @@ class SinaStockUtil extends StockUtil {
 
     val contentArr = content.split("\n")
 
-    for (i <- 0 to stockCodes.size - 1) {
+    for (i <- stockCodes.indices) {
       if (contentArr(i).length > 30) {
         val stock = parseStock(contentArr(i), stockCodes(i))
         stockList += stock
