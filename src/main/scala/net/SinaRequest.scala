@@ -47,7 +47,7 @@ object SinaRequest extends BaseHttp {
   val TIME = 31// ARR(31)//时间
 
   def sendRequest(requestParameter:mutable.HashMap[String,String]): Unit = {
-    request(URLConfig.sina, requestParameter, parse)
+    get(URLConfig.sina, requestParameter, parse)
   }
 
   def parseStock(response: String, code: String): Stock = {
