@@ -73,7 +73,7 @@ object HdfsFileUtil {
 
   /** 创建文件 */
   def mkFile(name: String): Unit = {
-    SULogger.warn(name)
+
     val fs = getFileSystem
     if (!fs.exists(new Path(name))) {
       fs.create(new Path(name))
@@ -207,6 +207,7 @@ object HdfsFileUtil {
 
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/strategyone")
+
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
     val destPath = currentDir + hour.toString

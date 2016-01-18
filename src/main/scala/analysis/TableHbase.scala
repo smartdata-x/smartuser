@@ -94,7 +94,6 @@ object TableHbase{
 
   /** 使用spark运行获取Hbase股票信息 */
   def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
-    SULogger.warn("enter <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
     /** get hbase data */
     val scan = new Scan()
@@ -102,19 +101,16 @@ object TableHbase{
     scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
     val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
     sinaTable.setScan(scan)
-    SULogger.warn(sinaTable.tableName)
-    SULogger.warn(sinaTable.columnFamliy)
-    SULogger.warn(sinaTable.column)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-
-    SULogger.warn("before hdfsutil")
 
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
     var g_day = new String
     var stockCodes = new mutable.MutableList[String]
-    SULogger.warn("before foreach")
+
+    SULogger.warn(hbaseRdd.count.toString)
+
     hbaseRdd.foreach(x => {
       try {
         val result = x._2
