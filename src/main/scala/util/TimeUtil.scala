@@ -27,7 +27,7 @@ import java.util.Date
   def getDayAndHour(timeStamp: String): String = {
     val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH")
     val bigInt: BigInteger = new BigInteger(timeStamp)
-    val date: String = sdf.format(new Date)
+    val date: String = sdf.format(bigInt)
     date
   }
 }

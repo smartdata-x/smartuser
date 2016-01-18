@@ -35,13 +35,11 @@ object Scheduler {
 
     while(true) {
 
-
       while (!requesting) {
 
         requesting = true
 //        val arr = sc.textFile("/smartuser/hbasedata/codes").filter(StockUtil.validCode).collect
-        val arr = TableHbase.getStockCodesFromHbase(sc, 1).toArray
-        stockList.clear
+        val arr = TableHbase.getStockCodesFromHbase(sc, 1)
         SinaRequest.requestStockList(arr, afterRequest)
 
       }
@@ -52,20 +50,25 @@ object Scheduler {
           //    if (taskIndex % 2 == 1) {
           prePriceMap = HdfsFileUtil.readTodayStockCodeByHour(9)
           SULogger.warn("pre size: " + prePriceMap.size)
-          val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(16)
+          val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(Calendar.getInstance.get(Calendar.HOUR_OF_DAY))
           SULogger.warn("current size: " + currentPrice.size)
-          val rdd = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect.foreach(println)
+          val rdd = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
+          SULogger.warn("rate of return number: " + rdd.length)
           //    } else if (taskIndex == 3) {
         } catch {
           case e: Exception =>
             e.printStackTrace()
-            SULogger.exception(e)
         }
         //
         //    }
 
         calculating = false
+        requesting = false
+
+        SULogger.warn("before sleep")
+        TimeUnit.SECONDS.sleep(100)
       }
+
     }
   }
 
