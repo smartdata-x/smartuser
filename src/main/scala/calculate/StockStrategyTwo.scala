@@ -7,7 +7,7 @@ import stock.Stock
   */
 class StockStrategyTwo extends RateOfReturnStrategy {
 
-  override def calculate(t:Stock, r:Stock): Float = {
+  override def calculate(t:Float, r:Float): Float = {
     2f
   }
 }

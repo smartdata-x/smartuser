@@ -107,7 +107,7 @@ object TableHbase{
     SULogger.warn(sinaTable.column)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-    // val collectResult = hbaseRdd.collect
+
     SULogger.warn("before hdfsutil")
 
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
@@ -117,14 +117,11 @@ object TableHbase{
     SULogger.warn("before foreach")
     hbaseRdd.foreach(x => {
       try {
-        SULogger.warn("enter foreach")
         val result = x._2
         val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
         val timeStamp = result.getColumnLatestCell(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)).getTimestamp
-        SULogger.warn(timeStamp.toString)
         val days = TimeUtil.getDayAndHour(String.valueOf(timeStamp))
         g_day = days
-        SULogger.warn(g_day)
         val followList = getStockCodes(value)
         val userId = getUserId(value)
         /** HDFS 操作*/

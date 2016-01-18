@@ -1,46 +1,99 @@
 package scheduler
 
-import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
-import analysis.TableHbase
+import calculate.RateOfReturnStrategy
+import config.{StrategyConfig, SparkConfig}
 import log.SULogger
+import net.SinaRequest
 import org.apache.spark.{SparkConf, SparkContext}
+import stock.{Stock, StockUtil}
 import util.HdfsFileUtil
+import scala.collection.mutable
+import scala.collection.mutable.{ListBuffer, HashMap}
 
 /**
   * Created by yangshuai on 2016/1/16.
   */
-object Scheduler extends App {
+object Scheduler {
 
-  def writeSth(str: String): Unit = {
-    val today = Calendar.getInstance.getTime
-    val format = new SimpleDateFormat("HH-mm-ss")
-    val timeStr = format.format(today)
+  val prePriceMap = new mutable.HashMap[String, Float]()
+  var stockList = new ListBuffer[Stock]()
 
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
-    HdfsFileUtil.setRootDir("smartuser")
-    val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+"test")
-    HdfsFileUtil.mkFile(currentPath + timeStr)
-    HdfsFileUtil.writeString(currentPath + timeStr, str)
+  val taskHour = Array[Int](9, 11, 13, 15)
+  val taskMinute = Array[Int](30, 30, 0, 0)
+  var taskIndex = 0
+  var requesting = false
+  var calculating = false
+
+  val conf =  new SparkConf().setMaster("local").setAppName("su").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
+  val sc = new SparkContext(conf)
+
+  def main(args: Array[String]): Unit = {
+
+//    while (begin()) {
+
+      requesting = true
+      val arr = sc.textFile("/smartuser/hbasedata/codes").filter(StockUtil.validCode).collect
+
+      stockList.clear
+      SinaRequest.requestStockList(arr, afterRequest)
+
+//    }
+
+
+    while (!requesting) {
+      sc.stop
+      requesting = true
+    }
   }
 
-  def validCode(code: String): Boolean = {
-    if (code.length == 0)
-      return false
-    val head = code.charAt(0)
-    if (head == '0' || head == '3' || head == '6' || head == '9')
+  def afterRequest(): Unit = {
+
+    SULogger.warn("enter callback")
+
+
+//    if (taskIndex % 2 == 1) {
+      val prePrice = HdfsFileUtil.readTodayStockCodeByHour(9)
+    SULogger.warn("pre size: " + prePrice.size)
+      val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(15)
+    SULogger.warn("current size: " + currentPrice.size)
+      val rdd = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).foreach(SULogger.warn(_))
+//    } else if (taskIndex == 3) {
+//
+//    }
+    requesting = false
+  }
+
+  def getRateOfReturn(code: String, price: Float): String = {
+    val pre = prePriceMap.get(code)
+    if (pre.isEmpty) {
+      ""
+    } else {
+      val rate = RateOfReturnStrategy(StrategyConfig.STRATEGY_ONE).calculate(pre.get, price)
+      code + "\t" + rate.toString
+    }
+  }
+
+  def begin(): Boolean = {
+
+    TimeUnit.SECONDS.sleep(10)
+
+    val calendar = Calendar.getInstance
+    val hour = calendar.get(Calendar.HOUR_OF_DAY)
+    val minute = calendar.get(Calendar.MINUTE)
+
+    if (hour >= taskHour(taskIndex) && minute >= taskMinute(taskIndex)) {
+      if (taskIndex == taskHour.length - 1) {
+        taskIndex = 0
+      } else {
+        taskIndex += 1
+      }
+
       return true
+    }
+
     false
   }
-
-//  SinaRequest.sendRequest(mutable.HashMap("list" -> "sh601006"))
-
-  val conf =  new SparkConf().setMaster("local").setAppName("su")
-  val sc = new SparkContext(conf)
-  val stockList = TableHbase.getStockCodesFromHbase(sc, 1)
-  val rdd = sc.makeRDD(stockList).filter(_.length > 0).sortBy(_.toInt).foreach(println)
-//  val lines = sc.wholeTextFiles("hdfs://server:9000/smartuser/hbasedata/2016-01-16_21/")
-//  lines.values.flatMap(_.split("\n")).map((_, 1)).reduceByKey(_+_).sortByKey(ascending = true).keys.filter(validCode).saveAsTextFile("hdfs://server:9000/smartuser/hbasedata/stockCodes")
-  sc.stop
 }
