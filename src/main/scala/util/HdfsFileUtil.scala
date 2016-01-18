@@ -241,10 +241,7 @@ object HdfsFileUtil {
       val out = fs.append(new Path(destPath))
       while (iterator.hasNext) {
         val field = iterator.next()
-        /** 待完善 根据股票名称获取股票代码的函数
-          * ？？？？
-          * */
-        strBuilder.append(field.code + "\t"+field.currentPrice+"\n")
+        strBuilder.append(field.formatStockForSaveToHdfs()+"\n")
       }
       if (strBuilder.nonEmpty) {
         val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
