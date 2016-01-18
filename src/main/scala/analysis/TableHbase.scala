@@ -2,6 +2,7 @@ package analysis
 
 import java.util.regex.Pattern
 
+import config.{HdfsPathConfig, HbaseConfig}
 import log.SULogger
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
@@ -93,37 +94,29 @@ object TableHbase{
 
   /** 使用spark运行获取Hbase股票信息 */
   def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
-    SULogger.warn("enter <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
     /** get hbase data */
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
     scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
     val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
     sinaTable.setScan(scan)
-    SULogger.warn(sinaTable.tableName)
-    SULogger.warn(sinaTable.columnFamliy)
-    SULogger.warn(sinaTable.column)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-    val collectResult = hbaseRdd.collect()
-    SULogger.warn("before hdfsutil")
 
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
-    HdfsFileUtil.setRootDir("smartuser/hbasedata")
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
+    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.HBASE_DATA_SAVE_DIR)
     var g_day = new String
     var stockCodes = new mutable.MutableList[String]
-    SULogger.warn("before foreach")
-    collectResult.foreach(x => {
+
+    SULogger.warn(hbaseRdd.count.toString)
+
+    hbaseRdd.foreach(x => {
       try {
-        SULogger.warn("enter foreach")
         val result = x._2
         val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
         val timeStamp = result.getColumnLatestCell(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)).getTimestamp
-        SULogger.warn(timeStamp.toString)
         val days = TimeUtil.getDayAndHour(String.valueOf(timeStamp))
         g_day = days
-        SULogger.warn(g_day)
         val followList = getStockCodes(value)
         val userId = getUserId(value)
         /** HDFS 操作*/
@@ -141,9 +134,9 @@ object TableHbase{
     })
     /** 保存全局股票代码 */
     if(stockCodes.nonEmpty){
-      HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
-      HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
-      HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
+      HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR)
+      HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day)
+      HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day,stockCodes)
       stockCodes
     }else{
      null
@@ -153,8 +146,8 @@ object TableHbase{
   /** 直接获取Hbase股票信息,不使用spark运行 */
   def getStockCodesFromHbaseNoSpark(timeRange:Int): mutable.MutableList[String] ={
     var stockCodes = new mutable.MutableList[String]
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
-    HdfsFileUtil.setRootDir("smartuser/hbasedata")
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
+    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.HBASE_DATA_SAVE_DIR)
     /** get hbase data */
     val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
     val connection = ConnectionFactory.createConnection(conf)
@@ -191,9 +184,9 @@ object TableHbase{
         Logger.getRootLogger.error("[C.J.YOU]"+e.printStackTrace)
     }
     /** 保存全局股票代码 */
-    HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
-    HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
-    HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
+    HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR)
+    HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR+"/"+g_day)
+    HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day,stockCodes)
     stockCodes
   }
 

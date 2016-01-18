@@ -1,5 +1,6 @@
 package analysis
 
+import config.HbaseConfig
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.client._
@@ -50,10 +51,10 @@ class HBase {
   /** 获取hbase的配置  */
   def getConfigure(table:String,columnFamliy:String,column:String): Configuration = {
     conf = HBaseConfiguration.create()
-    conf.set("hbase.rootdir", "hdfs://server:9000/hbase")
+    conf.set("hbase.rootdir", HbaseConfig.HBASE_ROOT_DIR)
     //使用时必须添加这个，否则无法定位
-    conf.set("hbase.zookeeper.quorum", "server")
-    conf.set("hbase.zookeeper.property.clientPort", "2181")
+    conf.set("hbase.zookeeper.quorum", HbaseConfig.HBASE_ZOOKEEPER_QUORUM)
+    conf.set("hbase.zookeeper.property.clientPort", HbaseConfig.HBASE_ZOOKEEPER_PROPERTY_CLIENTPORT)
     conf.set(TableInputFormat.INPUT_TABLE, table)
     conf.set(TableInputFormat.SCAN_COLUMN_FAMILY,columnFamliy)
     conf.set(TableInputFormat.SCAN_COLUMNS,column)

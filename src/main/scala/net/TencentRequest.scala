@@ -47,7 +47,7 @@ object TencentRequest extends BaseHttp {
   val DATE = 30//日期
 
   def sendRequest(requestParameter:mutable.HashMap[String,String]): Unit ={
-    request(URLConfig.tencent, requestParameter, parse)
+    get(URLConfig.TENCENT, requestParameter, parse)
   }
 
   def parse(response: String): Unit = {

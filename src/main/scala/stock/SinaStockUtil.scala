@@ -1,21 +1,13 @@
-package net
+package stock
 
-import config.URLConfig
-import dispatch.{Http, as, url}
 import log.SULogger
-import scheduler.Scheduler
-import stock.{StockUtil, Stock}
-import util.HdfsFileUtil
-import dispatch._,Defaults._
 
-import scala.collection.mutable
-import scala.util.{Failure, Success}
+import scala.collection.mutable.ListBuffer
 
 /**
-  * Created by yangshuai on 2016/1/15.
-  * 新浪api请求
+  * Created by yangshuai on 2016/1/18.
   */
-object SinaRequest extends BaseHttp {
+class SinaStockUtil extends StockUtil {
 
   val NAME = 0//股票名称
   val TODAYOPENINGPRICE = 1//今日开盘价
@@ -52,15 +44,23 @@ object SinaRequest extends BaseHttp {
   val DATE = 30// ARR(30)//日期
   val TIME = 31// ARR(31)//时间
 
-  val MAX_CODE_NUMBER = 890.0
+  override def parseStockList(stockCodes: Array[String], content: String): ListBuffer[Stock] = {
 
-  var requestNum = 0
+    var stockList = new ListBuffer[Stock]()
 
-  def sendRequest(requestParameter:mutable.HashMap[String,String]): Unit = {
-    get(URLConfig.SINA, requestParameter, parse)
+    val contentArr = content.split("\n")
+
+    for (i <- stockCodes.indices) {
+      if (contentArr(i).length > 30) {
+        val stock = parseStock(contentArr(i), stockCodes(i))
+        stockList += stock
+      }
+    }
+
+    stockList
   }
 
-  def parseStock(response: String, code: String): Stock = {
+  override def parseStock(response: String, code: String): Stock = {
 
     val pattern = "(?<==\").*(?=\")".r
     val arr = pattern.findFirstIn(response).get.split(",")
@@ -71,60 +71,5 @@ object SinaRequest extends BaseHttp {
       arr(HIGHESTBUYNUMBER).toLong, arr(HIGHESTBUYPRICE).toFloat,arr(SECONDHIGHESTBUYNUMBER).toLong, arr(SECONDHIGHESTBUYPRICE).toFloat, arr(THIRDHIGHESTBUYNUMBER).toLong, arr(THIRDHIGHESTBUYPRICE).toFloat, arr(FOURTHHIGHESTBUYNUMBER).toLong, arr(FOURTHHIGHESTBUYPRICE).toFloat, arr(FIFTHHIGHESTBUYNUMBER).toLong, arr(FIFTHHIGHESTBUYPRICE).toFloat,
       arr(LOWESTBUYNUMBER).toLong, arr(LOWESTSELLPRICE).toFloat, arr(SECONDLOWESTBUYNUMBER).toLong, arr(SECONDLOWESTBUYPRICE).toFloat, arr(THIRDLOWESTBUYNUMBER).toLong, arr(THIRDLOWESTBUYPRICE).toFloat, arr(FOURTHLOWESTBUYNUMBER).toLong, arr(FOURTHLOWESTBUYPRICE).toFloat, arr(FIFTHLOWESTBUYNUMBER).toLong, arr(FIFTHLOWESTBUYPRICE).toFloat,
       arr(DATE), arr(TIME))
-  }
-
-  def parse(response: String): Unit = {
-    val stock = parseStock(response, "")
-  }
-
-  def requestStockList(arr: Array[String], callBack: () => Unit): Unit = {
-
-    var finalUrl = URLConfig.SINA
-    var i = 0
-    requestNum = Math.ceil(arr.length / MAX_CODE_NUMBER).toInt
-
-    while (i < arr.length) {
-      val head = arr(i).charAt(0)
-      if (head == '0' || head == '3') {
-        finalUrl += "sz" + arr(i) + ","
-      } else if (head == '6' || head == '9') {
-        finalUrl += "sh" + arr(i) + ","
-      }
-
-      if ((i > 0 && i % MAX_CODE_NUMBER == 0) || i == arr.length - 1) {
-        SULogger.warn("Send Request")
-        println(finalUrl)
-        request(finalUrl, callBack)
-        finalUrl = "http://hq.sinajs.cn/list="
-      }
-      i += 1
-    }
-  }
-
-  def request(finalUrl: String, callBack: () => Unit): Unit = {
-
-    val arr = finalUrl.substring(25).split(",")
-
-    val req = url(finalUrl)
-    val response = Http(req OK as.String)
-
-    response onComplete {
-      case Success(content) =>
-        val stockList = StockUtil(1).parseStockList(arr, content)
-        Scheduler.stockList.++=(stockList)
-        SULogger.warn("one request stock number: " + stockList.size)
-        requestNum -= 1
-        if (requestNum == 0) {
-//          Http.shutdown
-          HdfsFileUtil.writeStockList(Scheduler.stockList)
-          SULogger.warn("before list clear")
-          Scheduler.stockList.clear
-          SULogger.warn("before callback")
-          callBack()
-        }
-
-      case Failure(t) =>
-        SULogger.warn("An error has occurred: " + t.getMessage)
-    }
   }
 }

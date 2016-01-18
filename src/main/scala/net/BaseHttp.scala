@@ -1,7 +1,6 @@
 package net
 
 import log.SULogger
-import stock.Stock
 
 import scala.collection.mutable
 import dispatch._,Defaults._
@@ -40,7 +39,7 @@ abstract class BaseHttp {
     strUrl
   }
 
-  def request(strUrl:String, parameters:mutable.HashMap[String,String], parse: String => Unit): Unit = {
+  def get(strUrl:String, parameters:mutable.HashMap[String,String], parse: String => Unit): Unit = {
 
     val finalUrl = getUrl(strUrl, parameters)
 

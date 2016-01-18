@@ -47,4 +47,13 @@ class Stock(
     ""
   }
 
+  def formatStockForSaveToHdfs(): String ={
+    code+"\t"+name+"\t"+todayOpeningPrice+"\t"+yesterdayClosingPrice+"\t"+currentPrice+"\t"+todayHighestPrice+"\t"+ todayLowestPrice+"\t"+
+    transactionNumber+"\t"+transactionMoney+"\t"+highestBuyNumber+"\t"+highestBuyPrice+"\t"+ secondHighestBuyNumber+"\t"+secondHighestBuyPrice+"\t"+ thirdHighestBuyNumber+"\t"+
+    thirdHighestBuyPrice+"\t"+fourthHighestBuyNumber+"\t"+fourthHighestBuyPrice+"\t"+fifthHighestBuyNumber+"\t"+ fifthHighestBuyPrice+"\t"+lowestBuyNumber+"\t"+ lowestSellPrice+"\t"+
+    secondLowestBuyNumber+"\t"+secondLowestBuyPrice+"\t"+thirdLowestBuyNumber+"\t"+thirdLowestBuyPrice+"\t"+ fourthLowestBuyNumber+"\t"+fourthLowestBuyPrice+"\t"+ fifthLowestBuyNumber+"\t"+
+    fifthLowestBuyPrice+"\t"+date+"\t"+time
+
+  }
+
 }
