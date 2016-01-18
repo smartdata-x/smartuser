@@ -112,11 +112,13 @@ object SinaRequest extends BaseHttp {
       case Success(content) =>
         val stockList = StockUtil(1).parseStockList(arr, content)
         Scheduler.stockList.++=(stockList)
-        SULogger.warn(stockList.size.toString)
+        SULogger.warn("one request stock number: " + stockList.size)
         requestNum -= 1
         if (requestNum == 0) {
-          Http.shutdown
+//          Http.shutdown
           HdfsFileUtil.writeStockList(Scheduler.stockList)
+          SULogger.warn("before list clear")
+          Scheduler.stockList.clear
           SULogger.warn("before callback")
           callBack()
         }

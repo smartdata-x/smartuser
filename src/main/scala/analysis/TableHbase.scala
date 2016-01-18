@@ -1,5 +1,8 @@
 package analysis
 
+import java.math.BigInteger
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.regex.Pattern
 
 import config.HbaseConfig
@@ -40,7 +43,7 @@ object TableHbase{
 
   /**获取股票代码 */
   def getStockCodes(sc:String):mutable.MutableList[String] ={
-    val followStockCodeList = new mutable.MutableList[String]
+    val followStockCodeList = new mutable.MutableList[String]()
     val pattern = Pattern.compile("\"\\d{6}\"")
     val m = pattern.matcher(sc)
     if(m != null){
@@ -93,7 +96,7 @@ object TableHbase{
   }
 
   /** 使用spark运行获取Hbase股票信息 */
-  def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
+  def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): Array[String] = {
 
     /** get hbase data */
     val scan = new Scan()
@@ -102,24 +105,21 @@ object TableHbase{
     val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
     sinaTable.setScan(scan)
 
-    val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
+    val rows = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
 
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
-    var g_day = new String
-    var stockCodes = new mutable.MutableList[String]
+    val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH")
+    val g_day: String = sdf.format(new Date)
 
-    SULogger.warn(hbaseRdd.count.toString)
-
-    hbaseRdd.foreach(x => {
+    SULogger.warn("total stock number" + rows.count.toString)
+    val stockCodes = rows.flatMap(x => {
       try {
         val result = x._2
         val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
         val timeStamp = result.getColumnLatestCell(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)).getTimestamp
-        val days = TimeUtil.getDayAndHour(String.valueOf(timeStamp))
-        g_day = days
-        val followList = getStockCodes(value)
-        val userId = getUserId(value)
+        getStockCodes(value)
+        /*val userId = getUserId(value)
         /** HDFS 操作*/
         val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+days)
         if(userId.trim.length > 0 && followList !=null){
@@ -127,21 +127,23 @@ object TableHbase{
           HdfsFileUtil.mkFile(currentPath+userId)
           // System.out.println("rowKey----"+rowKey)
           HdfsFileUtil.writeStockCode(currentPath + userId,followList)
-        }
+        }*/
       } catch {
         case e:Exception => println("[C.J.YOU] writeToHdfsFile error")
           SULogger.error("[C.J.YOU]"+e.printStackTrace)
+          new mutable.MutableList[String]()
       }
-    })
+    }).distinct.collect
+
     /** 保存全局股票代码 */
     if(stockCodes.nonEmpty){
       HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
       HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
       HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
-      stockCodes
-    }else{
-     null
     }
+    SULogger.warn("distinct stock number" + stockCodes.length.toString)
+
+    stockCodes
   }
 
   /** 直接获取Hbase股票信息,不使用spark运行 */
@@ -177,7 +179,7 @@ object TableHbase{
           stockCodes = mergeList(stockCodes,followList)
           HdfsFileUtil.mkFile(currentPath+userId)
           println("path:"+currentPath + userId)
-          HdfsFileUtil.writeStockCode(currentPath + userId,followList)
+          HdfsFileUtil.writeStockCode(currentPath + userId,followList.toArray)
         }
       }
     } catch {
@@ -187,7 +189,7 @@ object TableHbase{
     /** 保存全局股票代码 */
     HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
     HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
-    HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
+    HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes.toArray)
     stockCodes
   }
 
