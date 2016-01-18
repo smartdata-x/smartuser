@@ -1,6 +1,6 @@
 package util
 
-import config.HbaseConfig
+import config.{HdfsPathConfig, HbaseConfig}
 
 import scala.collection.mutable
 
@@ -10,7 +10,7 @@ import scala.collection.mutable
 object StockUtil {
   def getUserStock(date:String,id:String): mutable.MutableList[String] ={
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir("smartuser")
+    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR)
     val stockList = HdfsFileUtil.readStockCode(HdfsFileUtil.getRootDir + date + "/" + id)
     stockList
   }

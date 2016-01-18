@@ -3,16 +3,16 @@ package util
 import java.io.{BufferedReader, ByteArrayInputStream, InputStreamReader}
 import java.net.URI
 
-import config.HbaseConfig
+import config.{HdfsPathConfig, HbaseConfig}
 import log.SULogger
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.io.IOUtils
-import org.apache.log4j.Logger
+
 import stock.Stock
 
 import scala.collection.mutable
-import scala.collection.mutable.{ListBuffer, HashMap}
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by C.J.YOU on 2016/1/14.
@@ -21,7 +21,6 @@ import scala.collection.mutable.{ListBuffer, HashMap}
 object HdfsFileUtil {
   private var rootDir = new String
   private var hdfsUri = new String
-  val logger = Logger.getRootLogger
 
   /** 获取能操作hdfs的对象 */
   def getFileSystem: FileSystem = {
@@ -109,7 +108,7 @@ object HdfsFileUtil {
       }
     } catch {
       case e: Exception => println("writeString error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
     }
@@ -135,8 +134,8 @@ object HdfsFileUtil {
         out.close()
       }
     } catch {
-      case e: Exception => println("write error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
+      case e: Exception => println("writeStockCode error")
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
     }
@@ -196,17 +195,16 @@ object HdfsFileUtil {
         out.close()
       }
     } catch {
-      case e: Exception => println("write error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
+      case e: Exception => println("saveStockCodes write error")
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
     }
   }
 
   def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Float] = {
-
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir("smartuser/strategyone")
+    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.STOCK_SAVE_DIR)
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
     val destPath = currentDir + hour.toString
@@ -217,7 +215,7 @@ object HdfsFileUtil {
 
     for (item <- list) {
       val arr = item.split("\t")
-      map.put(arr(0), arr(1).toFloat)
+      map.put(arr(0), arr(4).toFloat)
     }
 
     map
@@ -227,7 +225,7 @@ object HdfsFileUtil {
   def writeStockList(list: ListBuffer[Stock]): Unit = {
     /** 创建对应的目录 */
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir("smartuser/strategyone")
+    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.STOCK_SAVE_DIR)
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
     val fileName = TimeUtil.getDayAndHour(System.currentTimeMillis().toString).split("_")(1)
@@ -251,8 +249,41 @@ object HdfsFileUtil {
         out.close()
       }
     }catch {
-      case e: Exception => println("writeStockObject error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
+      case e: Exception => println("writeStockList error")
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
+    } finally {
+      fs.close()
+    }
+  }
+
+  /** 写回报率文件方法  **/
+  def writeRateOfReturnStrategyOneFile(list: Array[String],start: Int,end:Int): Unit = {
+    /** 创建对应的目录 */
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
+    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.RETURN_DIR)
+    val fileDayDir =TimeUtil.getDay(System.currentTimeMillis().toString)
+    val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
+    val fileName =start + "-" + end
+    val destPath = currentDir + fileName
+    HdfsFileUtil.mkFile(destPath)
+    /*　写数据到HDFS操作  */
+    val fs = getFileSystem
+    val strBuilder = new StringBuilder()
+    try {
+      val out = fs.append(new Path(destPath))
+      list.foreach(x =>{
+        strBuilder.append(x+"\n")
+      })
+      if (strBuilder.nonEmpty) {
+        val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
+        IOUtils.copyBytes(in, out, 4096, true)
+        strBuilder.clear()
+        in.close()
+        out.close()
+      }
+    }catch {
+      case e: Exception => println("writeRateOfReturnStrategyOne error")
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
     }
