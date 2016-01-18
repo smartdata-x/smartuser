@@ -8,4 +8,12 @@ def execute(func:() => Unit): Unit = {
 
 execute(callback)
 
+try {
+  null.toString
+
+} catch {
+  case e: Exception =>
+    e.printStackTrace
+}
+
 

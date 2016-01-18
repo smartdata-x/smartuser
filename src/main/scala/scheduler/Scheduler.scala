@@ -3,6 +3,7 @@ package scheduler
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
+import analysis.TableHbase
 import calculate.RateOfReturnStrategy
 import config.{StrategyConfig, SparkConfig}
 import log.SULogger
@@ -18,7 +19,7 @@ import scala.collection.mutable.{ListBuffer, HashMap}
   */
 object Scheduler {
 
-  val prePriceMap = new mutable.HashMap[String, Float]()
+  var prePriceMap = new mutable.HashMap[String, Float]()
   var stockList = new ListBuffer[Stock]()
 
   val taskHour = Array[Int](9, 11, 13, 15)
@@ -32,43 +33,49 @@ object Scheduler {
 
   def main(args: Array[String]): Unit = {
 
-//    while (begin()) {
-
-      requesting = true
-      val arr = sc.textFile("/smartuser/hbasedata/codes").filter(StockUtil.validCode).collect
-
-      stockList.clear
-      SinaRequest.requestStockList(arr, afterRequest)
-
-//    }
+    while(true) {
 
 
-    while (!requesting) {
-      sc.stop
-      requesting = true
+      while (!requesting) {
+
+        requesting = true
+//        val arr = sc.textFile("/smartuser/hbasedata/codes").filter(StockUtil.validCode).collect
+        val arr = TableHbase.getStockCodesFromHbase(sc, 1).toArray
+        stockList.clear
+        SinaRequest.requestStockList(arr, afterRequest)
+
+      }
+
+      while (calculating) {
+
+        try {
+          //    if (taskIndex % 2 == 1) {
+          prePriceMap = HdfsFileUtil.readTodayStockCodeByHour(9)
+          SULogger.warn("pre size: " + prePriceMap.size)
+          val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(16)
+          SULogger.warn("current size: " + currentPrice.size)
+          val rdd = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect.foreach(println)
+          //    } else if (taskIndex == 3) {
+        } catch {
+          case e: Exception =>
+            e.printStackTrace()
+            SULogger.exception(e)
+        }
+        //
+        //    }
+
+        calculating = false
+      }
     }
   }
 
   def afterRequest(): Unit = {
-
-    SULogger.warn("enter callback")
-
-
-//    if (taskIndex % 2 == 1) {
-      val prePrice = HdfsFileUtil.readTodayStockCodeByHour(9)
-    SULogger.warn("pre size: " + prePrice.size)
-      val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(15)
-    SULogger.warn("current size: " + currentPrice.size)
-      val rdd = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).foreach(SULogger.warn(_))
-//    } else if (taskIndex == 3) {
-//
-//    }
-    requesting = false
+    calculating = true
   }
 
   def getRateOfReturn(code: String, price: Float): String = {
     val pre = prePriceMap.get(code)
-    if (pre.isEmpty) {
+    if (pre.isEmpty || pre.get == 0) {
       ""
     } else {
       val rate = RateOfReturnStrategy(StrategyConfig.STRATEGY_ONE).calculate(pre.get, price)
