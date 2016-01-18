@@ -8,6 +8,11 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.io.IOUtils
 import org.apache.log4j.Logger
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.sql.types.{FloatType, StringType, StructField, StructType}
+
+
 import stock.Stock
 
 import scala.collection.mutable
@@ -201,7 +206,7 @@ object HdfsFileUtil {
     }
   }
 
-  /** 写入股票对象,包括股票代码和当前价格 */
+  /** 写入股票对象 */
   def writeStockObject(list: mutable.MutableList[Stock]): Unit = {
     /** 创建对应的目录 */
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
@@ -219,10 +224,7 @@ object HdfsFileUtil {
       val out = fs.append(new Path(destPath))
       while (iterator.hasNext) {
         val field = iterator.next()
-        /** 待完善 根据股票名称获取股票代码的函数
-          * ？？？？
-          * */
-        strBuilder.append(field.name + "\t"+field.currentPrice+"\n")
+        strBuilder.append(field.formatStockForSaveToHdfs() +"\n")
       }
       if (strBuilder.nonEmpty) {
         val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
@@ -233,6 +235,39 @@ object HdfsFileUtil {
       }
     }catch {
       case e: Exception => println("writeStockObject error")
+        logger.error("[C.J.YOU]" + e.printStackTrace())
+    } finally {
+      fs.close()
+    }
+  }
+
+  /** 写回报率文件方法  **/
+  def writeRateOfReturnStrategyOneFile(list: Array[String],start: Int,end:Int): Unit = {
+    /** 创建对应的目录 */
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
+    HdfsFileUtil.setRootDir("smartuser/strategyone")
+    val fileDayDir =TimeUtil.getDay(System.currentTimeMillis().toString)
+    val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
+    val fileName =start + "-" + end
+    val destPath = currentDir + fileName
+    HdfsFileUtil.mkFile(destPath)
+    /*　写数据到HDFS操作  */
+    val fs = getFileSystem
+    val strBuilder = new StringBuilder()
+    try {
+      val out = fs.append(new Path(destPath))
+      list.foreach(x =>{
+        strBuilder.append(x+"\n")
+      })
+      if (strBuilder.nonEmpty) {
+        val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
+        IOUtils.copyBytes(in, out, 4096, true)
+        strBuilder.clear()
+        in.close()
+        out.close()
+      }
+    }catch {
+      case e: Exception => println("writeRateOfReturnStrategyOne error")
         logger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
