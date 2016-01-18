@@ -21,7 +21,6 @@ import scala.collection.mutable.{ListBuffer, HashMap}
 object HdfsFileUtil {
   private var rootDir = new String
   private var hdfsUri = new String
-  val logger = Logger.getRootLogger
 
   /** 获取能操作hdfs的对象 */
   def getFileSystem: FileSystem = {
@@ -109,15 +108,15 @@ object HdfsFileUtil {
       }
     } catch {
       case e: Exception => println("writeString error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
     }
   }
 
   /** 写入股票代码 */
-  def writeStockCode(fileName: String, list: mutable.MutableList[String]): Unit = {
-    val iterator: Iterator[String] = list.iterator
+  def writeStockCode(fileName: String, arr: Array[String]): Unit = {
+    val iterator: Iterator[String] = arr.iterator
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
     try {
@@ -136,7 +135,7 @@ object HdfsFileUtil {
       }
     } catch {
       case e: Exception => println("write error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
     }
@@ -197,7 +196,7 @@ object HdfsFileUtil {
       }
     } catch {
       case e: Exception => println("write error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
     }
@@ -227,6 +226,9 @@ object HdfsFileUtil {
   /** 写入股票对象,包括股票代码和当前价格 */
   def writeStockList(list: ListBuffer[Stock]): Unit = {
     /** 创建对应的目录 */
+
+    SULogger.warn("list size:" + list.size)
+
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/strategyone")
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
@@ -235,18 +237,17 @@ object HdfsFileUtil {
     val destPath = currentDir + fileName
     HdfsFileUtil.mkFile(destPath)
     /*　写数据到HDFS操作  */
-    val iterator: Iterator[Stock] = list.iterator
+    SULogger.warn("list size:" + list.size)
+
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
     try {
       val out = fs.append(new Path(destPath))
-      while (iterator.hasNext) {
-        val field = iterator.next()
-        /** 待完善 根据股票名称获取股票代码的函数
-          * ？？？？
-          * */
+
+      for (field <- list) {
         strBuilder.append(field.code + "\t"+field.currentPrice+"\n")
       }
+
       if (strBuilder.nonEmpty) {
         val in = new ByteArrayInputStream(strBuilder.toString.getBytes("UTF-8"))
         IOUtils.copyBytes(in, out, 4096, true)
@@ -256,7 +257,7 @@ object HdfsFileUtil {
       }
     }catch {
       case e: Exception => println("writeStockObject error")
-        logger.error("[C.J.YOU]" + e.printStackTrace())
+        SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
     }
