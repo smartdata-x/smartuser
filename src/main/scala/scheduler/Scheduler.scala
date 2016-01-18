@@ -51,9 +51,6 @@ object Scheduler extends App {
   val arr = sc.textFile("/smartuser/hbasedata/codes").filter(validCode).collect
 
 
-
-
-
   var finalUrl = "http://hq.sinajs.cn/list="
   var i = 0
   val path = "/home/ys/code/smartuser/result"
@@ -63,7 +60,7 @@ object Scheduler extends App {
   val fileWriter = new FileWriter(path, true)
   val bufferWriter = new BufferedWriter(fileWriter)
 
-  var requestNum = Math.ceil(arr.size / MAX_CODE_NUMBER)
+  var requestNum = Math.ceil(arr.length / MAX_CODE_NUMBER)
 
   while (i < arr.length) {
     val head = arr(i).charAt(0)
@@ -94,7 +91,7 @@ object Scheduler extends App {
     response onComplete {
       case Success(content) =>
         val stockList = StockUtil(1).parseStockList(arr, content)
-        HdfsFileUtil.writeStockObject(stockList)
+        HdfsFileUtil.writeStockList(stockList)
         SULogger.warn(stockList.size.toString)
         bufferWriter.write(stockList.length.toString)
         requestNum -= 1

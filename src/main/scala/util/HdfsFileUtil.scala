@@ -4,6 +4,7 @@ import java.io.{BufferedReader, ByteArrayInputStream, InputStreamReader}
 import java.net.URI
 
 import config.HbaseConfig
+import log.SULogger
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.io.IOUtils
@@ -72,11 +73,14 @@ object HdfsFileUtil {
 
   /** 创建文件 */
   def mkFile(name: String): Unit = {
+    SULogger.warn(name)
     val fs = getFileSystem
     if (!fs.exists(new Path(name))) {
+      SULogger.warn("nonexist")
       fs.create(new Path(name))
       // System.out.println("mkfile sucess")
     } else {
+      SULogger.warn("exist")
       // System.out.println("file exist")
     }
     fs.close()
@@ -91,7 +95,7 @@ object HdfsFileUtil {
       println("fileName:" + fileName)
       val out = fs.append(new Path(fileName))
       if (split.length > 1) {
-        for (i <- 0 to split.length - 1) {
+        for (i <- 0 until split.length) {
           strBuilder.append(split(i) + "\t")
         }
         strBuilder.append("\n")
@@ -155,12 +159,12 @@ object HdfsFileUtil {
   }
 
   /** 遍历目录，获取对应目录下文件与文件内容的Map集合  */
-  def getDirectoryContentFromHdfs(dstpath: String): HashMap[String, mutable.MutableList[String]] = {
-    var hashMap = new HashMap[String, mutable.MutableList[String]]
+  def getDirectoryContentFromHdfs(dstpath: String): mutable.HashMap[String, mutable.MutableList[String]] = {
+    var hashMap = new mutable.HashMap[String, mutable.MutableList[String]]
     val fs = getFileSystem
     if (fs.isDirectory(new Path(dstpath))) {
       val fileList = fs.listStatus(new Path(dstpath))
-      for (i <- 0 to fileList.length - 1) {
+      for (i <- 0 until fileList.length) {
         val filePath = fileList(i).getPath.toString
         val keyOfFileName = fileList(i).getPath.getName
         hashMap.+=(keyOfFileName.->(readStockCode(filePath)))
@@ -222,7 +226,7 @@ object HdfsFileUtil {
   }
 
   /** 写入股票对象,包括股票代码和当前价格 */
-  def writeStockObject(list: ListBuffer[Stock]): Unit = {
+  def writeStockList(list: ListBuffer[Stock]): Unit = {
     /** 创建对应的目录 */
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/strategyone")

@@ -38,10 +38,10 @@ class HdfsFileUtilTest extends FlatSpec with Matchers {
   "writeStockObject method" should "work" in {
     val stock_one = new Stock("","sh000001",1,1,1,1,1,1,1,1,1,1,1,1,1,1,11,1,1,1,1,1,1,1,1,1,1,1,1,"t","time")
     val stock_two = new Stock("","sh000002",2,2,1,1,1,1,1,1,1,1,1,1,1,1,11,1,1,1,1,1,1,1,1,1,1,1,1,"t2","time2")
-    val list = new mutable.MutableList[Stock]
+    val list = new mutable.ListBuffer[Stock]
     list.+=(stock_one)
     list.+=(stock_two)
-    HdfsFileUtil.writeStockObject(list)
+    HdfsFileUtil.writeStockList(list)
   }
 
 }
