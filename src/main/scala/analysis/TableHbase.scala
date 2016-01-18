@@ -2,6 +2,7 @@ package analysis
 
 import java.util.regex.Pattern
 
+import config.HbaseConfig
 import log.SULogger
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
@@ -106,17 +107,15 @@ object TableHbase{
     SULogger.warn(sinaTable.column)
 
     val hbaseRdd = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-    SULogger.warn("before collect")
 
-    val collectResult = hbaseRdd.collect()
     SULogger.warn("before hdfsutil")
 
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
     var g_day = new String
     var stockCodes = new mutable.MutableList[String]
     SULogger.warn("before foreach")
-    collectResult.foreach(x => {
+    hbaseRdd.foreach(x => {
       try {
         val result = x._2
         val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
@@ -139,16 +138,20 @@ object TableHbase{
       }
     })
     /** 保存全局股票代码 */
-    HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
-    HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
-    HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
-    stockCodes
+    if(stockCodes.nonEmpty){
+      HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+""+"stockCodes")
+      HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day)
+      HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +"stockCodes"+"/"+g_day,stockCodes)
+      stockCodes
+    }else{
+     null
+    }
   }
 
   /** 直接获取Hbase股票信息,不使用spark运行 */
   def getStockCodesFromHbaseNoSpark(timeRange:Int): mutable.MutableList[String] ={
     var stockCodes = new mutable.MutableList[String]
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
+    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir("smartuser/hbasedata")
     /** get hbase data */
     val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)

@@ -1,5 +1,6 @@
 package analysis
 
+import config.SparkConfig
 import org.apache.spark.{SparkConf, SparkContext}
 
 
@@ -11,8 +12,8 @@ object DataAnalysis {
   def main(args: Array[String]) {
     val  sparkConf = new SparkConf()
       .setAppName("DataAnalysis")
-      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .set("spark.kryoserializer.buffer.max", "2000")
+      .set("spark.serializer", SparkConfig.SPARK_SERIALIZER)
+      .set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
     TableHbase.getStockCodesFromHbase(sc,1)
