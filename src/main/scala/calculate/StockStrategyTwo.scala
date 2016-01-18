@@ -1,5 +1,6 @@
 package calculate
 import stock.Stock
+import stock.RateOfReturn
 
 
 /**
@@ -7,8 +8,8 @@ import stock.Stock
   */
 class StockStrategyTwo extends RateOfReturnStrategy {
 
-  override def calculate(t:Stock, r:Stock): Float = {
-    2f
+  override def calculate(t:Stock, r:Stock): RateOfReturn = {
+    null
   }
 }
 

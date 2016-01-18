@@ -1,5 +1,6 @@
 package calculate
 import stock.Stock
+import stock.RateOfReturn
 
 /**
   * Created by kerry on 16/1/16.
@@ -8,7 +9,10 @@ import stock.Stock
   */
 class StockStrategyOne extends RateOfReturnStrategy {
 
-  override def calculate(t:Stock, r:Stock): Float = {
-    return 1 * (r.currentPrice - t.currentPrice) / (t.currentPrice)
+  override def calculate(t:Stock, r:Stock): RateOfReturn = {
+    val rateOfReturn:RateOfReturn = new RateOfReturn(t.code,t.name)
+    val rate = 1 * (r.currentPrice - t.currentPrice) / (t.currentPrice)
+    rateOfReturn.setRateOfReturn(rate)
+    return rateOfReturn
   }
 }

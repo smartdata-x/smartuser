@@ -1,6 +1,7 @@
 package calculate
 
 import stock.Stock
+import stock.RateOfReturn
 import config.StrategyConig
 
 
@@ -10,7 +11,7 @@ import config.StrategyConig
   */
 trait RateOfReturnStrategy {
 
-  def calculate(t:Stock, r:Stock):Float
+  def calculate(t:Stock, r:Stock):RateOfReturn
 
 }
 
