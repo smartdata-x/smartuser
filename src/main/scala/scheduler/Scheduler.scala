@@ -39,7 +39,7 @@ object Scheduler {
 
         requesting = true
 //        val arr = sc.textFile("/smartuser/hbasedata/codes").filter(StockUtil.validCode).collect
-        val arr = TableHbase.getStockCodesFromHbase(sc, 1)
+        val arr = TableHbase.getStockCodesFromHbase(sc, 1).toArray
         SinaRequest.requestStockList(arr, afterRequest)
 
       }
