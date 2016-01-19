@@ -10,7 +10,7 @@ class UserStrategyOne extends UserRateOfReturn{
 
   var currentTotalRateOfReturn = 0.0
   def countUserTotalRateOfReturn(u:RateOfReturn) = {
-    currentTotalRateOfReturn += u.getRateOfReturn()
+    currentTotalRateOfReturn += u.getRateOfReturn
   }
 
   override def calculate(u:UserStock):Boolean = {
@@ -18,9 +18,9 @@ class UserStrategyOne extends UserRateOfReturn{
     val mapValues = u._hash.mapValues(countUserTotalRateOfReturn)
     u.setCurrentRate(currentTotalRateOfReturn/mapValues.size)
     if (u.getCurrentRate() > 0)
-      return true
+      true
     else
-      return true
+      true
   }
 }
 

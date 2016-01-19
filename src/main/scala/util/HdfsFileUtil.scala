@@ -207,8 +207,10 @@ object HdfsFileUtil {
     * @author yangshuai
     */
   def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Float] = {
+
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.STOCK_SAVE_DIR)
+    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR + "/" + HdfsPathConfig.STOCK_SAVE_DIR)
+
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
     val destPath = currentDir + hour.toString
