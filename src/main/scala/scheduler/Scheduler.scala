@@ -103,7 +103,6 @@ object Scheduler {
 
       return true
     }
-
     false
   }
 }
