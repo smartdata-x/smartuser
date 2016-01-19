@@ -1,7 +1,7 @@
 package config
 
 /**
-  * Created by kerry on 16/1/16.
+  * Created by C.J.YOU on 2016/1/19.
   */
 object StrategyConfig {
   val  STRATEGY_ONE = 1

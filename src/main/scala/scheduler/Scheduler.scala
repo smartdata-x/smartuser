@@ -4,7 +4,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 import analysis.TableHbase
-import calculate.RateOfReturnStrategy
+import calculate.stock.RateOfReturnStrategy
 import config.{StrategyConfig, SparkConfig}
 import log.SULogger
 import net.SinaRequest
@@ -81,7 +81,7 @@ object Scheduler {
     if (pre.isEmpty || pre.get == 0) {
       ""
     } else {
-      val rate = RateOfReturnStrategy(StrategyConfig.STRATEGY_ONE).calculate(pre.get, price)
+      val rate = RateOfReturnStrategy.apply(StrategyConfig.STRATEGY_ONE)
       code + "\t" + rate.toString
     }
   }

@@ -93,7 +93,7 @@ object TableHbase{
   }
 
   /** 使用spark运行获取Hbase股票信息 */
-  def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): mutable.MutableList[String] = {
+  def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): Array[String] = {
     /** get hbase data */
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
@@ -137,7 +137,7 @@ object TableHbase{
       HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR)
       HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir +HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day)
       HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day,stockCodes)
-      stockCodes
+      stockCodes.toArray
     }else{
      null
     }

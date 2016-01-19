@@ -1,7 +1,7 @@
-package calculate
+package calculate.stock
 
-import stock.Stock
-import stock.RateOfReturn
+import config.StrategyConfig
+import stock.{RateOfReturn, Stock}
 
 
 /**
@@ -17,7 +17,7 @@ trait RateOfReturnStrategy {
 object RateOfReturnStrategy {
 
   def apply(sType: Int): RateOfReturnStrategy = {
-    if (sType == StrategyConig.STRATEGY_ONE) {
+    if (sType == StrategyConfig.STRATEGY_ONE) {
       new StockStrategyOne
     } else  {
       new StockStrategyTwo

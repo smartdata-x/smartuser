@@ -1,6 +1,6 @@
-package calculate
-import stock.Stock
-import stock.RateOfReturn
+package calculate.stock
+
+import stock.{Stock, RateOfReturn}
 
 /**
   * Created by kerry on 16/1/16.
