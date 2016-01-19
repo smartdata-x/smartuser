@@ -202,6 +202,10 @@ object HdfsFileUtil {
     }
   }
 
+  /**
+    * 读取当天给定的的小时数的股票代码和价格
+    * @author yangshuai
+    */
   def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Float] = {
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.STOCK_SAVE_DIR)
