@@ -6,7 +6,7 @@ import scala.collection.mutable
   */
 class UserStock {
   private var _uid: String = new String
-  private val _hash: mutable.HashMap[String, RateOfReturn] = new mutable.HashMap[String, RateOfReturn]
+  val _hash: mutable.HashMap[String, RateOfReturn] = new mutable.HashMap[String, RateOfReturn]
   private val _currentRate  = 0.0
 
   def this(uid : String) = {
@@ -25,5 +25,6 @@ class UserStock {
   def getCurrentRate():Double = {
     return this._currentRate
   }
+
 
 }
