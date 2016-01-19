@@ -206,7 +206,7 @@ object HdfsFileUtil {
     * 读取当天给定的的小时数的股票代码和价格
     * @author yangshuai
     */
-  def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Float] = {
+  def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Stock] = {
 
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR + "/" + HdfsPathConfig.STOCK_SAVE_DIR)
@@ -217,11 +217,11 @@ object HdfsFileUtil {
 
     val list = readStockCode(destPath)
 
-    val map = mutable.HashMap[String, Float]()
+    val map = mutable.HashMap[String, Stock]()
 
     for (item <- list) {
-      val arr = item.split("\t")
-      map.put(arr(0), arr(4).toFloat)
+      val stock = Stock(item)
+      map.put(stock.code, stock)
     }
 
     map
