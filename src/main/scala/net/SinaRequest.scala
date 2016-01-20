@@ -115,9 +115,8 @@ object SinaRequest extends BaseHttp {
         SULogger.warn("one request stock number: " + stockList.size)
         requestNum -= 1
         if (requestNum == 0) {
+          SULogger.warn("total stock number: " + Scheduler.stockList.size)
           HdfsFileUtil.writeStockList(Scheduler.stockList)
-          SULogger.warn("before list clear")
-          Scheduler.stockList.clear
           SULogger.warn("before callback")
           callBack()
         }

@@ -41,21 +41,16 @@ object TableHbase{
   }
 
   /**获取股票代码 */
-  def getStockCodes(sc:String):mutable.MutableList[String] ={
+  def getStockCodes(response: String): mutable.MutableList[String] ={
     val followStockCodeList = new mutable.MutableList[String]
-    val pattern = Pattern.compile("\"\\d{6}\"")
-    val m = pattern.matcher(sc)
-    if(m != null){
-      while (m.find()) {
-        val n = m.groupCount()
-        for (i <- 0 to n ) {
-          val outputValue = m.group(i)
-          if (outputValue != null) {
-            followStockCodeList.+=(outputValue.substring(1,7))
-          }
-        }
-      }
+    val pattern = "(?<=\")\\d{6}(?=\")".r
+    val iterator = pattern.findAllMatchIn(response)
+
+    while(iterator.hasNext) {
+      val item = iterator.next
+      followStockCodeList.+=(item.toString)
     }
+
     followStockCodeList
   }
 
