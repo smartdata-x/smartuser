@@ -39,8 +39,9 @@ object Scheduler {
       while (!requesting) {
 
         requesting = true
-        val arr = TableHbase.getStockCodesFromHbase(sc, 1).toArray
-        SinaRequest.requestStockList(arr, afterRequest)
+        val arr = TableHbase.getStockCodesFromHbase(sc, 1)
+        if (arr != null)
+          SinaRequest.requestStockList(arr.toArray, afterRequest)
 
       }
 
