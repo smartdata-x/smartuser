@@ -72,7 +72,6 @@ object HdfsFileUtil {
 
   /** 创建文件 */
   def mkFile(name: String): Unit = {
-    SULogger.warn(name)
     val fs = getFileSystem
     if (!fs.exists(new Path(name))) {
       fs.create(new Path(name))
@@ -115,7 +114,7 @@ object HdfsFileUtil {
   }
 
   /** 写入股票代码 */
-  def writeStockCode(fileName: String, list: mutable.MutableList[String]): Unit = {
+  def writeStockCode(fileName: String, list: Array[String]): Unit = {
     val iterator: Iterator[String] = list.iterator
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
@@ -227,14 +226,14 @@ object HdfsFileUtil {
     map
   }
 
-  /** 写入股票对象,包括股票代码和当前价格 */
+  /** 写入股票对象,包括股票所有信息 */
   def writeStockList(list: ListBuffer[Stock]): Unit = {
     /** 创建对应的目录 */
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.STOCK_SAVE_DIR)
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
-    val fileName = TimeUtil.getDayAndHour(System.currentTimeMillis().toString).split("_")(1)
+    val fileName = TimeUtil.getCurrentHour()
     val destPath = currentDir + fileName
     HdfsFileUtil.mkFile(destPath)
     /*　写数据到HDFS操作  */

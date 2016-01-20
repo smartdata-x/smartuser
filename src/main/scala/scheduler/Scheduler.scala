@@ -41,7 +41,7 @@ object Scheduler {
         requesting = true
         val arr = TableHbase.getStockCodesFromHbase(sc, 1)
         if (arr != null)
-          SinaRequest.requestStockList(arr.toArray, afterRequest)
+          SinaRequest.requestStockList(arr, afterRequest)
 
       }
 

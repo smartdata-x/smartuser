@@ -2,7 +2,7 @@ package util
 
 import java.math.BigInteger
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.{Calendar, Date}
 
 /**
   * Created by C.J.YOU on 2016/1/13.
@@ -29,5 +29,11 @@ import java.util.Date
     val bigInt: BigInteger = new BigInteger(timeStamp)
     val date: String = sdf.format(bigInt)
     date
+  }
+
+  def getCurrentHour(): Int = {
+    val calendar = Calendar.getInstance
+    calendar.setTime(new Date)
+    calendar.get(Calendar.HOUR_OF_DAY)
   }
 }
