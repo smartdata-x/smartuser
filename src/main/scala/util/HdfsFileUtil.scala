@@ -229,6 +229,7 @@ object HdfsFileUtil {
 
   /** 写入股票对象,包括股票所有信息 */
   def writeStockList(list: ListBuffer[Stock]): Unit = {
+
     /** 创建对应的目录 */
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.STOCK_SAVE_DIR)
@@ -237,14 +238,13 @@ object HdfsFileUtil {
     val fileName = TimeUtil.getCurrentHour()
     val destPath = currentDir + fileName
     HdfsFileUtil.mkFile(destPath)
+
     /*　写数据到HDFS操作  */
-    val iterator: Iterator[Stock] = list.iterator
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
     try {
       val out = fs.append(new Path(destPath))
-      while (iterator.hasNext) {
-        val field = iterator.next()
+      for (field <- list) {
         strBuilder.append(field.formatStockForSaveToHdfs()+"\n")
       }
       if (strBuilder.nonEmpty) {
@@ -271,6 +271,7 @@ object HdfsFileUtil {
     val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
     val fileName =start + "-" + end
     val destPath = currentDir + fileName
+    SULogger.warn(destPath)
     HdfsFileUtil.mkFile(destPath)
     /*　写数据到HDFS操作  */
     val fs = getFileSystem
