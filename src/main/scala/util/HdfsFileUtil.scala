@@ -72,13 +72,14 @@ object HdfsFileUtil {
 
   /** 创建文件 */
   def mkFile(name: String): Unit = {
+
     val fs = getFileSystem
-    if (!fs.exists(new Path(name))) {
-      fs.create(new Path(name))
-      // System.out.println("mkfile sucess")
-    } else {
-      // System.out.println("file exist")
-    }
+
+    if (fs.exists(new Path(name)))
+      fs.delete(new Path(name), true)
+
+    fs.create(new Path(name))
+
     fs.close()
   }
 
