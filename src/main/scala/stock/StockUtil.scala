@@ -33,8 +33,4 @@ object StockUtil {
       return true
     false
   }
-
-  def getRateOfReturn(code: String, price: Float): Unit = {
-
-  }
 }

@@ -48,12 +48,21 @@ class Stock(
   }
 
   def formatStockForSaveToHdfs(): String ={
+
     code+"\t"+name+"\t"+todayOpeningPrice+"\t"+yesterdayClosingPrice+"\t"+currentPrice+"\t"+todayHighestPrice+"\t"+ todayLowestPrice+"\t"+
     transactionNumber+"\t"+transactionMoney+"\t"+highestBuyNumber+"\t"+highestBuyPrice+"\t"+ secondHighestBuyNumber+"\t"+secondHighestBuyPrice+"\t"+ thirdHighestBuyNumber+"\t"+
     thirdHighestBuyPrice+"\t"+fourthHighestBuyNumber+"\t"+fourthHighestBuyPrice+"\t"+fifthHighestBuyNumber+"\t"+ fifthHighestBuyPrice+"\t"+lowestBuyNumber+"\t"+ lowestSellPrice+"\t"+
     secondLowestBuyNumber+"\t"+secondLowestBuyPrice+"\t"+thirdLowestBuyNumber+"\t"+thirdLowestBuyPrice+"\t"+ fourthLowestBuyNumber+"\t"+fourthLowestBuyPrice+"\t"+ fifthLowestBuyNumber+"\t"+
     fifthLowestBuyPrice+"\t"+date+"\t"+time
-
   }
+}
 
+object Stock {
+
+  def apply(line: String): Stock = {
+    val arr = line.split("\t")
+    new Stock(arr(0), arr(1), arr(2).toFloat, arr(3).toFloat, arr(4).toFloat, arr(5).toFloat, arr(6).toFloat, arr(7).toLong, arr(8).toFloat, arr(9).toLong,
+      arr(10).toFloat, arr(11).toLong, arr(12).toFloat, arr(13).toLong, arr(14).toFloat, arr(15).toLong, arr(16).toFloat, arr(17).toLong, arr(18).toFloat, arr(19).toLong,
+      arr(20).toFloat, arr(21).toLong, arr(22).toFloat, arr(23).toLong, arr(24).toFloat, arr(25).toLong, arr(26).toFloat, arr(27).toLong, arr(28).toFloat, arr(29), arr(30))
+  }
 }

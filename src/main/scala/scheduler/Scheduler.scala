@@ -5,12 +5,13 @@ import java.util.concurrent.TimeUnit
 
 import analysis.TableHbase
 import calculate.stock.RateOfReturnStrategy
-import config.{StrategyConfig, SparkConfig}
+import config.{SparkConfig, StrategyConfig}
 import log.SULogger
 import net.SinaRequest
 import org.apache.spark.{SparkConf, SparkContext}
 import stock.Stock
 import util.HdfsFileUtil
+
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -19,7 +20,7 @@ import scala.collection.mutable.ListBuffer
   */
 object Scheduler {
 
-  var prePriceMap = new mutable.HashMap[String, Float]()
+  var prePriceMap = new mutable.HashMap[String, Stock]()
   var stockList = new ListBuffer[Stock]()
 
   val taskHour = Array[Int](9, 11, 13, 15)
@@ -38,22 +39,24 @@ object Scheduler {
       while (!requesting) {
 
         requesting = true
-//        val arr = sc.textFile("/smartuser/hbasedata/codes").filter(StockUtil.validCode).collect
-        val arr = TableHbase.getStockCodesFromHbase(sc, 1).toArray
-        SinaRequest.requestStockList(arr, afterRequest)
+        val arr = TableHbase.getStockCodesFromHbase(sc, 1)
+        if (arr != null)
+          SinaRequest.requestStockList(arr, afterRequest)
 
       }
 
       while (calculating) {
 
         try {
+          val currentHour = Calendar.getInstance.get(Calendar.HOUR_OF_DAY)
           //    if (taskIndex % 2 == 1) {
           prePriceMap = HdfsFileUtil.readTodayStockCodeByHour(9)
           SULogger.warn("pre size: " + prePriceMap.size)
-          val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(Calendar.getInstance.get(Calendar.HOUR_OF_DAY))
+          val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(currentHour)
           SULogger.warn("current size: " + currentPrice.size)
-          val rdd = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
-          SULogger.warn("rate of return number: " + rdd.length)
+          val rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
+          SULogger.warn("rate of return number: " + rateOfReturnArr.length)
+          HdfsFileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
           //    } else if (taskIndex == 3) {
         } catch {
           case e: Exception =>
@@ -76,16 +79,26 @@ object Scheduler {
     calculating = true
   }
 
-  def getRateOfReturn(code: String, price: Float): String = {
+  /**
+    * 计算回报率
+    */
+  def getRateOfReturn(code: String, stock: Stock): String = {
     val pre = prePriceMap.get(code)
-    if (pre.isEmpty || pre.get == 0) {
+    if (pre.isEmpty || pre.get == null) {
       ""
+    } else if (stock.currentPrice == 0) {
+      "停牌"
+    } else if (pre.get.currentPrice == 0) {
+      "午后复牌"
     } else {
-      val rate = RateOfReturnStrategy.apply(StrategyConfig.STRATEGY_ONE)
+      val rate = RateOfReturnStrategy.apply(StrategyConfig.STRATEGY_ONE).calculate(pre.get, stock).getRateOfReturn
       code + "\t" + rate.toString
     }
   }
 
+  /**
+    * 是否开始任务
+    */
   def begin(): Boolean = {
 
     TimeUnit.SECONDS.sleep(10)

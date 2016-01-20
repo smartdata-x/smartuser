@@ -18,6 +18,5 @@ class TableHBaseTest extends FlatSpec with Matchers {
     val sc = new SparkContext(sparkConf)
     TableHbase.getStockCodesFromHbase(sc,1)
     sc.stop()
-
   }
 }
