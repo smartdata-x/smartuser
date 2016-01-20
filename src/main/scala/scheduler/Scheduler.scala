@@ -9,10 +9,10 @@ import config.{StrategyConfig, SparkConfig}
 import log.SULogger
 import net.SinaRequest
 import org.apache.spark.{SparkConf, SparkContext}
-import stock.{Stock, StockUtil}
+import stock.Stock
 import util.HdfsFileUtil
 import scala.collection.mutable
-import scala.collection.mutable.{ListBuffer, HashMap}
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by yangshuai on 2016/1/16.
