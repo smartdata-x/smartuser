@@ -33,12 +33,12 @@ object HdfsFileUtil {
   }
 
   /** 设置操作的根目录 */
-  def setRootDir(string: String): Unit = {
+  def setRootDir(directory: String): Unit = {
     val fs = getFileSystem
-    if (!fs.exists(new Path(getHdfsUri + "/" + string))) {
-      fs.mkdirs(new Path(getHdfsUri + "/" + string))
+    if (!fs.exists(new Path(getHdfsUri + "/" + directory))) {
+      fs.mkdirs(new Path(getHdfsUri + "/" + directory))
     }
-    rootDir = getHdfsUri + "/" + string + "/"
+    rootDir = getHdfsUri + "/" + directory + "/"
     fs.close()
   }
 

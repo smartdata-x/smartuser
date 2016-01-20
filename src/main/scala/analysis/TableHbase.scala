@@ -13,9 +13,11 @@ import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.log4j.Logger
 import org.apache.spark.SparkContext
+import scheduler.Scheduler
 import util.{HdfsFileUtil, TimeUtil}
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by C.J.YOU on 2016/1/15.
@@ -41,8 +43,8 @@ object TableHbase{
   }
 
   /**获取股票代码 */
-  def getStockCodes(response: String): mutable.MutableList[String] ={
-    val followStockCodeList = new mutable.MutableList[String]
+  def getStockCodes(response: String): ListBuffer[String] ={
+    val followStockCodeList = ListBuffer[String]()
     val pattern = "(?<=\")\\d{6}(?=\")".r
     val iterator = pattern.findAllMatchIn(response)
 
@@ -75,20 +77,6 @@ object TableHbase{
     userId
   }
 
-  /** 合并List集合：主要要用于去重股票代码 */
-  def mergeList(global_list: mutable.MutableList[String],temp_list:mutable.MutableList[String]): mutable.MutableList[String] ={
-    if(temp_list != null) {
-      val iterator = temp_list.iterator
-      while (iterator.hasNext) {
-        val value = iterator.next()
-        if (!global_list.contains(value)) {
-          global_list.+=(value)
-        }
-      }
-    }
-    global_list
-  }
-
   /** 使用spark运行获取Hbase股票信息 */
   def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): Array[String] = {
     /** get hbase data */
@@ -110,20 +98,15 @@ object TableHbase{
       try {
         val result = x._2
         val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
-        getStockCodes(value)
-        /*val userId = getUserId(value)
-        /** HDFS 操作*/
-        val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+days)
-        if(userId.trim.length > 0 && followList !=null){
-          stockCodes = mergeList(stockCodes,followList)
-          HdfsFileUtil.mkFile(currentPath+userId)
-          // System.out.println("rowKey----"+rowKey)
-          HdfsFileUtil.writeStockCode(currentPath + userId,followList)
-        }*/
+        val userId = getUserId(value)
+        val userStockList = getStockCodes(value)
+        Scheduler.userMap.put(userId, userStockList)
+        userStockList
+
       } catch {
         case e:Exception => println("[C.J.YOU] writeToHdfsFile error")
           SULogger.error("[C.J.YOU]"+e.printStackTrace)
-          new mutable.MutableList[String]()
+          ListBuffer[String]()
       }
     }).distinct.collect
 
@@ -139,9 +122,29 @@ object TableHbase{
     stockCodes
   }
 
+  /**
+    * 保存用户关注的股票信息
+    * @author yangshuai
+    */
+  def saveUserStockInfo: Unit = {
+
+    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.HBASE_DATA_SAVE_DIR)
+    val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + TimeUtil.getDayAndHour(System.currentTimeMillis().toString))
+
+    for (item <- Scheduler.userMap) {
+      /** HDFS 操作*/
+      val userId = item._1
+      val stockCodeList = item._2
+      if(userId.trim.length > 0 && stockCodeList != null){
+        HdfsFileUtil.mkFile(currentPath + userId)
+        HdfsFileUtil.writeStockCode(currentPath + userId, stockCodeList.toArray)
+      }
+    }
+  }
+
   /** 直接获取Hbase股票信息,不使用spark运行 */
-  def getStockCodesFromHbaseNoSpark(timeRange:Int): mutable.MutableList[String] ={
-    var stockCodes = new mutable.MutableList[String]
+  /*def getStockCodesFromHbaseNoSpark(timeRange:Int): mutable.MutableList[String] ={
+    var stockCodes = new ListBuffer[String]()
     HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
     HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.HBASE_DATA_SAVE_DIR)
     /** get hbase data */
@@ -184,6 +187,6 @@ object TableHbase{
     HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR+"/"+g_day)
     HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day,stockCodes.toArray)
     stockCodes
-  }
+  }*/
 
 }

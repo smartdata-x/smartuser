@@ -22,6 +22,7 @@ object Scheduler {
 
   var prePriceMap = new mutable.HashMap[String, Stock]()
   var stockList = new ListBuffer[Stock]()
+  val userMap = new mutable.HashMap[String, ListBuffer[String]]()
 
   val taskHour = Array[Int](9, 11, 13, 15)
   val taskMinute = Array[Int](30, 30, 0, 0)
@@ -39,10 +40,11 @@ object Scheduler {
       while (!requesting) {
 
         requesting = true
+        userMap.clear
         val arr = TableHbase.getStockCodesFromHbase(sc, 1)
         if (arr != null)
           SULogger.warn("before list clear")
-          Scheduler.stockList.clear
+          stockList.clear
           SinaRequest.requestStockList(arr, afterRequest)
 
       }
@@ -59,6 +61,7 @@ object Scheduler {
           val rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
           SULogger.warn("rate of return number: " + rateOfReturnArr.length)
           HdfsFileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
+          TableHbase.saveUserStockInfo
           //    } else if (taskIndex == 3) {
         } catch {
           case e: Exception =>
@@ -89,9 +92,9 @@ object Scheduler {
     if (pre.isEmpty || pre.get == null) {
       ""
     } else if (stock.currentPrice == 0) {
-      "停牌"
+      code + "\t" + "停牌"
     } else if (pre.get.currentPrice == 0) {
-      "午后复牌"
+      code + "\t" + "午后复牌"
     } else {
       val rate = RateOfReturnStrategy.apply(StrategyConfig.STRATEGY_ONE).calculate(pre.get, stock).getRateOfReturn
       code + "\t" + rate.toString
