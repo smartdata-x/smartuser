@@ -86,6 +86,10 @@ object Scheduler {
     val pre = prePriceMap.get(code)
     if (pre.isEmpty || pre.get == null) {
       ""
+    } else if (stock.currentPrice == 0) {
+      "停牌"
+    } else if (pre.get.currentPrice == 0) {
+      "午后复牌"
     } else {
       val rate = RateOfReturnStrategy.apply(StrategyConfig.STRATEGY_ONE).calculate(pre.get, stock).getRateOfReturn
       code + "\t" + rate.toString
