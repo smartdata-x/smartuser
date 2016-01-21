@@ -1,4 +1,4 @@
-package analysis
+package data
 
 import config.HbaseConfig
 import org.apache.hadoop.conf.Configuration
@@ -25,9 +25,9 @@ class HBase {
 
   private[this] var _columnFamliy: String = new Predef.String
 
-  def columnFamliy: String = _columnFamliy
+  def columnFamily: String = _columnFamliy
 
-  def columnFamliy_=(value: String): Unit = {
+  def columnFamily_=(value: String): Unit = {
     _columnFamliy = value
   }
 

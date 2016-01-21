@@ -1,29 +1,26 @@
-package analysis
+package data
 
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.regex.Pattern
 
-import config.{HdfsPathConfig, HbaseConfig}
+import config.HdfsPathConfig
 import log.SULogger
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
-import org.apache.log4j.Logger
 import org.apache.spark.SparkContext
 import scheduler.Scheduler
-import util.{HdfsFileUtil, TimeUtil}
 
-import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
   * Created by C.J.YOU on 2016/1/15.
   * Hbase 操作子类，用来操作Hbase中的表1
   */
-object TableHbase{
+object HbaseUtil {
 
   val SINA_TABLE = "1"
   val SINA_COLUMN_FAMILY = "basic"
@@ -31,20 +28,13 @@ object TableHbase{
 
   val sinaTable = new HBase
   sinaTable.tableName = SINA_TABLE
-  sinaTable.columnFamliy = SINA_COLUMN_FAMILY
+  sinaTable.columnFamily = SINA_COLUMN_FAMILY
   sinaTable.column = SINA_COLUMN_MEMBER
 
-  /** 按照rowKey 将获取hbase的数据 */
-  def get(rowKey:String,table:String,columnFamliy:String,column:String):Result = {
-    val connection = ConnectionFactory.createConnection(HBaseConfiguration.create())
-    val htable = connection.getTable(TableName.valueOf("1"))
-    val get = new Get(Bytes.toBytes(rowKey))
-    val resultOfGet = htable.get(get)
-    resultOfGet
-  }
-
-  /**获取股票代码 */
-  def getStockCodes(response: String): ListBuffer[String] ={
+  /**
+    * 获取所有用户关注的股票代码(有重复)
+    */
+  def getAllStockCodes(response: String): ListBuffer[String] ={
     val followStockCodeList = ListBuffer[String]()
     val pattern = "(?<=\")\\d{6}(?=\")".r
     val iterator = pattern.findAllMatchIn(response)
@@ -59,6 +49,7 @@ object TableHbase{
 
   /** 获取Userid */
   def getUserId(sc:String):String = {
+
     var userId = new String
     val pattern = Pattern.compile("\\[\'userid\'\\]\\s*=\\s*\'\\d{1,}\'")
     val m = pattern.matcher(sc)
@@ -75,39 +66,35 @@ object TableHbase{
         }
       }
     }
+
     userId
   }
 
   /** 使用spark运行获取Hbase股票信息 */
-  def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): Array[String] = {
+  def getStockCodes(sc:SparkContext, timeRange:Int): Array[String] = {
 
     /** get hbase data */
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
     scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
-    val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
-
-    SULogger.warn(sinaTable.tableName)
-    SULogger.warn(sinaTable.columnFamliy)
-    SULogger.warn(sinaTable.column)
-
+    val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamily,sinaTable.column)
     sinaTable.setScan(scan)
 
     val users = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
+    SULogger.warn("total stock number: " + users.count.toString)
 
     val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH")
     val g_day: String = sdf.format(new Date)
 
-    SULogger.warn("total stock number: " + users.count.toString)
+
     val stockCodes = users.flatMap(x => {
       try {
         val result = x._2
-        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
+        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamily), Bytes.toBytes(sinaTable.column)))
         val userId = getUserId(value)
-        val userStockList = getStockCodes(value)
+        val userStockList = getAllStockCodes(value)
         Scheduler.userMap.put(userId, userStockList)
         userStockList
-
       } catch {
         case e:Exception => println("[C.J.YOU] writeToHdfsFile error")
           SULogger.error("[C.J.YOU]"+e.printStackTrace)
@@ -119,9 +106,9 @@ object TableHbase{
     if(stockCodes.nonEmpty){
 
       SULogger.warn("stock codes not null")
-      HdfsFileUtil.mkDir(HdfsPathConfig.STOCK_INFO)
-      HdfsFileUtil.mkFile(HdfsPathConfig.STOCK_INFO +"/" + g_day)
-      HdfsFileUtil.writeStockCode(HdfsPathConfig.STOCK_INFO + "/" + g_day, stockCodes)
+      HDFSFileUtil.mkDir(HdfsPathConfig.STOCK_INFO)
+      HDFSFileUtil.mkFile(HdfsPathConfig.STOCK_INFO +"/" + g_day)
+      HDFSFileUtil.writeStockCode(HdfsPathConfig.STOCK_INFO + "/" + g_day, stockCodes)
     }
 
     SULogger.warn("distinct stock number: " + stockCodes.length.toString)

@@ -1,5 +1,6 @@
 package analysis
 
+import data.HbaseUtil
 import org.apache.hadoop.hbase.client.Scan
 import org.apache.spark.{SparkContext, SparkConf}
 import org.scalatest.{Matchers, FlatSpec}
@@ -16,7 +17,7 @@ class TableHBaseTest extends FlatSpec with Matchers {
       .set("spark.kryoserializer.buffer.max", "2000")
       .setMaster("local")
     val sc = new SparkContext(sparkConf)
-    TableHbase.getStockCodesFromHbase(sc,1)
+    HbaseUtil.getStockCodes(sc,1)
     sc.stop()
   }
 }

@@ -2,15 +2,13 @@ package scheduler
 
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
-
-import analysis.TableHbase
 import calculate.stock.RateOfReturnStrategy
 import config.{SparkConfig, StrategyConfig}
+import data.{HbaseUtil, HDFSFileUtil}
 import log.SULogger
 import net.SinaRequest
 import org.apache.spark.{SparkConf, SparkContext}
 import stock.Stock
-import util.HdfsFileUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -43,7 +41,7 @@ object Scheduler {
         userMap.clear
         stockList.clear
 
-        val arr = TableHbase.getStockCodesFromHbase(sc, 1)
+        val arr = HbaseUtil.getStockCodes(sc, 1)
         SULogger.warn("before list clear")
         SULogger.warn("array length: " + arr.length)
         SinaRequest.requestStockList(arr, afterRequest)
@@ -56,14 +54,14 @@ object Scheduler {
         try {
           val currentHour = Calendar.getInstance.get(Calendar.HOUR_OF_DAY)
           //    if (taskIndex % 2 == 1) {
-          prePriceMap = HdfsFileUtil.readTodayStockCodeByHour(9)
+          prePriceMap = HDFSFileUtil.readTodayStockCodeByHour(9)
           SULogger.warn("pre size: " + prePriceMap.size)
-          val currentPrice = HdfsFileUtil.readTodayStockCodeByHour(currentHour)
+          val currentPrice = HDFSFileUtil.readTodayStockCodeByHour(currentHour)
           SULogger.warn("current size: " + currentPrice.size)
           val rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
           SULogger.warn("rate of return number: " + rateOfReturnArr.length)
-          HdfsFileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
-          HdfsFileUtil.saveUserStockInfo
+          HDFSFileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
+          HDFSFileUtil.saveUserStockInfo
           //    } else if (taskIndex == 3) {
         } catch {
           case e: Exception =>
