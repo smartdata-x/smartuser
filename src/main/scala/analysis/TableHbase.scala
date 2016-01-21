@@ -59,23 +59,23 @@ object TableHbase{
 
   /** 获取Userid */
   def getUserId(sc:String):String = {
-    var userId = new String
+    var fInalUserId = new String
     val pattern = Pattern.compile("\\[\'userid\'\\]\\s*=\\s*\'\\d{1,}\'")
-    val m = pattern.matcher(sc)
-    if(m != null){
-      if(m.find()) {
-        val outputValue = m.group(0)
+    val userIdMatcher = pattern.matcher(sc)
+    if(userIdMatcher != null){
+      if(userIdMatcher.find()) {
+        val outputValue = userIdMatcher.group(0)
         if (outputValue != null) {
           val patternId = Pattern.compile("\\d{1,}")
-          val mId = patternId.matcher(outputValue)
-          if(mId.find()) {
-            val outputValueId = mId.group(0)
-            userId = outputValueId
+          val userId = patternId.matcher(outputValue)
+          if(userId.find()) {
+            val outputValueId = userId.group(0)
+            fInalUserId = outputValueId
           }
         }
       }
     }
-    userId
+    fInalUserId
   }
 
   /** 使用spark运行获取Hbase股票信息 */
