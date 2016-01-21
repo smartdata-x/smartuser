@@ -39,6 +39,16 @@ object Scheduler {
 
     while(true) {
 
+      //定时器
+      if (!requesting && !writing && !calculating) {
+        SULogger.warn("before sleep")
+        if (args.length == 0) {
+          Timer.waitToNextTask()
+        } else {
+          TimeUnit.SECONDS.sleep(100)
+        }
+      }
+
       //请求股票信息
       if (!requesting) {
 
@@ -90,13 +100,6 @@ object Scheduler {
         } finally {
           calculating = false
         }
-      }
-
-      //定时器
-      if (!requesting && !writing && !calculating) {
-        SULogger.warn("before sleep")
-//        Timer.waitToNextTask()
-        TimeUnit.SECONDS.sleep(100)
       }
     }
   }

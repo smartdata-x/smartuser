@@ -40,8 +40,6 @@ object Timer {
 
     SULogger.warn("Wait to " + taskHour(index) + ":" + taskMinute(index))
     SULogger.warn("Seconds: " + remainSeconds)
-    println("Wait to " + taskHour(index) + ":" + taskMinute(index))
-    println("Seconds: " + remainSeconds)
     TimeUnit.SECONDS.sleep(remainSeconds)
   }
 }
