@@ -1,6 +1,6 @@
 package util
 import java.util.Calendar
-import data.HDFSFileUtil
+import data.FileUtil
 import org.scalatest.{FlatSpec, Matchers}
 import stock.Stock
 
@@ -9,7 +9,7 @@ import scala.collection.mutable
 /**
   * Created by C.J.YOU on 2016/1/16.
   */
-class HDFSFileUtilTest extends FlatSpec with Matchers {
+class FileUtilTest extends FlatSpec with Matchers {
 
   /*
   "writeString method" should "work" in {
@@ -42,7 +42,7 @@ class HDFSFileUtilTest extends FlatSpec with Matchers {
     val list = new mutable.ListBuffer[Stock]
     list.+=(stock_one)
     list.+=(stock_two)
-    HDFSFileUtil.writeStockList(list)
+    FileUtil.writeStockList(list)
   }
 
 }

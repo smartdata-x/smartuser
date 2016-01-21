@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.regex.Pattern
 
-import config.HDFSPathConfig
+import config.FileConfig
 import log.SULogger
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
@@ -106,61 +106,12 @@ object HbaseUtil {
     if(stockCodes.nonEmpty){
 
       SULogger.warn("stock codes not null")
-      HDFSFileUtil.mkDir(HDFSPathConfig.STOCK_INFO)
-      HDFSFileUtil.mkFile(HDFSPathConfig.STOCK_INFO +"/" + g_day)
-      HDFSFileUtil.writeStockCode(HDFSPathConfig.STOCK_INFO + "/" + g_day, stockCodes)
+      FileUtil.mkDir(FileConfig.STOCK_INFO)
+      FileUtil.createFile(FileConfig.STOCK_INFO + "/" + g_day, stockCodes)
     }
 
     SULogger.warn("distinct stock number: " + stockCodes.length.toString)
 
     stockCodes
   }
-
-  /** 直接获取Hbase股票信息,不使用spark运行 */
-  /*def getStockCodesFromHbaseNoSpark(timeRange:Int): mutable.MutableList[String] ={
-    var stockCodes = new ListBuffer[String]()
-    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.HBASE_DATA_SAVE_DIR)
-    /** get hbase data */
-    val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
-    val connection = ConnectionFactory.createConnection(conf)
-    val htable = connection.getTable(TableName.valueOf(sinaTable.tableName))
-    val scan = new Scan()
-    val currentTimeStamp = System.currentTimeMillis()
-    scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
-    sinaTable.setScan(scan)
-    val resultScanner = htable.getScanner(scan)
-    val resultScannerIterator = resultScanner.iterator()
-    var g_day = new String
-    try{
-      while(resultScannerIterator.hasNext){
-        val result = resultScannerIterator.next()
-        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)))
-        val timeStamp = result.getColumnLatestCell(Bytes.toBytes(sinaTable.columnFamliy), Bytes.toBytes(sinaTable.column)).getTimestamp
-        val days = TimeUtil.getDay(String.valueOf(timeStamp))
-        g_day = days
-        val followList =getStockCodes(value)
-        val userId = getUserId(value)
-        /** HDFS 操作*/
-        var currentPath = HdfsFileUtil.getRootDir + days
-        currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + days)
-        println("userId:"+userId+":")
-        if(userId.trim.length > 0 && followList !=null){
-          stockCodes = mergeList(stockCodes,followList)
-          HdfsFileUtil.mkFile(currentPath+userId)
-          println("path:"+currentPath + userId)
-          HdfsFileUtil.writeStockCode(currentPath + userId,followList.toArray)
-        }
-      }
-    } catch {
-      case e:Exception => println("[C.J.YOU] writeToHdfsFile error")
-        Logger.getRootLogger.error("[C.J.YOU]"+e.printStackTrace)
-    }
-    /** 保存全局股票代码 */
-    HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR)
-    HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR+"/"+g_day)
-    HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day,stockCodes.toArray)
-    stockCodes
-  }*/
-
 }

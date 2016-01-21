@@ -4,7 +4,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import calculate.stock.RateOfReturnStrategy
 import config.{SparkConfig, StrategyConfig}
-import data.{HbaseUtil, HDFSFileUtil}
+import data.{HbaseUtil, FileUtil}
 import log.SULogger
 import net.SinaRequest
 import org.apache.spark.{SparkConf, SparkContext}
@@ -54,7 +54,7 @@ object Scheduler {
 
       //保存用户自选股信息
       if (writing) {
-        HDFSFileUtil.saveUserStockInfo()
+        FileUtil.saveUserStockInfo()
         writing = false
         requesting = false
       }
@@ -69,19 +69,19 @@ object Scheduler {
           val currentHour = Calendar.getInstance.get(Calendar.HOUR_OF_DAY)
 
           //计算当前时间与上午9点的回报率
-          prePriceMap = HDFSFileUtil.readTodayStockCodeByHour(9)
+          prePriceMap = FileUtil.readTodayStockCodeByHour(9)
           SULogger.warn("pre size: " + prePriceMap.size)
-          val currentPrice = HDFSFileUtil.readTodayStockCodeByHour(currentHour)
+          val currentPrice = FileUtil.readTodayStockCodeByHour(currentHour)
           SULogger.warn("current size: " + currentPrice.size)
           var rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
           SULogger.warn("rate of return number: " + rateOfReturnArr.length)
-          HDFSFileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
+          FileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
 
           //计算15点与13点的回报率
           if (TimeUtil.getCurrentHour() == 15) {
-            prePriceMap = HDFSFileUtil.readTodayStockCodeByHour(13)
+            prePriceMap = FileUtil.readTodayStockCodeByHour(13)
             rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
-            HDFSFileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 13, currentHour)
+            FileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 13, currentHour)
           }
 
         } catch {
@@ -95,9 +95,9 @@ object Scheduler {
       //定时器
       if (!requesting && !writing && !calculating) {
         SULogger.warn("before sleep")
-        Timer.waitToNextTask()
+//        Timer.waitToNextTask()
+        TimeUnit.SECONDS.sleep(100)
       }
-
     }
   }
 

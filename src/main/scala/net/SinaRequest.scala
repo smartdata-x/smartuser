@@ -1,7 +1,7 @@
 package net
 
 import config.{StockConfig, URLConfig}
-import data.HDFSFileUtil
+import data.FileUtil
 import dispatch.{Http, as, url}
 import log.SULogger
 import scheduler.Scheduler
@@ -115,7 +115,7 @@ object SinaRequest extends BaseHttp {
 
         if (requestNum == 0) {
           SULogger.warn("Write " + Scheduler.stockList.size + " stocks.")
-          HDFSFileUtil.writeStockList(Scheduler.stockList)
+          FileUtil.writeStockList(Scheduler.stockList)
           SULogger.warn("before callback")
           callBack()
         }
