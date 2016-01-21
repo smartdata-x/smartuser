@@ -59,7 +59,7 @@ object TableHbase{
 
   /** 获取Userid */
   def getUserId(sc:String):String = {
-    var fInalUserId = new String
+    var finalUserId = new String
     val pattern = Pattern.compile("\\[\'userid\'\\]\\s*=\\s*\'\\d{1,}\'")
     val userIdMatcher = pattern.matcher(sc)
     if(userIdMatcher != null){
@@ -70,12 +70,12 @@ object TableHbase{
           val userId = patternId.matcher(outputValue)
           if(userId.find()) {
             val outputValueId = userId.group(0)
-            fInalUserId = outputValueId
+            finalUserId = outputValueId
           }
         }
       }
     }
-    fInalUserId
+    finalUserId
   }
 
   /** 使用spark运行获取Hbase股票信息 */
