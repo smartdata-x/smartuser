@@ -7,7 +7,7 @@ import org.apache.log4j.Logger
   */
 object SULogger {
 
-  val logger = Logger.getRootLogger
+  val logger = Logger.getLogger("SMART_USER")
 
   def debug(msg: String): Unit = {
     logger.debug(msg)
