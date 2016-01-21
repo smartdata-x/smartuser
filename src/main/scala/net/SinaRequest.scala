@@ -1,6 +1,6 @@
 package net
 
-import config.URLConfig
+import config.{StockConfig, URLConfig}
 import dispatch.{Http, as, url}
 import log.SULogger
 import scheduler.Scheduler
@@ -56,10 +56,6 @@ object SinaRequest extends BaseHttp {
 
   var requestNum = 0
 
-  def sendRequest(requestParameter:mutable.HashMap[String,String]): Unit = {
-    get(URLConfig.SINA, requestParameter, parse)
-  }
-
   def parseStock(response: String, code: String): Stock = {
 
     val pattern = "(?<==\").*(?=\")".r
@@ -73,11 +69,12 @@ object SinaRequest extends BaseHttp {
       arr(DATE), arr(TIME))
   }
 
-  def parse(response: String): Unit = {
-    val stock = parseStock(response, "")
-  }
-
   def requestStockList(arr: Array[String], callBack: () => Unit): Unit = {
+
+    if (arr == null || arr.length == 0) {
+      callBack()
+      return
+    }
 
     var finalUrl = URLConfig.SINA
     var i = 0
@@ -92,7 +89,7 @@ object SinaRequest extends BaseHttp {
       }
 
       if ((i > 0 && i % MAX_CODE_NUMBER == 0) || i == arr.length - 1) {
-        SULogger.warn("Send Request")
+        SULogger.warn("Request for " + arr.length + " stocks.")
         println(finalUrl)
         request(finalUrl, callBack)
         finalUrl = "http://hq.sinajs.cn/list="
@@ -110,12 +107,14 @@ object SinaRequest extends BaseHttp {
 
     response onComplete {
       case Success(content) =>
-        val stockList = StockUtil(1).parseStockList(arr, content)
+
+        val stockList = StockUtil(StockConfig.SINA).parseStockList(arr, content)
         Scheduler.stockList.++=(stockList)
-        SULogger.warn("one request stock number: " + stockList.size)
+        SULogger.warn("Receive request stock number: " + stockList.size)
         requestNum -= 1
+
         if (requestNum == 0) {
-          SULogger.warn("total stock number: " + Scheduler.stockList.size)
+          SULogger.warn("Write " + Scheduler.stockList.size + " stocks.")
           HdfsFileUtil.writeStockList(Scheduler.stockList)
           SULogger.warn("before callback")
           callBack()

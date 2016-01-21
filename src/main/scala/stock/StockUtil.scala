@@ -1,5 +1,7 @@
 package stock
 
+import config.StockConfig
+
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -14,12 +16,9 @@ trait StockUtil {
 
 object StockUtil {
 
-  val SINA = 1
-  val TENCENT = 2
-
   def apply(platform: Int): StockUtil = {
 
-    if (platform == SINA) {
+    if (platform == StockConfig.SINA) {
       return new SinaStockUtil
     }
     null

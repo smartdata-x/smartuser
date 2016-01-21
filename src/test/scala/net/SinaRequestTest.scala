@@ -13,6 +13,5 @@ import scala.util.{Failure, Success}
 class SinaRequestTest extends FlatSpec with Matchers {
 
   it should "" in {
-    SinaRequest.sendRequest(mutable.HashMap("list" -> "sh601006"))
   }
 }
