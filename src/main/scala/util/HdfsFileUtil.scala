@@ -8,6 +8,7 @@ import log.SULogger
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.hadoop.io.IOUtils
+import scheduler.Scheduler
 
 import stock.Stock
 
@@ -19,6 +20,7 @@ import scala.collection.mutable.ListBuffer
   * HDFS操作的工具类
   */
 object HdfsFileUtil {
+
   private var rootDir = new String
   private var hdfsUri = new String
 
@@ -59,26 +61,30 @@ object HdfsFileUtil {
 
   /** 创建目录 */
   def mkDir(name: String): String = {
+
+    val path = HbaseConfig.HBASE_URL + "/" + name
+
     val fs = getFileSystem
-    if (!fs.exists(new Path(name))) {
-      fs.mkdirs(new Path(name))
-      // System.out.println("mkDir sucess")
-    } else {
-      // System.out.println("Dir exist")
-    }
+
+    if (!fs.exists(new Path(path)))
+      fs.create(new Path(path))
+
     fs.close()
-    name + "/"
+
+    path + "/"
   }
 
   /** 创建文件 */
   def mkFile(name: String): Unit = {
 
+    val path = HbaseConfig.HBASE_URL + "/" + name
+
     val fs = getFileSystem
 
-    if (fs.exists(new Path(name)))
-      fs.delete(new Path(name), true)
+    if (fs.exists(new Path(path)))
+      fs.delete(new Path(path), true)
 
-    fs.create(new Path(name))
+    fs.create(new Path(path))
 
     fs.close()
   }
@@ -116,11 +122,16 @@ object HdfsFileUtil {
 
   /** 写入股票代码 */
   def writeStockCode(fileName: String, list: Array[String]): Unit = {
+
+    mkFile(fileName)
+
+    val path  = HbaseConfig.HBASE_URL + "/" + fileName
+
     val iterator: Iterator[String] = list.iterator
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
     try {
-      val out = fs.append(new Path(fileName))
+      val out = fs.append(new Path(path))
       while (iterator.hasNext) {
         val field = iterator.next()
         // println("field:" + field)
@@ -204,15 +215,13 @@ object HdfsFileUtil {
 
   /**
     * 读取当天给定的的小时数的股票代码和价格
+    *
     * @author yangshuai
     */
   def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Stock] = {
 
-    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR + "/" + HdfsPathConfig.STOCK_SAVE_DIR)
-
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
+    val currentDir = HdfsFileUtil.mkDir(HdfsPathConfig.STOCK_INFO + "/" + fileDayDir)
     val destPath = currentDir + hour.toString
 
     val list = readStockCode(destPath)
@@ -231,19 +240,20 @@ object HdfsFileUtil {
   def writeStockList(list: ListBuffer[Stock]): Unit = {
 
     /** 创建对应的目录 */
-    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.STOCK_SAVE_DIR)
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
+    SULogger.warn(fileDayDir)
     val fileName = TimeUtil.getCurrentHour()
-    val destPath = currentDir + fileName
+    SULogger.warn(fileName.toString)
+    val destPath = HdfsPathConfig.STOCK_INFO + "/" + fileDayDir + "/" + fileName
+    SULogger.warn(destPath)
+
     HdfsFileUtil.mkFile(destPath)
 
     /*　写数据到HDFS操作  */
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
     try {
-      val out = fs.append(new Path(destPath))
+      val out = fs.append(new Path(HbaseConfig.HBASE_URL + "/" + destPath))
       for (field <- list) {
         strBuilder.append(field.formatStockForSaveToHdfs()+"\n")
       }
@@ -264,20 +274,18 @@ object HdfsFileUtil {
 
   /** 写回报率文件方法  **/
   def writeRateOfReturnStrategyOneFile(list: Array[String],start: Int,end:Int): Unit = {
+
     /** 创建对应的目录 */
-    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.RETURN_DIR)
     val fileDayDir =TimeUtil.getDay(System.currentTimeMillis().toString)
-    val currentDir = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + fileDayDir)
     val fileName =start + "-" + end
-    val destPath = currentDir + fileName
+    val destPath = HdfsPathConfig.RATE_OF_RETURN + "/" + fileDayDir + "/" + fileName
     SULogger.warn(destPath)
     HdfsFileUtil.mkFile(destPath)
     /*　写数据到HDFS操作  */
     val fs = getFileSystem
     val strBuilder = new StringBuilder()
     try {
-      val out = fs.append(new Path(destPath))
+      val out = fs.append(new Path(HbaseConfig.HBASE_URL + "/" + destPath))
       list.foreach(x =>{
         strBuilder.append(x+"\n")
       })
@@ -293,6 +301,32 @@ object HdfsFileUtil {
         SULogger.error("[C.J.YOU]" + e.printStackTrace())
     } finally {
       fs.close()
+    }
+  }
+
+  /**
+    * 保存用户关注的股票信息
+    *
+    * @author yangshuai
+    */
+  def saveUserStockInfo: Unit = {
+
+    /** 创建对应的目录 */
+    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
+    val fileName = TimeUtil.getCurrentHour()
+    val destPath = HdfsPathConfig.USER_INFO + "/" + fileDayDir + "/" + fileName
+    SULogger.warn(destPath)
+//    HdfsFileUtil.mkDir(HdfsPathConfig.USER_INFO + "/" + fileDayDir)
+    HdfsFileUtil.mkDir(destPath)
+
+
+    for (item <- Scheduler.userMap) {
+      /** HDFS 操作*/
+      val userId = item._1
+      val stockCodeList = item._2
+      if(userId.trim.length > 0 && stockCodeList != null){
+        HdfsFileUtil.writeStockCode(destPath + userId, stockCodeList.toArray)
+      }
     }
   }
 

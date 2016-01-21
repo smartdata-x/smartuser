@@ -28,6 +28,7 @@ object TableHbase{
   val SINA_TABLE = "1"
   val SINA_COLUMN_FAMILY = "basic"
   val SINA_COLUMN_MEMBER = "content"
+
   val sinaTable = new HBase
   sinaTable.tableName = SINA_TABLE
   sinaTable.columnFamliy = SINA_COLUMN_FAMILY
@@ -79,17 +80,21 @@ object TableHbase{
 
   /** 使用spark运行获取Hbase股票信息 */
   def getStockCodesFromHbase(sc:SparkContext, timeRange:Int): Array[String] = {
+
     /** get hbase data */
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
     scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
     val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamliy,sinaTable.column)
+
+    SULogger.warn(sinaTable.tableName)
+    SULogger.warn(sinaTable.columnFamliy)
+    SULogger.warn(sinaTable.column)
+
     sinaTable.setScan(scan)
 
     val users = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
 
-    HdfsFileUtil.setHdfsUri(HbaseConfig.HBASE_URL)
-    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.HBASE_DATA_SAVE_DIR)
     val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH")
     val g_day: String = sdf.format(new Date)
 
@@ -112,34 +117,16 @@ object TableHbase{
 
     /** 保存全局股票代码 */
     if(stockCodes.nonEmpty){
+
       SULogger.warn("stock codes not null")
-      HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR)
-      HdfsFileUtil.mkFile(HdfsFileUtil.getRootDir + HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day)
-      HdfsFileUtil.writeStockCode(HdfsFileUtil.getRootDir +HdfsPathConfig.ALL_STOCKCODE_DIR +"/"+g_day,stockCodes)
+      HdfsFileUtil.mkDir(HdfsPathConfig.STOCK_INFO)
+      HdfsFileUtil.mkFile(HdfsPathConfig.STOCK_INFO +"/" + g_day)
+      HdfsFileUtil.writeStockCode(HdfsPathConfig.STOCK_INFO + "/" + g_day, stockCodes)
     }
+
     SULogger.warn("distinct stock number" + stockCodes.length.toString)
 
     stockCodes
-  }
-
-  /**
-    * 保存用户关注的股票信息
-    * @author yangshuai
-    */
-  def saveUserStockInfo: Unit = {
-
-    HdfsFileUtil.setRootDir(HdfsPathConfig.ROOT_DIR +"/"+HdfsPathConfig.HBASE_DATA_SAVE_DIR)
-    val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir + TimeUtil.getDayAndHour(System.currentTimeMillis().toString))
-
-    for (item <- Scheduler.userMap) {
-      /** HDFS 操作*/
-      val userId = item._1
-      val stockCodeList = item._2
-      if(userId.trim.length > 0 && stockCodeList != null){
-        HdfsFileUtil.mkFile(currentPath + userId)
-        HdfsFileUtil.writeStockCode(currentPath + userId, stockCodeList.toArray)
-      }
-    }
   }
 
   /** 直接获取Hbase股票信息,不使用spark运行 */

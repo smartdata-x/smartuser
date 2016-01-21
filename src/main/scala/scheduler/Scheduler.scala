@@ -42,10 +42,13 @@ object Scheduler {
         requesting = true
         userMap.clear
         val arr = TableHbase.getStockCodesFromHbase(sc, 1)
-        if (arr != null)
+        if (arr != null) {
           SULogger.warn("before list clear")
+          SULogger.warn("array length: " + arr.length)
           stockList.clear
           SinaRequest.requestStockList(arr, afterRequest)
+
+        }
 
       }
 
@@ -61,7 +64,7 @@ object Scheduler {
           val rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
           SULogger.warn("rate of return number: " + rateOfReturnArr.length)
           HdfsFileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
-          TableHbase.saveUserStockInfo
+          HdfsFileUtil.saveUserStockInfo
           //    } else if (taskIndex == 3) {
         } catch {
           case e: Exception =>

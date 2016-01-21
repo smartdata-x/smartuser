@@ -8,9 +8,8 @@ import util.TimeUtil
 object HdfsPathConfig {
 
   val ROOT_DIR = "smartuser"
-  val STOCK_SAVE_DIR = "Stock"
-  val RETURN_DIR = "Return"
-  val HBASE_DATA_SAVE_DIR = "hbasedata"
-  val ALL_STOCKCODE_DIR = "stockCodes"
+  val STOCK_INFO = ROOT_DIR + "/Stock"
+  val RATE_OF_RETURN = ROOT_DIR + "/Return"
+  val USER_INFO = ROOT_DIR + "/User"
   val Date = TimeUtil.getDay(System.currentTimeMillis().toString)
 }

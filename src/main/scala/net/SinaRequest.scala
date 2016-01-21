@@ -1,6 +1,6 @@
 package net
 
-import config.URLConfig
+import config.{StockConfig, URLConfig}
 import dispatch.{Http, as, url}
 import log.SULogger
 import scheduler.Scheduler
@@ -110,10 +110,12 @@ object SinaRequest extends BaseHttp {
 
     response onComplete {
       case Success(content) =>
-        val stockList = StockUtil(1).parseStockList(arr, content)
+
+        val stockList = StockUtil(StockConfig.SINA).parseStockList(arr, content)
         Scheduler.stockList.++=(stockList)
         SULogger.warn("one request stock number: " + stockList.size)
         requestNum -= 1
+
         if (requestNum == 0) {
           SULogger.warn("total stock number: " + Scheduler.stockList.size)
           HdfsFileUtil.writeStockList(Scheduler.stockList)
