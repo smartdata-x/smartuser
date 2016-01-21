@@ -7,7 +7,7 @@ import scala.collection.mutable.ListBuffer
 /**
   * Created by yangshuai on 2016/1/18.
   */
-class SinaStockUtil extends StockUtil {
+class SinaStockParser extends StockParser {
 
   val NAME = 0//股票名称
   val TODAYOPENINGPRICE = 1//今日开盘价

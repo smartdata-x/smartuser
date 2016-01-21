@@ -5,7 +5,7 @@ import util.TimeUtil
 /**
   * Created by C.J.YOU on 2016/1/18.
   */
-object HdfsPathConfig {
+object HDFSPathConfig {
 
   val ROOT_DIR = "smartuser"
   val STOCK_INFO = ROOT_DIR + "/Stock"

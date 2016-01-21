@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.regex.Pattern
 
-import config.HdfsPathConfig
+import config.HDFSPathConfig
 import log.SULogger
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Get, Result, Scan}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
@@ -106,9 +106,9 @@ object HbaseUtil {
     if(stockCodes.nonEmpty){
 
       SULogger.warn("stock codes not null")
-      HDFSFileUtil.mkDir(HdfsPathConfig.STOCK_INFO)
-      HDFSFileUtil.mkFile(HdfsPathConfig.STOCK_INFO +"/" + g_day)
-      HDFSFileUtil.writeStockCode(HdfsPathConfig.STOCK_INFO + "/" + g_day, stockCodes)
+      HDFSFileUtil.mkDir(HDFSPathConfig.STOCK_INFO)
+      HDFSFileUtil.mkFile(HDFSPathConfig.STOCK_INFO +"/" + g_day)
+      HDFSFileUtil.writeStockCode(HDFSPathConfig.STOCK_INFO + "/" + g_day, stockCodes)
     }
 
     SULogger.warn("distinct stock number: " + stockCodes.length.toString)

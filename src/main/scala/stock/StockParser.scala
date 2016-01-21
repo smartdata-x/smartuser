@@ -7,19 +7,19 @@ import scala.collection.mutable.ListBuffer
 /**
   * Created by yangshuai on 2016/1/18.
   */
-trait StockUtil {
+trait StockParser {
 
   def parseStockList(stockCodes: Array[String], content: String): ListBuffer[Stock]
 
   def parseStock(response: String, code: String): Stock
 }
 
-object StockUtil {
+object StockParser {
 
-  def apply(platform: Int): StockUtil = {
+  def apply(platform: Int): StockParser = {
 
     if (platform == StockConfig.SINA) {
-      return new SinaStockUtil
+      return new SinaStockParser
     }
     null
   }

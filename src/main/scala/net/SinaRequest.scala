@@ -5,7 +5,7 @@ import data.HDFSFileUtil
 import dispatch.{Http, as, url}
 import log.SULogger
 import scheduler.Scheduler
-import stock.{StockUtil, Stock}
+import stock.{StockParser, Stock}
 import dispatch._,Defaults._
 
 import scala.collection.mutable
@@ -108,7 +108,7 @@ object SinaRequest extends BaseHttp {
     response onComplete {
       case Success(content) =>
 
-        val stockList = StockUtil(StockConfig.SINA).parseStockList(arr, content)
+        val stockList = StockParser(StockConfig.SINA).parseStockList(arr, content)
         Scheduler.stockList.++=(stockList)
         SULogger.warn("Receive request stock number: " + stockList.size)
         requestNum -= 1
