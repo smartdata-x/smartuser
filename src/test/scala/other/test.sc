@@ -1,19 +1,2 @@
-def callback(): Unit = {
-  println("hello world")
-}
-
-def execute(func:() => Unit): Unit = {
-  func()
-}
-
-execute(callback)
-
-try {
-  null.toString
-
-} catch {
-  case e: Exception =>
-    e.printStackTrace
-}
-
-
+val taskHour = Array[Int](9, 11, 13, 15)
+println(taskHour.last)

@@ -26,7 +26,7 @@ object SULogger {
   }
 
   def exception(e: Exception): Unit = {
-    logger.error(e.getStackTrace)
+    logger.error(e.printStackTrace())
   }
 
 }
