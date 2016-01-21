@@ -67,7 +67,7 @@ object HdfsFileUtil {
     val fs = getFileSystem
 
     if (!fs.exists(new Path(path)))
-      fs.create(new Path(path))
+      fs.mkdirs(new Path(path))
 
     fs.close()
 
@@ -315,19 +315,17 @@ object HdfsFileUtil {
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val fileName = TimeUtil.getCurrentHour()
     val destPath = HdfsPathConfig.USER_INFO + "/" + fileDayDir + "/" + fileName
-    SULogger.warn(destPath)
+    SULogger.warn("Save user info to " + destPath)
 //    HdfsFileUtil.mkDir(HdfsPathConfig.USER_INFO + "/" + fileDayDir)
     HdfsFileUtil.mkDir(destPath)
-
 
     for (item <- Scheduler.userMap) {
       /** HDFS 操作*/
       val userId = item._1
       val stockCodeList = item._2
       if(userId.trim.length > 0 && stockCodeList != null){
-        HdfsFileUtil.writeStockCode(destPath + userId, stockCodeList.toArray)
+        HdfsFileUtil.writeStockCode(destPath + "/" + userId, stockCodeList.toArray)
       }
     }
   }
-
 }

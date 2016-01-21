@@ -41,18 +41,17 @@ object Scheduler {
 
         requesting = true
         userMap.clear
+        stockList.clear
+
         val arr = TableHbase.getStockCodesFromHbase(sc, 1)
-        if (arr != null) {
-          SULogger.warn("before list clear")
-          SULogger.warn("array length: " + arr.length)
-          stockList.clear
-          SinaRequest.requestStockList(arr, afterRequest)
-
-        }
-
+        SULogger.warn("before list clear")
+        SULogger.warn("array length: " + arr.length)
+        SinaRequest.requestStockList(arr, afterRequest)
       }
 
       while (calculating) {
+
+        SULogger.warn("Begin to calculate rate of return.")
 
         try {
           val currentHour = Calendar.getInstance.get(Calendar.HOUR_OF_DAY)

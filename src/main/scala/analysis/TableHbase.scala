@@ -98,7 +98,7 @@ object TableHbase{
     val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH")
     val g_day: String = sdf.format(new Date)
 
-    SULogger.warn("total stock number" + users.count.toString)
+    SULogger.warn("total stock number: " + users.count.toString)
     val stockCodes = users.flatMap(x => {
       try {
         val result = x._2
@@ -124,7 +124,7 @@ object TableHbase{
       HdfsFileUtil.writeStockCode(HdfsPathConfig.STOCK_INFO + "/" + g_day, stockCodes)
     }
 
-    SULogger.warn("distinct stock number" + stockCodes.length.toString)
+    SULogger.warn("distinct stock number: " + stockCodes.length.toString)
 
     stockCodes
   }
