@@ -3,7 +3,7 @@ package scheduler
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import calculate.stock.RateOfReturnStrategy
-import config.{SparkConfig, StrategyConfig}
+import config.{RegExpConfig, SparkConfig, StrategyConfig}
 import data.{HbaseUtil, FileUtil}
 import log.SULogger
 import net.SinaRequest
@@ -21,6 +21,7 @@ import scala.collection.mutable.ListBuffer
 object Scheduler {
 
   var prePriceMap = new mutable.HashMap[String, Stock]()
+  var stockReturnMap = new mutable.HashMap[String, Float]()
   var stockList = new ListBuffer[Stock]()
   val userMap = new mutable.HashMap[String, ListBuffer[String]]()
 
@@ -41,7 +42,7 @@ object Scheduler {
 
       //定时器
       if (!requesting && !writing && !calculating) {
-        SULogger.warn("before sleep")
+        SULogger.warn("Before sleep")
         if (args.length == 0) {
           Timer.waitToNextTask()
         } else {
@@ -79,20 +80,29 @@ object Scheduler {
 
           //计算当前时间与上午9点的回报率
           prePriceMap = FileUtil.readTodayStockCodeByHour(9)
-          SULogger.warn("pre size: " + prePriceMap.size)
+          SULogger.warn("Pre size: " + prePriceMap.size)
           val currentPrice = FileUtil.readTodayStockCodeByHour(currentHour)
-          SULogger.warn("current size: " + currentPrice.size)
+          SULogger.warn("Current size: " + currentPrice.size)
           var rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
-          SULogger.warn("rate of return number: " + rateOfReturnArr.length)
+          SULogger.warn("Rate of return number: " + rateOfReturnArr.length)
           FileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
+
+          stockReturnMap = getReturnMap(rateOfReturnArr)
+          val userReturnArr = sc.parallelize(userMap.toSeq).map(x => getReturn(x._1, x._2)).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2).collect
+          SULogger.warn("User number: " + userReturnArr.length)
+          FileUtil.saveUserReturnInfo(userReturnArr)
 
           //计算15点与13点的回报率
           if (TimeUtil.getCurrentHour() == 15) {
+
             prePriceMap = FileUtil.readTodayStockCodeByHour(13)
             rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
             FileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 13, currentHour)
-          }
 
+            stockReturnMap = getReturnMap(rateOfReturnArr)
+            val userReturnArr = sc.parallelize(userMap.toSeq).map(x => getReturn(x._1, x._2)).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2).collect
+            FileUtil.saveUserReturnInfo(userReturnArr)
+          }
         } catch {
           case e: Exception =>
             e.printStackTrace()
@@ -103,10 +113,43 @@ object Scheduler {
     }
   }
 
+  /**
+    * 计算单个用户的回报率
+    */
+  def getReturn(userId: String, list: Seq[String]): (String, Float) = {
+
+    var result = 0f
+
+    for (code <- list) {
+      result += stockReturnMap.get(code).get
+    }
+
+    (userId, result)
+  }
+
+
+  /**
+    * 获得("股票代码", "回报率")
+    */
+  def getReturnMap(arr: Array[String]): mutable.HashMap[String, Float] = {
+
+    val returnMap = new mutable.HashMap[String, Float]()
+
+    for(str <- arr) {
+      val temp = str.split("\t")
+      if (temp(1).matches(RegExpConfig.FLOAT)) {
+        returnMap.put(temp(0).substring(2), temp(1).toFloat)
+      }
+    }
+
+    returnMap
+  }
+
   def afterRequest(): Unit = {
+    SULogger.warn("After request")
     writing = true
     val hour = TimeUtil.getCurrentHour()
-    if (hour == 11 || hour == 15)
+//    if (hour == 11 || hour == 15)
       calculating = true
   }
 

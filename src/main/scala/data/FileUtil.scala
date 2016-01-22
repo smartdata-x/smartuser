@@ -103,9 +103,9 @@ object FileUtil {
     /** 创建对应的目录 */
     val fileDayDir =TimeUtil.getDay(System.currentTimeMillis().toString)
     val fileName =start + "-" + end
-    val destPath = FileConfig.RATE_OF_RETURN + "/" + fileDayDir + "/" + fileName
-    SULogger.warn(destPath)
-    mkDir(FileConfig.RATE_OF_RETURN + "/" + fileDayDir)
+    val destPath = FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir + "/" + fileName
+    SULogger.warn("Write rate of return to: " + destPath)
+    mkDir(FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir)
     createFile(destPath, list)
   }
 
@@ -133,5 +133,17 @@ object FileUtil {
         createFile(destPath + "/" + userId, stockCodeList)
       }
     }
+  }
+
+  def saveUserReturnInfo(arr: Array[String]): Unit = {
+
+    /** 创建对应的目录 */
+    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
+    val fileName = TimeUtil.getCurrentHour()
+    val destPath = FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir + "/" + fileName
+
+    mkDir(FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir)
+    createFile(destPath, arr)
+
   }
 }

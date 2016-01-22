@@ -12,9 +12,14 @@ object TimeTest extends App {
 
   println(hourOfDay)
 
-  while (true) {
+/*  while (true) {
     println("hello")
     TimeUnit.SECONDS.sleep(5)
-  }
+  }*/
+
+  var a = 10.8
+
+  a += 0f
+
 
 }
