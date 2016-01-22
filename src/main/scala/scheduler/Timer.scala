@@ -29,7 +29,7 @@ object Timer {
     } else {
       breakable {
         for (i <- taskHour.indices) {
-          if (hour < taskHour(i) || (hour == taskHour(i) && minute <= taskMinute(i))) {
+          if (hour < taskHour(i) || (hour == taskHour(i) && minute < taskMinute(i))) {
             remainSeconds = ((taskHour(i) - hour) * 60 + taskMinute(i) - minute) * 60 - second
             index = i
             break

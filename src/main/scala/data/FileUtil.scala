@@ -1,16 +1,10 @@
 package data
 
 import java.io._
-import java.net.URI
-import java.util
 
 import _root_.util.TimeUtil
-import config.{FileConfig, HbaseConfig}
+import config.FileConfig
 import log.SULogger
-import org.apache.commons.io.FileUtils
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.hadoop.io.IOUtils
 import scheduler.Scheduler
 import stock.Stock
 
@@ -71,15 +65,11 @@ object FileUtil {
 
   /**
     * 读取当天给定的的小时数的股票代码和价格
-    *
     * @author yangshuai
     */
   def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Stock] = {
 
-    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    val currentDir = FileConfig.STOCK_INFO + "/" + fileDayDir
-    mkDir(currentDir)
-    val destPath = currentDir + hour.toString
+    val destPath = FileConfig.STOCK_INFO + "/" + TimeUtil.getDay(System.currentTimeMillis().toString) + "/" + hour.toString
 
     val list = readFile(destPath)
 
@@ -98,13 +88,12 @@ object FileUtil {
 
     /** 创建对应的目录 */
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    SULogger.warn(fileDayDir)
     val fileName = TimeUtil.getCurrentHour()
-    SULogger.warn(fileName.toString)
     val destPath = FileConfig.STOCK_INFO + "/" + fileDayDir + "/" + fileName
-    SULogger.warn(destPath)
 
     val strList = list.map(x => x.toString())
+    SULogger.warn("Save " + strList.size + " stocks info to: " + destPath)
+    mkDir(FileConfig.STOCK_INFO + "/" + fileDayDir)
     createFile(destPath, strList)
   }
 
@@ -116,6 +105,7 @@ object FileUtil {
     val fileName =start + "-" + end
     val destPath = FileConfig.RATE_OF_RETURN + "/" + fileDayDir + "/" + fileName
     SULogger.warn(destPath)
+    mkDir(FileConfig.RATE_OF_RETURN + "/" + fileDayDir)
     createFile(destPath, list)
   }
 
@@ -132,6 +122,7 @@ object FileUtil {
     val destPath = FileConfig.USER_INFO + "/" + fileDayDir + "/" + fileName
 
     SULogger.warn("Save user info to " + destPath)
+    mkDir(FileConfig.USER_INFO + "/" + fileDayDir)
     mkDir(destPath)
 
     for (item <- Scheduler.userMap) {

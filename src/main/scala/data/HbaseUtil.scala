@@ -83,10 +83,6 @@ object HbaseUtil {
     val users = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
     SULogger.warn("total stock number: " + users.count.toString)
 
-    val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH")
-    val g_day: String = sdf.format(new Date)
-
-
     val stockCodes = users.flatMap(x => {
       try {
         val result = x._2
@@ -101,14 +97,6 @@ object HbaseUtil {
           ListBuffer[String]()
       }
     }).distinct.collect
-
-    /** 保存全局股票代码 */
-    if(stockCodes.nonEmpty){
-
-      SULogger.warn("stock codes not null")
-      FileUtil.mkDir(FileConfig.STOCK_INFO)
-      FileUtil.createFile(FileConfig.STOCK_INFO + "/" + g_day, stockCodes)
-    }
 
     SULogger.warn("distinct stock number: " + stockCodes.length.toString)
 

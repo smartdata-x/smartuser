@@ -24,13 +24,6 @@ import java.util.{Calendar, Date}
     date
   }
 
-  def getDayAndHour(timeStamp: String): String = {
-    val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH")
-    val bigInt: BigInteger = new BigInteger(timeStamp)
-    val date: String = sdf.format(bigInt)
-    date
-  }
-
   def getCurrentHour(): Int = {
     val calendar = Calendar.getInstance
     calendar.setTime(new Date)
