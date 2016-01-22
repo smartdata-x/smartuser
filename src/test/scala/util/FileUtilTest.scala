@@ -36,6 +36,7 @@ class FileUtilTest extends FlatSpec with Matchers {
     println(value)
   }
   */
+  /*
   "writeStockObject method" should "work" in {
     val stock_one = new Stock("","sh000001",1,1,1,1,1,1,1,1,1,1,1,1,1,1,11,1,1,1,1,1,1,1,1,1,1,1,1,"t","time")
     val stock_two = new Stock("","sh000002",2,2,1,1,1,1,1,1,1,1,1,1,1,1,11,1,1,1,1,1,1,1,1,1,1,1,1,"t2","time2")
@@ -43,6 +44,20 @@ class FileUtilTest extends FlatSpec with Matchers {
     list.+=(stock_one)
     list.+=(stock_two)
     FileUtil.writeStockList(list)
+  }
+  */
+  "getUserInfo method " should "work" in {
+    var hashMap = FileUtil.getUserStockInfo("H:\\SmartData-X\\smartuser\\hbasedata\\2016-01-20_15")
+    hashMap.foreach(x =>{
+      val key = x._1
+      val value =x._2
+      println("key:"+key)
+      print("value:")
+      for (list <- value){
+        print(list+",")
+      }
+      println
+    })
   }
 
 }
