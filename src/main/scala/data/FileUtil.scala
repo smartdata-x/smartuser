@@ -59,7 +59,8 @@ object FileUtil {
   def createFile(path: String, lines: Seq[String]): Unit = {
     val writer = new PrintWriter(path, "UTF-8")
     for (line <- lines) {
-      writer.println(line)
+      val validStockCode = Stock.getTypeOfStockCode(line)
+      writer.println(validStockCode)
     }
     writer.close()
   }

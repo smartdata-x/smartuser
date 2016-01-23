@@ -7,11 +7,14 @@ import scala.collection.mutable
 class UserStock {
   private var _uid: String = new String
   var _hash: mutable.HashMap[String, RateOfReturn] = new mutable.HashMap[String, RateOfReturn]
-  private var _currentRate  = 0.0
+  private var _currentRate  = 0.0f
 
-  def this(uid : String) = {
-    this()
+  def setUid(uid : String) = {
     this._uid = uid
+  }
+
+  def getUid(): String ={
+    this._uid
   }
 
   def setStock(stock: RateOfReturn): Unit ={
@@ -19,15 +22,15 @@ class UserStock {
   }
 
   def setStockes(stockes:mutable.HashMap[String,RateOfReturn]): Unit ={
-    this._hash.++ (stockes)
+    this._hash.++=(stockes)
   }
 
-  def setCurrentRate(rate:Double) = {
+  def setCurrentRate(rate:Float) = {
     this._currentRate = rate
   }
 
 
-  def getCurrentRate():Double = {
+  def getCurrentRate():Float = {
     return this._currentRate
   }
 
