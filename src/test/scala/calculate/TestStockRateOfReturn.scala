@@ -80,7 +80,7 @@ class TestStockRateOfReturn  extends  FlatSpec with Matchers{
       stockCodeListBuffer.foreach( y => {
         if(returnOfReturn.contains(y)){
           val rate = returnOfReturn.get(y).get
-          println("code:"+y+",rate:"+rate.getRateOfReturn)
+          println("Stockcode:"+y+",rate:"+rate.getRateOfReturn)
           userRateOfReturn.+=((y,rate))
         }
       })
@@ -92,5 +92,9 @@ class TestStockRateOfReturn  extends  FlatSpec with Matchers{
     user.foreach(x =>{
       println("uid:"+x.getUid()+",rate:"+x.getCurrentRate())
     })
+
+    /*
+    输出一天的排行榜
+     */
   }
 }
