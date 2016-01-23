@@ -14,7 +14,7 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.spark.SparkContext
 import scheduler.Scheduler
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
   * Created by C.J.YOU on 2016/1/15.
@@ -101,5 +101,15 @@ object HbaseUtil {
     SULogger.warn("distinct stock number: " + stockCodes.length.toString)
 
     stockCodes
+  }
+
+  def getTempStockCodes(sc:SparkContext): Array[String] = {
+    val userStockCodes  = FileUtil.getUserStockInfo("/home/smartuser/resources/user/2016-01-20_15")
+    Scheduler.userMap = userStockCodes
+    sc.parallelize(userStockCodes.toSeq).flatMap(x => converToArray(x._2)).filter(_.length > 0).map(_.substring(2)).distinct.collect
+  }
+
+  def converToArray(list: Seq[String]): Array[String] = {
+    list.toArray
   }
 }

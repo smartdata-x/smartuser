@@ -23,7 +23,7 @@ object Scheduler {
   var prePriceMap = new mutable.HashMap[String, Stock]()
   var stockReturnMap = new mutable.HashMap[String, Float]()
   var stockList = new ListBuffer[Stock]()
-  val userMap = new mutable.HashMap[String, ListBuffer[String]]()
+  var userMap = new mutable.HashMap[String, ListBuffer[String]]()
 
   val taskHour = Array[Int](9, 11, 13, 15)
   val taskMinute = Array[Int](30, 30, 0, 0)
@@ -58,6 +58,7 @@ object Scheduler {
         stockList.clear
 
         val arr = HbaseUtil.getStockCodes(sc, 1)
+//        val arr = HbaseUtil.getTempStockCodes(sc)
         SULogger.warn("array length: " + arr.length)
         SinaRequest.requestStockList(arr, afterRequest)
       }
@@ -90,7 +91,7 @@ object Scheduler {
           stockReturnMap = getReturnMap(rateOfReturnArr)
           val userReturnArr = sc.parallelize(userMap.toSeq).map(x => getReturn(x._1, x._2)).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2).collect
           SULogger.warn("User number: " + userReturnArr.length)
-          FileUtil.saveUserReturnInfo(userReturnArr)
+          FileUtil.saveUserReturnInfo(userReturnArr, "9-" + currentHour)
 
           //计算15点与13点的回报率
           if (TimeUtil.getCurrentHour() == 15) {
@@ -101,7 +102,7 @@ object Scheduler {
 
             stockReturnMap = getReturnMap(rateOfReturnArr)
             val userReturnArr = sc.parallelize(userMap.toSeq).map(x => getReturn(x._1, x._2)).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2).collect
-            FileUtil.saveUserReturnInfo(userReturnArr)
+            FileUtil.saveUserReturnInfo(userReturnArr, "13-" + currentHour)
           }
         } catch {
           case e: Exception =>
@@ -121,7 +122,10 @@ object Scheduler {
     var result = 0f
 
     for (code <- list) {
-      result += stockReturnMap.get(code).get
+      val rate = stockReturnMap.get(code)
+      if (rate.isDefined) {
+        result += rate.get
+      }
     }
 
     (userId, result)

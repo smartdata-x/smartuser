@@ -57,10 +57,11 @@ object FileUtil {
     * override the old one
     */
   def createFile(path: String, lines: Seq[String]): Unit = {
+
     val writer = new PrintWriter(path, "UTF-8")
+
     for (line <- lines) {
-      val validStockCode = Stock.getTypeOfStockCode(line)
-      writer.println(validStockCode)
+      writer.println(line)
     }
     writer.close()
   }
@@ -105,9 +106,9 @@ object FileUtil {
     /** 创建对应的目录 */
     val fileDayDir =TimeUtil.getDay(System.currentTimeMillis().toString)
     val fileName =start + "-" + end
-    val destPath = FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir + "/" + fileName
+    val destPath = FileConfig.RATE_OF_RETURN_STOCK + "/" + fileDayDir + "/" + fileName
     SULogger.warn("Write rate of return to: " + destPath)
-    mkDir(FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir)
+    mkDir(FileConfig.RATE_OF_RETURN_STOCK + "/" + fileDayDir)
     createFile(destPath, list)
   }
 
@@ -137,23 +138,21 @@ object FileUtil {
     }
   }
 
-  def saveUserReturnInfo(arr: Array[String]): Unit = {
+  def saveUserReturnInfo(arr: Array[String], fileName: String): Unit = {
 
     /** 创建对应的目录 */
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    val fileName = TimeUtil.getCurrentHour()
     val destPath = FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir + "/" + fileName
 
     mkDir(FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir)
     createFile(destPath, arr)
-
   }
 
   /**
     *获取用户关注股票信息
     */
-  def getUserStockInfo(dstpath:String): HashMap[String,ListBuffer[String]] ={
-    var hashMap = new HashMap[String,ListBuffer[String]]
+  def getUserStockInfo(dstpath:String): mutable.HashMap[String,ListBuffer[String]] ={
+    var hashMap = new mutable.HashMap[String,ListBuffer[String]]
     val dir = new File(dstpath)
     val fileList = readUserFile(dir)
     fileList.foreach(result =>{
@@ -167,6 +166,6 @@ object FileUtil {
   def readUserFile(dir: File): Iterator[File] = {
     val d = dir.listFiles.filter(_.isDirectory)
     val f = dir.listFiles.toIterator
-    f ++ d.toIterator.flatMap(readUserFile _)
+    f ++ d.toIterator.flatMap(readUserFile)
   }
 }

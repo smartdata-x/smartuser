@@ -1,2 +1,3 @@
-val taskHour = Array[Int](9, 11, 13, 15)
-println(taskHour.last)
+var a = 0.0035f
+a += 1
+println("a" + a)
