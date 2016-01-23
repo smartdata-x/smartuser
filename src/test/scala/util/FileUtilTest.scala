@@ -49,7 +49,7 @@ class FileUtilTest extends FlatSpec with Matchers {
 
   /*
   "getUserInfo method " should "work" in {
-    val hashMap = FileUtil.getUserStockInfo("H:\\SmartData-X\\smartuser\\hbasedata\\2016-01-20_15")
+    val hashMap = FileUtil.getUserStockInfo("src/test/resources/user/2016-01-20_15")
     hashMap.foreach(x =>{
       val key = x._1
       val value =x._2

@@ -8,15 +8,21 @@ import stock.{RateOfReturn, UserStock}
   */
 class UserStrategyOne extends UserRateOfReturn{
 
-  var currentTotalRateOfReturn = 0.0
+
   def countUserTotalRateOfReturn(u:RateOfReturn) = {
-    currentTotalRateOfReturn += u.getRateOfReturn
+
   }
 
   override def calculate(u:UserStock):Boolean = {
-
-    val mapValues = u._hash.mapValues(countUserTotalRateOfReturn)
-    u.setCurrentRate(currentTotalRateOfReturn/mapValues.size)
+    var currentTotalRateOfReturn = 0.0f
+    // val mapValues = u._hash.mapValues(countUserTotalRateOfReturn(_))
+    u._hash.foreach(x =>{
+      currentTotalRateOfReturn += x._2.getRateOfReturn
+      // println("user:stockcode:"+u.getCode+",rateOfReturn:"+u.getRateOfReturn)
+    })
+    println("user:"+u.getUid()+",mapValues:"+u._hash.size.toFloat+",currentTotalRateOfReturn:"+currentTotalRateOfReturn)
+    u.setCurrentRate((currentTotalRateOfReturn/u._hash.size.toFloat))
+    println("user:currentRate:"+u.getCurrentRate())
     if (u.getCurrentRate() > 0)
       true
     else

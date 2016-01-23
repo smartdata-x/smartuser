@@ -61,4 +61,15 @@ object Stock {
       arr(10).toFloat, arr(11).toLong, arr(12).toFloat, arr(13).toLong, arr(14).toFloat, arr(15).toLong, arr(16).toFloat, arr(17).toLong, arr(18).toFloat, arr(19).toLong,
       arr(20).toFloat, arr(21).toLong, arr(22).toFloat, arr(23).toLong, arr(24).toFloat, arr(25).toLong, arr(26).toFloat, arr(27).toLong, arr(28).toFloat, arr(29), arr(30))
   }
+
+  def getTypeOfStockCode(code:String): String ={
+    var validStockCode = new String
+    val head = code.charAt(0)
+    if (head == '0' || head == '3') {
+      validStockCode += "sz" + code
+    } else if (head == '6' || head == '9') {
+      validStockCode += "sh" + code
+    }
+    validStockCode
+  }
 }
