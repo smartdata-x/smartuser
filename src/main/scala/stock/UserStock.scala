@@ -18,7 +18,7 @@ class UserStock {
     this._hash(stock.getCode) = stock
   }
 
-  def setStockes(stockes:mutable.HashMap[String,String]): Unit ={
+  def setStockes(stockes:mutable.HashMap[String,RateOfReturn]): Unit ={
     this._hash.++ (stockes)
   }
 
