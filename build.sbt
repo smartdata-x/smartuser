@@ -6,11 +6,13 @@ version := "1.0"
 
 scalaVersion := "2.10.4"
 
-libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.10.4"
+ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
-libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.7.1"
+libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.10.4" % "provided"
 
-libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.7.1"
+libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.7.1" % "provided" excludeAll ExclusionRule(organization = "javax.servlet")
+
+libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.7.1" % "provided" excludeAll ExclusionRule(organization = "javax.servlet")
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.1"
 
@@ -22,7 +24,7 @@ libraryDependencies += "org.apache.hbase" % "hbase-client" % "1.1.2"
 
 libraryDependencies += "org.apache.hbase" % "hbase-common" % "1.1.2"
 
-libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2"
+libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2" % "provided"
 
 libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2"
 
