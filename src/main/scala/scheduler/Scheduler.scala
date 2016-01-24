@@ -58,7 +58,6 @@ object Scheduler {
         stockList.clear
 
         val arr = HbaseUtil.getStockCodes(sc, 1)
-//        val arr = HbaseUtil.getTempStockCodes(sc)
         SULogger.warn("array length: " + arr.length)
         SinaRequest.requestStockList(arr, afterRequest)
       }

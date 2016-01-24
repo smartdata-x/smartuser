@@ -103,12 +103,6 @@ object HbaseUtil {
     stockCodes
   }
 
-  def getTempStockCodes(sc:SparkContext): Array[String] = {
-    val userStockCodes  = FileUtil.getUserStockInfo("/home/smartuser/resources/user/2016-01-20_15")
-    Scheduler.userMap = userStockCodes
-    sc.parallelize(userStockCodes.toSeq).flatMap(x => converToArray(x._2)).filter(_.length > 0).map(_.substring(2)).distinct.collect
-  }
-
   def converToArray(list: Seq[String]): Array[String] = {
     list.toArray
   }
