@@ -1,6 +1,4 @@
-import java.io.File
-
-import scala.sys.process._
+package other
 
 /**
   * Created by yangshuai on 2016/1/17.
