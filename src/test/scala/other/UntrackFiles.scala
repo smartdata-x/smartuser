@@ -1,5 +1,8 @@
 package other
 
+
+import scala.sys.process._
+
 /**
   * Created by yangshuai on 2016/1/17.
   * 慎用!!!
