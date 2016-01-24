@@ -91,6 +91,7 @@ class TestStockRateOfReturn  extends  FlatSpec with Matchers{
 
     user.foreach(x =>{
       println("uid:"+x.getUid()+",rate:"+x.getCurrentRate())
+      println("=====================")
     })
 
     /*

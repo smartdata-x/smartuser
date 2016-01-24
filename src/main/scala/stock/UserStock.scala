@@ -7,6 +7,7 @@ import scala.collection.mutable
 class UserStock {
   private var _uid: String = new String
   var _hash: mutable.HashMap[String, RateOfReturn] = new mutable.HashMap[String, RateOfReturn]
+  var _new_hash: mutable.HashMap[String, RateOfReturn] = new mutable.HashMap[String, RateOfReturn]
   private var _currentRate  = 0.0f
 
   def setUid(uid : String) = {
