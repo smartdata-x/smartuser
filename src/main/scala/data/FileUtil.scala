@@ -5,12 +5,11 @@ import java.io._
 import _root_.util.TimeUtil
 import config.FileConfig
 import log.SULogger
-import org.apache.hadoop.fs.Path
 import scheduler.Scheduler
 import stock.Stock
 
 import scala.collection.mutable
-import scala.collection.mutable.{HashMap, ListBuffer}
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by C.J.YOU on 2016/1/14.
@@ -152,17 +151,23 @@ object FileUtil {
     *获取用户关注股票信息
     */
   def getUserStockInfo(dstpath:String): mutable.HashMap[String,ListBuffer[String]] ={
+
     var hashMap = new mutable.HashMap[String,ListBuffer[String]]
     val dir = new File(dstpath)
     val fileList = readUserFile(dir)
+
     fileList.foreach(result =>{
       val filePath = result.getAbsolutePath
       val fileName = result.getName
-      val stockList = readFile(filePath)
-      hashMap.+=((fileName,stockList))
+      if (fileName.matches("\\d+")) {
+        val stockList = readFile(filePath)
+        hashMap.+=((fileName,stockList))
+      }
     })
+
     hashMap
   }
+
   def readUserFile(dir: File): Iterator[File] = {
     val d = dir.listFiles.filter(_.isDirectory)
     val f = dir.listFiles.toIterator
