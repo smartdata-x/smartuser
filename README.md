@@ -24,7 +24,7 @@
 
 * 策略1流程图：
 
-![策略1流程图](https://github.com/smartdata-x/smartuser/blob/master/pic/strategy1.jpg)
+![策略1流程图](/pic/strategy1.jpg)
 
 
 ###高手看涨实现方式
