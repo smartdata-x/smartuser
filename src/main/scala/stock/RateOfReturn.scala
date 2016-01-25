@@ -5,39 +5,31 @@ package stock
   */
 class RateOfReturn {
 
-  private var _code: String = ""//股票代碼
-  private var _name: String = ""//股票名称
-  private var _current_rate: Float = 0f //回报率
-  private var _date: String = "" //回报率的时间段
+  private var _code: String = _//股票代碼
+  private var _name: String = _//股票名称
+  private var _current_rate: Float = _ //回报率
+  private var _date: String = _ //回报率的时间段
 
   def this(code: String, name: String) = {
     this()
-    this._code = code
-    this._name = name
-    this._current_rate = 0f
+    _code = code
+    _name = name
+    _current_rate = 0f
   }
 
-  def setRateOfReturn(current_rate: Float): Unit ={
-    this._current_rate = current_rate
+  def current_rate_(current_rate: Float): Unit ={
+    _current_rate = current_rate
   }
 
-  def getCode: String = {
-    this._code
-  }
+  def code: String = _code
 
-  def getName: String = {
-    this._name
-  }
+  def name: String = _name
 
-  def getRateOfReturn: Float ={
-    this._current_rate
-  }
+  def current_rate: Float =_current_rate
 
-  def getRateOfReturnDate: String = {
-    this._date
-  }
+  def date: String = _date
 
-  def setRateOfReturnDate(date: String): Unit = {
-    this._date = date
+  def date_(date: String): Unit = {
+    _date = date
   }
 }

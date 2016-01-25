@@ -13,7 +13,7 @@ class StockStrategyOne extends RateOfReturnStrategy {
 
     val rateOfReturn:RateOfReturn = new RateOfReturn(t.code,t.name)
     val rate = 1 * (r.currentPrice - t.currentPrice) / t.currentPrice
-    rateOfReturn.setRateOfReturn(rate)
+    rateOfReturn.current_rate_(rate)
 
     rateOfReturn
   }

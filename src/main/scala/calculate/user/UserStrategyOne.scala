@@ -16,11 +16,11 @@ class UserStrategyOne extends UserRateOfReturn{
 
   override def calculate(u:UserStock):Boolean = {
     var currentTotalRateOfReturn = 0.0f
-    u._hash.foreach(x =>{
-      currentTotalRateOfReturn += x._2.getRateOfReturn
+    u._stocks.foreach(x =>{
+      currentTotalRateOfReturn += x._2.current_rate
     })
-    u.setCurrentRate((currentTotalRateOfReturn/u._hash.size.toFloat))
-    if (u.getCurrentRate() > 0)
+    u.currentRate_((currentTotalRateOfReturn/u._stocks.size.toFloat))
+    if (u.currentRate() > 0)
       true
     else
       true

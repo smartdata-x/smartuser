@@ -2,9 +2,10 @@ package scheduler
 
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+
 import calculate.stock.RateOfReturnStrategy
 import config.{RegExpConfig, SparkConfig, StrategyConfig}
-import data.{HbaseUtil, FileUtil}
+import data.{FileUtil, HbaseUtil}
 import log.SULogger
 import net.SinaRequest
 import org.apache.spark.{SparkConf, SparkContext}
@@ -24,6 +25,8 @@ object Scheduler {
   var stockReturnMap = new mutable.HashMap[String, Float]()
   var stockList = new ListBuffer[Stock]()
   var userMap = new mutable.HashMap[String, ListBuffer[String]]()
+
+  var topUser = Set[String]()
 
   val taskHour = Array[Int](9, 11, 13, 15)
   val taskMinute = Array[Int](30, 30, 0, 0)
@@ -46,7 +49,7 @@ object Scheduler {
         if (args.length == 0) {
           Timer.waitToNextTask()
         } else {
-          TimeUnit.SECONDS.sleep(100)
+          TimeUnit.SECONDS.sleep(10)
         }
       }
 
@@ -88,12 +91,12 @@ object Scheduler {
           FileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, 9, currentHour)
 
           stockReturnMap = getReturnMap(rateOfReturnArr)
-          val userReturnArr = sc.parallelize(userMap.toSeq).map(x => getReturn(x._1, x._2)).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2).collect
+          val userReturnArr = sc.parallelize(userMap.toSeq).map(x => getReturn(x._1, x._2)).filter(_._1.length > 0).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2).collect
           SULogger.warn("User number: " + userReturnArr.length)
           FileUtil.saveUserReturnInfo(userReturnArr, "9-" + currentHour)
 
           //计算15点与13点的回报率
-          if (TimeUtil.getCurrentHour() == 15) {
+          if (TimeUtil.getCurrentHour == 15) {
 
             prePriceMap = FileUtil.readTodayStockCodeByHour(13)
             rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
@@ -102,6 +105,11 @@ object Scheduler {
             stockReturnMap = getReturnMap(rateOfReturnArr)
             val userReturnArr = sc.parallelize(userMap.toSeq).map(x => getReturn(x._1, x._2)).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2).collect
             FileUtil.saveUserReturnInfo(userReturnArr, "13-" + currentHour)
+
+            topUser = sc.parallelize(userMap.toSeq).map(x => getReturn(x._1, x._2)).sortBy(_._2, ascending = false).map(_._1).take(100).toSet
+            val stockRank = sc.parallelize(userMap.toSeq).filter(x => ifTopUser(x._1)).flatMap(_._2).map((_, 1)).reduceByKey(_+_).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2).collect
+            FileUtil.saveStockRankInfo(stockRank, "13-" + currentHour)
+//            val rateOfStockFocusChanging =
           }
         } catch {
           case e: Exception =>
@@ -113,21 +121,36 @@ object Scheduler {
     }
   }
 
+  def getRateOfStockFocusChanging(infos: Seq[String], fileName: String): Seq[String] = {
+
+//    val list = FileUtil.readFile()
+    null
+  }
+
+  def ifTopUser(userId: String): Boolean = {
+    if (topUser.contains(userId)) {
+      return true
+    }
+    false
+  }
+
   /**
     * 计算单个用户的回报率
     */
   def getReturn(userId: String, list: Seq[String]): (String, Float) = {
 
     var result = 0f
+    var size = 0
 
     for (code <- list) {
       val rate = stockReturnMap.get(code)
       if (rate.isDefined) {
+        size += 1
         result += rate.get
       }
     }
 
-    (userId, result)
+    (userId, result / size)
   }
 
 
@@ -151,7 +174,7 @@ object Scheduler {
   def afterRequest(): Unit = {
     SULogger.warn("After request")
     writing = true
-    val hour = TimeUtil.getCurrentHour()
+    val hour = TimeUtil.getCurrentHour
 //    if (hour == 11 || hour == 15)
       calculating = true
   }
@@ -168,7 +191,7 @@ object Scheduler {
     } else if (pre.get.currentPrice == 0) {
       code + "\t" + "午后复牌"
     } else {
-      val rate = RateOfReturnStrategy.apply(StrategyConfig.STRATEGY_ONE).calculate(pre.get, stock).getRateOfReturn
+      val rate = RateOfReturnStrategy.apply(StrategyConfig.STRATEGY_ONE).calculate(pre.get, stock).current_rate
       code + "\t" + rate.toString
     }
   }

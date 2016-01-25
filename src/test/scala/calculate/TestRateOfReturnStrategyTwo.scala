@@ -117,7 +117,7 @@ class TestRateOfReturnStrategyTwo extends  FlatSpec with Matchers{
         })
 
         println("New userRateOfReturn size:",userRateOfReturn.size)
-        userStock.setStockes(userRateOfReturn)
+        userStock.stocks_(userRateOfReturn)
         userRate.calculate(userStock)
 
        // println("user rateOfReturn:",userStock.getCurrentRate())
@@ -130,14 +130,11 @@ class TestRateOfReturnStrategyTwo extends  FlatSpec with Matchers{
 
 
     user.foreach(x =>{
-      println("uid:"+x.getUid()+",rate:"+x.getCurrentRate())
+      println("uid:" + x.uid + ",rate:" + x.currentRate())
       println("=====================")
     })
 
 
 
   }
-
-
-
 }

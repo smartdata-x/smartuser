@@ -89,7 +89,8 @@ object HbaseUtil {
         val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamily), Bytes.toBytes(sinaTable.column)))
         val userId = getUserId(value)
         val userStockList = getAllStockCodes(value)
-        Scheduler.userMap.put(userId, userStockList)
+        if (userStockList.size > 0)
+          Scheduler.userMap.put(userId, userStockList)
         userStockList
       } catch {
         case e:Exception => println("[C.J.YOU] writeToHdfsFile error")

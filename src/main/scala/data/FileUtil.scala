@@ -54,6 +54,7 @@ object FileUtil {
 
   /**
     * override the old one
+    * @author yangshuai
     */
   def createFile(path: String, lines: Seq[String]): Unit = {
 
@@ -90,7 +91,7 @@ object FileUtil {
 
     /** 创建对应的目录 */
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    val fileName = TimeUtil.getCurrentHour()
+    val fileName = TimeUtil.getCurrentHour
     val destPath = FileConfig.STOCK_INFO + "/" + fileDayDir + "/" + fileName
 
     val strList = list.map(x => x.toString())
@@ -120,7 +121,7 @@ object FileUtil {
 
     /** 创建对应的目录 */
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    val fileName = TimeUtil.getCurrentHour()
+    val fileName = TimeUtil.getCurrentHour
     val destPath = FileConfig.USER_INFO + "/" + fileDayDir + "/" + fileName
 
     SULogger.warn("Save user info to " + destPath)
@@ -172,5 +173,34 @@ object FileUtil {
     val d = dir.listFiles.filter(_.isDirectory)
     val f = dir.listFiles.toIterator
     f ++ d.toIterator.flatMap(readUserFile)
+  }
+
+  /**
+    * 保存股票被关注人次信息
+    * @author yangshuai
+    */
+  def saveStockRankInfo(infos: Seq[String], fileName: String): Unit = {
+    /** 创建对应的目录 */
+    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
+    val destPath = FileConfig.RANK_STOCK + "/" + fileDayDir + "/" + fileName
+
+    mkDir(FileConfig.RANK_STOCK + "/" + fileDayDir)
+    createFile(destPath, infos)
+  }
+
+  /**
+    * 以Map的形式获取文件内容
+    * @author yangshuai
+    */
+  def getMapFromFile(path: String): mutable.Map[String, String] = {
+
+    val list = readFile(path)
+    val map = mutable.Map[String, String]()
+    for (line <- list) {
+      val arr = line.split("\t")
+      map.put(arr(0), arr(1))
+    }
+
+    map
   }
 }

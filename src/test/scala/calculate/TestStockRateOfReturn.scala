@@ -75,22 +75,22 @@ class TestStockRateOfReturn  extends  FlatSpec with Matchers{
       val userStock = new UserStock()
       val userId = x._1
       println("uid:"+userId)
-      userStock.setUid(userId)
+      userStock.uid_(userId)
       val stockCodeListBuffer = x._2
       stockCodeListBuffer.foreach( y => {
         if(returnOfReturn.contains(y)){
           val rate = returnOfReturn.get(y).get
-          println("Stockcode:"+y+",rate:"+rate.getRateOfReturn)
+          println("Stockcode:"+y+",rate:"+rate.current_rate)
           userRateOfReturn.+=((y,rate))
         }
       })
-      userStock.setStockes(userRateOfReturn)
+      userStock.stocks_(userRateOfReturn)
       userRate.calculate(userStock)
       user.+=(userStock)
     })
 
     user.foreach(x =>{
-      println("uid:"+x.getUid()+",rate:"+x.getCurrentRate())
+      println("uid:"+x.uid+",rate:"+x.currentRate())
       println("=====================")
     })
 

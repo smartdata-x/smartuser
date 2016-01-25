@@ -5,35 +5,29 @@ import scala.collection.mutable
   * Created by kerry on 16/1/17.
   */
 class UserStock {
-  private var _uid: String = new String
-  var _hash: mutable.HashMap[String, RateOfReturn] = new mutable.HashMap[String, RateOfReturn]
-  var _new_hash: mutable.HashMap[String, RateOfReturn] = new mutable.HashMap[String, RateOfReturn]
-  private var _currentRate  = 0.0f
 
-  def setUid(uid : String) = {
-    this._uid = uid
+  private var _uid: String = _
+  var _stocks: mutable.HashMap[String, RateOfReturn] =_
+  var _new_stocks: mutable.HashMap[String, RateOfReturn] = _
+  private var _currentRate: Float  = _
+
+  def uid_(uid : String) = {
+    _uid = uid
   }
 
-  def getUid(): String ={
-    this._uid
+  def uid: String =_uid
+
+  def updateStock(stock: RateOfReturn): Unit ={
+    _stocks(stock.code) = stock
   }
 
-  def setStock(stock: RateOfReturn): Unit ={
-    this._hash(stock.getCode) = stock
+  def stocks_(stocks:mutable.HashMap[String,RateOfReturn]): Unit ={
+    _stocks.++=(stocks)
   }
 
-  def setStockes(stockes:mutable.HashMap[String,RateOfReturn]): Unit ={
-    this._hash.++=(stockes)
-  }
-
-  def setCurrentRate(rate:Float) = {
+  def currentRate_(rate:Float) = {
     this._currentRate = rate
   }
 
-
-  def getCurrentRate():Float = {
-    return this._currentRate
-  }
-
-
+  def currentRate():Float = _currentRate
 }
