@@ -1,4 +1,4 @@
-[info] Updating {file:/E:/CODE/Workspace/smartuser/project/}smartuser-build...
+[info] Updating {file:/E:/CODE/Workspace/smartuser/smartuser/project/}smartuser-build...
 [debug] :: resolving dependencies :: default#smartuser-build;0.1-SNAPSHOT
 [debug] 	confs: [compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom, scala-tool]
 [debug] 	validate = true
@@ -2611,19 +2611,19 @@
 [debug] 	[NOT REQUIRED] org.scala-sbt#apply-macro;0.13.8!apply-macro.jar
 [debug] 	[NOT REQUIRED] org.scala-lang#jline;2.10.4!jline.jar
 [debug] 	[NOT REQUIRED] org.fusesource.jansi#jansi;1.4!jansi.jar
-[debug] :: resolution report :: resolve 1665ms :: artifacts dl 53ms
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT compile produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-compile.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT runtime produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-runtime.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT test produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-test.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT provided produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-provided.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT optional produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-optional.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT compile-internal produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-compile-internal.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT runtime-internal produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-runtime-internal.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT test-internal produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-test-internal.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT plugin produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-plugin.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT sources produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-sources.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT docs produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-docs.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT pom produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-pom.xml
-[debug] 	report for default#smartuser-build;0.1-SNAPSHOT scala-tool produced in E:\CODE\Workspace\smartuser\project\target\resolution-cache\reports\default-smartuser-build-scala-tool.xml
-[debug] 	resolve done (1665ms resolve - 53ms download)
+[debug] :: resolution report :: resolve 1713ms :: artifacts dl 56ms
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT compile produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-compile.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT runtime produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-runtime.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT test produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-test.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT provided produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-provided.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT optional produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-optional.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT compile-internal produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-compile-internal.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT runtime-internal produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-runtime-internal.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT test-internal produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-test-internal.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT plugin produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-plugin.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT sources produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-sources.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT docs produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-docs.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT pom produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-pom.xml
+[debug] 	report for default#smartuser-build;0.1-SNAPSHOT scala-tool produced in E:\CODE\Workspace\smartuser\smartuser\project\target\resolution-cache\reports\default-smartuser-build-scala-tool.xml
+[debug] 	resolve done (1713ms resolve - 56ms download)
 [info] Done updating.
