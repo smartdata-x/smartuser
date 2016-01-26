@@ -1,5 +1,5 @@
-/project/target/*
-/project/project/target/*
-/.idea/*
-/target/*
-/out/*
+*/project/target/*
+*/project/project/target/*
+*/.idea/*
+*/target/*
+*/out/*
