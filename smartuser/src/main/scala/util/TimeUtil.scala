@@ -34,6 +34,7 @@ import java.util.{Calendar, Date}
 
   /**
     * offset必须为负数
+    * @author yangshuai
     */
   def getPreWorkDay(offset: Int): String = {
 
@@ -47,6 +48,10 @@ import java.util.{Calendar, Date}
     sdf.format(date)
   }
 
+  /**
+    * recursive
+    * @author yangshuai
+    */
  def getPreWorkDay(offset: Int, date: Date): (Int, Date) = {
 
    val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")

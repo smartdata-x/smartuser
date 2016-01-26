@@ -5,9 +5,9 @@ import org.apache.log4j.Logger
 /**
   * Created by yangshuai on 2016/1/26.
   */
-object UILogger {
+object SILogger {
 
-  val logger = Logger.getLogger("USER_INFO")
+  val logger = Logger.getLogger("STOCK_INFO")
 
   def debug(msg: String): Unit = {
     logger.debug(msg)

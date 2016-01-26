@@ -28,8 +28,7 @@ object Scheduler {
       FileUtil.saveUserStockInfo()
 
       UILogger.warn("Task complete.")
-      Timer.waitToNextTask
+      Timer.waitToNextTask()
     }
   }
-
 }
