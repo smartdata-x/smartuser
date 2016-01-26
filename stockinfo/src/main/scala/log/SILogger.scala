@@ -19,6 +19,7 @@ object SILogger {
 
   def warn(msg: String): Unit = {
     logger.warn(msg + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=======================================")
+    println(msg + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=======================================")
   }
 
   def error(msg: String): Unit = {
