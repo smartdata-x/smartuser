@@ -20,6 +20,8 @@ libraryDependencies += "org.apache.hbase" % "hbase-common" % "1.1.2"
 
 libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2" % "provided"
 
+libraryDependencies += "org.slf4j" % "slf4j-log4j12" % "1.7.6"
+
 libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5"
