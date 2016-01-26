@@ -1,10 +1,8 @@
 package scheduler
 
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
-
 import config.SparkConfig
 import data.{FileUtil, HbaseUtil}
+import log.UILogger
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable
@@ -25,9 +23,11 @@ object Scheduler {
 
     while(true) {
 
+      UILogger.warn("Task begin.")
       HbaseUtil.readUserInfo(sc)
       FileUtil.saveUserStockInfo()
 
+      UILogger.warn("Task complete.")
       Timer.waitToNextTask
     }
   }
