@@ -20,11 +20,11 @@ object Scheduler {
 
       SILogger.warn("Task begin.")
 
-      val set = FileUtil.readLatestStocks()
+      val stockCodes = FileUtil.readAllStocks()
 
-      SILogger.warn("Distinct stock number: " + set.size)
+      SILogger.warn("Distinct stock number: " + stockCodes.size)
 
-      SinaRequest.requestStockList(set.toList)
+      SinaRequest.requestStockList(stockCodes.toList)
 
       Timer.waitToNextTask()
     }

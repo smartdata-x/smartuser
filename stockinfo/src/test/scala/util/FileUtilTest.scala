@@ -7,12 +7,10 @@ import org.scalatest.{Matchers, FlatSpec}
   */
 class FileUtilTest extends FlatSpec with Matchers {
 
-  it should "" in {
-    val set = FileUtil.readLatestStocks()
-    println(set.size)
-    for (stock <- set) {
-      println(stock)
-    }
+  it should "get more than 2800 stock codes" in {
+
+    val list = FileUtil.readAllStocks()
+    list.size should be > 2800
   }
 
 }

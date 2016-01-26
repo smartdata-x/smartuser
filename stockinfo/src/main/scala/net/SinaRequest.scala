@@ -80,12 +80,8 @@ object SinaRequest extends BaseHttp {
     requestNum = Math.ceil(seq.length / MAX_CODE_NUMBER).toInt
 
     while (i < seq.length) {
-      val head = seq(i).charAt(0)
-      if (head == '0' || head == '3') {
-        finalUrl += "sz" + seq(i) + ","
-      } else if (head == '6' || head == '9') {
-        finalUrl += "sh" + seq(i) + ","
-      }
+
+      finalUrl += seq(i) + ","
 
       if ((i > 0 && i % MAX_CODE_NUMBER == 0) || i == seq.length - 1) {
         SILogger.warn(finalUrl)

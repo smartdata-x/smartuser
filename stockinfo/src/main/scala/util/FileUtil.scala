@@ -1,9 +1,10 @@
 package util
 
-import java.io.{PrintWriter, File, FileReader, BufferedReader}
+import java.io._
 
 import config.FileConfig
 import log.SILogger
+import scheduler.Scheduler
 import stock.Stock
 
 import scala.collection.mutable
@@ -75,6 +76,27 @@ object FileUtil {
     })
 
     set
+  }
+
+  def readAllStocks(): ListBuffer[String] = {
+
+    val inputStream = Scheduler.getClass.getResourceAsStream("/stockcodes")
+    var lines = new ListBuffer[String]()
+
+    val br = new BufferedReader(new InputStreamReader(inputStream))
+    try {
+      var line = br.readLine()
+
+      while (line != null) {
+        lines += line
+        line = br.readLine()
+      }
+      lines
+    } finally {
+      br.close()
+    }
+
+    lines
   }
 
   /** 写入股票对象,包括股票所有信息 */
