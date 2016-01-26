@@ -5,7 +5,6 @@ import java.io._
 import _root_.util.TimeUtil
 import config.FileConfig
 import log.SULogger
-import scheduler.Scheduler
 import stock.Stock
 
 import scala.collection.mutable
@@ -39,6 +38,7 @@ object FileUtil {
     var lines = new ListBuffer[String]()
 
     val br = new BufferedReader(new FileReader(path))
+
     try {
       var line = br.readLine()
 
@@ -67,12 +67,37 @@ object FileUtil {
   }
 
   /**
+    * override the old one
+    * @author yangshuai
+    */
+  def createFile(path: String, lines: Seq[String], num: Int): Unit = {
+
+    val writer = new PrintWriter(path, "UTF-8")
+    var count = num
+
+    for (line <- lines) {
+      if (count > 0) {
+        writer.println(line)
+        count -= 1
+      }
+    }
+
+    writer.close()
+  }
+
+  /**
     * 读取当天给定的的小时数的股票代码和价格
     * @author yangshuai
     */
-  def readTodayStockCodeByHour(hour: Int): mutable.HashMap[String, Stock] = {
+  def readStockCodeByDayAndHour(offset: Int, hour: Int): mutable.HashMap[String, Stock] = {
 
-    val destPath = FileConfig.STOCK_INFO + "/" + TimeUtil.getDay(System.currentTimeMillis().toString) + "/" + hour.toString
+    var day = TimeUtil.getDay
+
+    if (offset != 0) {
+      day = TimeUtil.getPreWorkDay(offset)
+    }
+
+    val destPath = FileConfig.STOCK_INFO + "/" + day + "/" + hour.toString
 
     val list = readFile(destPath)
 
@@ -111,7 +136,7 @@ object FileUtil {
   def writeStockList(list: ListBuffer[Stock]): Unit = {
 
     /** 创建对应的目录 */
-    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
+    val fileDayDir = TimeUtil.getDay
     val fileName = TimeUtil.getCurrentHour
     val destPath = FileConfig.STOCK_INFO + "/" + fileDayDir + "/" + fileName
 
@@ -122,47 +147,21 @@ object FileUtil {
   }
 
   /** 写回报率文件方法  **/
-  def writeRateOfReturnStrategyOneFile(list: Array[String],start: Int,end:Int): Unit = {
+  def writeRateOfReturnStrategyOneFile(list: Array[String],start: String,end:String): Unit = {
 
     /** 创建对应的目录 */
-    val fileDayDir =TimeUtil.getDay(System.currentTimeMillis().toString)
-    val fileName =start + "-" + end
+    val fileDayDir =TimeUtil.getDay
+    val fileName =start + "--" + end
     val destPath = FileConfig.RATE_OF_RETURN_STOCK + "/" + fileDayDir + "/" + fileName
     SULogger.warn("Write rate of return to: " + destPath)
     mkDir(FileConfig.RATE_OF_RETURN_STOCK + "/" + fileDayDir)
     createFile(destPath, list)
   }
 
-  /**
-    * 保存用户关注的股票信息
- *
-    * @author yangshuai
-    */
-  def saveUserStockInfo(): Unit = {
-
-    /** 创建对应的目录 */
-    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    val fileName = TimeUtil.getCurrentHour
-    val destPath = FileConfig.USER_INFO + "/" + fileDayDir + "/" + fileName
-
-    SULogger.warn("Save user info to " + destPath)
-    mkDir(FileConfig.USER_INFO + "/" + fileDayDir)
-    mkDir(destPath)
-
-    for (item <- Scheduler.userMap) {
-      /** HDFS 操作*/
-      val userId = item._1
-      val stockCodeList = item._2
-      if(userId.trim.length > 0 && stockCodeList != null){
-        createFile(destPath + "/" + userId, stockCodeList)
-      }
-    }
-  }
-
   def saveUserReturnInfo(arr: Array[String], fileName: String): Unit = {
 
     /** 创建对应的目录 */
-    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
+    val fileDayDir = TimeUtil.getDay
     val destPath = FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir + "/" + fileName
 
     mkDir(FileConfig.RATE_OF_RETURN_USER + "/" + fileDayDir)
@@ -202,10 +201,10 @@ object FileUtil {
     */
   def saveStockRankInfo(infos: Seq[String], fileName: String): Unit = {
     /** 创建对应的目录 */
-    val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
-    val destPath = FileConfig.RANK_STOCK + "/" + fileDayDir + "/" + fileName
+    val fileDayDir = TimeUtil.getDay
+    val destPath = FileConfig.RANK_USER + "/" + fileDayDir + "/" + fileName
 
-    mkDir(FileConfig.RANK_STOCK + "/" + fileDayDir)
+    mkDir(FileConfig.RANK_USER + "/" + fileDayDir)
     createFile(destPath, infos)
   }
 
@@ -224,4 +223,39 @@ object FileUtil {
 
     map
   }
+
+  /**
+    * 以Map形式取用户自选股信息
+    * @author yangshuai
+    */
+  def readUserInfoByDayAndHour(offset: Int, hour: Int): mutable.Map[String, Set[String]] = {
+
+    val dateStr = TimeUtil.getPreWorkDay(offset)
+    val destPath = FileConfig.USER_INFO + "/" + dateStr + "/" + hour
+
+    SULogger.warn("Get user info from: " + destPath)
+
+    val map = mutable.Map[String, Set[String]]()
+    new File(destPath).listFiles().foreach(file => {
+      map.put(file.getName, readFile(file.getAbsolutePath).toSet)
+    })
+
+    map
+  }
+
+  /**
+    * 保存用户回报率排名信息
+    * @author yangshuai
+    */
+  def saveUserRank(arr: Array[String], num: Int): Unit = {
+
+    val dateStr = TimeUtil.getDay
+    val destPath = FileConfig.RANK_USER + "/" + dateStr + "/" + "15-9"
+
+    mkDir(FileConfig.RANK_USER + "/" + dateStr)
+
+    createFile(destPath, arr, num)
+  }
+
+
 }

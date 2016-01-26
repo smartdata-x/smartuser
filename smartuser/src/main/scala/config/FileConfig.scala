@@ -16,6 +16,6 @@ object FileConfig {
   //用户所关注的股票
   val USER_INFO = ROOT_DIR + "/User"
   //用户回报率排名
-  val RANK_STOCK = ROOT_DIR + "/Rank_User"
+  val RANK_USER = ROOT_DIR + "/Rank_User"
 }
 

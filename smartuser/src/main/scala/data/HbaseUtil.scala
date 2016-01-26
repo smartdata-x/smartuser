@@ -70,40 +70,6 @@ object HbaseUtil {
     userId
   }
 
-  /** 使用spark运行获取Hbase股票信息 */
-  def getStockCodes(sc:SparkContext, timeRange:Int): Array[String] = {
-
-    /** get hbase data */
-    val scan = new Scan()
-    val currentTimeStamp = System.currentTimeMillis()
-    scan.setTimeRange(currentTimeStamp - timeRange * 60 * 60 * 1000,currentTimeStamp)
-    val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamily,sinaTable.column)
-    sinaTable.setScan(scan)
-
-    val users = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-    SULogger.warn("total stock number: " + users.count.toString)
-
-    val stockCodes = users.flatMap(x => {
-      try {
-        val result = x._2
-        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamily), Bytes.toBytes(sinaTable.column)))
-        val userId = getUserId(value)
-        val userStockList = getAllStockCodes(value)
-        if (userStockList.size > 0)
-          Scheduler.userMap.put(userId, userStockList)
-        userStockList
-      } catch {
-        case e:Exception => println("[C.J.YOU] writeToHdfsFile error")
-          SULogger.error("[C.J.YOU]"+e.printStackTrace)
-          ListBuffer[String]()
-      }
-    }).distinct.collect
-
-    SULogger.warn("distinct stock number: " + stockCodes.length.toString)
-
-    stockCodes
-  }
-
   def converToArray(list: Seq[String]): Array[String] = {
     list.toArray
   }

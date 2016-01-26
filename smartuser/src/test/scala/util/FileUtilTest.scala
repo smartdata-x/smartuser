@@ -11,33 +11,8 @@ import scala.collection.mutable
   */
 class FileUtilTest extends FlatSpec with Matchers {
 
-  /*
-  "writeString method" should "work" in {
-    val today = Calendar.getInstance.getTime
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
-    HdfsFileUtil.setRootDir("smartuser")
-    val currentPath = HdfsFileUtil.mkDir(HdfsFileUtil.getRootDir+"days")
-    val file =  currentPath+System.currentTimeMillis()
-    HdfsFileUtil.mkFile(file)
-    val stri2 = "onetwothree"
-    val stri = "one\ttwo\tthree"
-    HdfsFileUtil.writeString(file,stri)
-    HdfsFileUtil.writeString(file,stri2)
-
-  }
-  */
-  /*
-  "getDirectoryContentFromHdfs method" should "work" in {
-    val today = Calendar.getInstance.getTime
-    HdfsFileUtil.setHdfsUri("hdfs://server:9000")
-    HdfsFileUtil.setRootDir("smartuser")
-    val hashmap = HdfsFileUtil.getDirectoryContentFromHdfs("hdfs://server:9000/smartuser/days")
-    val value = hashmap.get("file1")
-    println(value)
-  }
-  */
-  /*
   "writeStockObject method" should "work" in {
+
     val stock_one = new Stock("","sh000001",1,1,1,1,1,1,1,1,1,1,1,1,1,1,11,1,1,1,1,1,1,1,1,1,1,1,1,"t","time")
     val stock_two = new Stock("","sh000002",2,2,1,1,1,1,1,1,1,1,1,1,1,1,11,1,1,1,1,1,1,1,1,1,1,1,1,"t2","time2")
     val list = new mutable.ListBuffer[Stock]
@@ -45,10 +20,9 @@ class FileUtilTest extends FlatSpec with Matchers {
     list.+=(stock_two)
     FileUtil.writeStockList(list)
   }
-  */
 
-  /*
   "getUserInfo method " should "work" in {
+
     val hashMap = FileUtil.getUserStockInfo("src/test/resources/user/2016-01-20_15")
     hashMap.foreach(x =>{
       val key = x._1
@@ -61,6 +35,22 @@ class FileUtilTest extends FlatSpec with Matchers {
       println
     })
   }
-  */
 
+  it should "get more than 2800 stocks" in {
+
+    val map = FileUtil.readStockCodeByDayAndHour(-1, 13)
+
+    map.size should be > 2800
+  }
+
+  it should "get more than 3000 users" in {
+
+    val map = FileUtil.readUserInfoByDayAndHour(-1, 14)
+
+    for ((key, value) <- map) {
+      println(key + "<-" + value)
+    }
+
+    println(map.size)
+  }
 }

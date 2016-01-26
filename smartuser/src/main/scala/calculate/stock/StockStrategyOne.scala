@@ -9,10 +9,19 @@ import stock.{Stock, RateOfReturn}
   */
 class StockStrategyOne extends RateOfReturnStrategy {
 
-  override def calculate(t:Stock, r:Stock): RateOfReturn = {
+  override def calculate(pre:Stock, cur:Stock): RateOfReturn = {
 
-    val rateOfReturn:RateOfReturn = new RateOfReturn(t.code,t.name)
-    val rate = 1 * (r.currentPrice - t.currentPrice) / t.currentPrice
+    val rateOfReturn:RateOfReturn = new RateOfReturn(pre.code,pre.name)
+
+    var prePrice = pre.currentPrice
+    if (prePrice == 0)
+      prePrice = pre.yesterdayClosingPrice
+
+    var curPrice = cur.currentPrice
+    if (curPrice == 0)
+      curPrice = cur.yesterdayClosingPrice
+
+    val rate = 1 * (curPrice - prePrice) / prePrice
     rateOfReturn.current_rate_(rate)
 
     rateOfReturn

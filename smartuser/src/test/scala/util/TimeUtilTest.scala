@@ -8,7 +8,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class TimeUtilTest extends FlatSpec with Matchers {
 
   it should "get the string of one pre work day" in {
-    val result = TimeUtil.getPreWorkDay(-1)
+    val result = TimeUtil.getPreWorkDay(0)
     println(result)
   }
 }

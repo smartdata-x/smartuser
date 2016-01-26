@@ -19,10 +19,9 @@ import java.util.{Calendar, Date}
     date
   }
 
-  def getDay(timeStamp: String): String = {
+  def getDay: String = {
     val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-    val bigInt: BigInteger = new BigInteger(timeStamp)
-    val date: String = sdf.format(bigInt)
+    val date: String = sdf.format(new Date)
     date
   }
 
@@ -38,7 +37,7 @@ import java.util.{Calendar, Date}
     */
   def getPreWorkDay(offset: Int): String = {
 
-    if (offset >= 0) {
+    if (offset > 0) {
       throw new IllegalArgumentException("offset must be negative")
     }
 
