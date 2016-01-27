@@ -5,7 +5,7 @@ import calculate.stock.RateOfReturnStrategy
 import calculate.user.UserRateOfReturnStrategy
 import config.StrategyConfig
 import org.scalatest.{Matchers, FlatSpec}
-import data.FileUtil
+import util.FileUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

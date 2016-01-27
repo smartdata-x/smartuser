@@ -5,7 +5,7 @@ import calculate.user.UserRateOfReturnStrategy
 import config.{FileConfig, StrategyConfig}
 import org.scalatest.{Matchers, FlatSpec}
 import calculate.stock.RateOfReturnStrategy
-import data.FileUtil
+import util.FileUtil
 
 import scala.collection.mutable
 

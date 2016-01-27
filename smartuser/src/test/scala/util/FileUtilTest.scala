@@ -1,6 +1,4 @@
 package util
-import java.util.Calendar
-import data.FileUtil
 import org.scalatest.{FlatSpec, Matchers}
 import stock.Stock
 

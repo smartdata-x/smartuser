@@ -1,16 +1,12 @@
 package scheduler
 
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
-
 import calculate.stock.RateOfReturnStrategy
-import config.{RegExpConfig, SparkConfig, StrategyConfig}
-import data.FileUtil
+import config.{SparkConfig, StrategyConfig}
 import log.SULogger
 import org.apache.spark.{SparkConf, SparkContext}
 import redis.clients.jedis.Jedis
 import stock.Stock
-import util.TimeUtil
+import util.{FileUtil, TimeUtil}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -50,16 +46,18 @@ object Scheduler {
       //计算用户回报率
       preUserMap = FileUtil.readUserInfoByDayAndHour(-3, 15)
       val userMap = FileUtil.readUserInfoByDayAndHour(-2, 9)
-      val userRank = sc.parallelize(userMap.toSeq).filter(_._2.nonEmpty).map(x => getReturn(x._1, x._2)).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2 + "\t" + x._3).collect
+      val userRank = sc.parallelize(userMap.toSeq).filter(_._2.nonEmpty).map(x => getReturn(x._1, x._2)).filter(_._3 != "empty").sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2 + "\t" + x._3).collect
       FileUtil.saveUserRank(userRank, userMap.size / 5)
 
       //计算新增股票所占百分比
-      val topUsers = getTopUsers(userRank, 100)
-      getNewStockPercent(topUsers)
+      val topUsers = getTopUsers(userRank, userMap.size / 5)
+      sendNewStockPercent(topUsers)
 
     } catch {
       case e: Exception =>
         SULogger.exception(e)
+    } finally {
+      sc.stop()
     }
   }
 
@@ -78,7 +76,7 @@ object Scheduler {
     val remainSet = set.--(preSet.get)
 
     if (remainSet.isEmpty)
-      return (userId + "\t0", 0f, "")
+      return (userId + "\t0", 0f, "empty")
 
     for (code <- remainSet) {
       val value = stockReturnMap.get(code)
@@ -97,6 +95,9 @@ object Scheduler {
     (userId + "\t" + result, result / size, convertSetToStringSplitBy(remainSet, ","))
   }
 
+  /**
+    * convert set to string split by assigned string
+    */
   def convertSetToStringSplitBy(set: Set[String], spliter: String): String = {
 
     var str = ""
@@ -122,11 +123,14 @@ object Scheduler {
     }
   }
 
-  def getNewStockPercent(userList: Seq[String]): Unit = {
+  /**
+    * 计算新增自选股所占比率并存到redis
+    */
+  def sendNewStockPercent(userList: Seq[String]): Unit = {
 
     val jedis = new Jedis("222.73.34.96", 6390)
     jedis.auth("7ifW4i@M")
-    val pipline = jedis.pipelined()
+    val pipeline = jedis.pipelined()
 
     val times = mutable.Map[String, Int]()
 
@@ -149,15 +153,20 @@ object Scheduler {
       }
     }
 
+
     val size = times.size
+    SULogger.warn("Send " + size + " stock info to redis.")
     times.toSeq.sortBy(_._2).reverse.map(x => {
-      pipline.hset("newstock:" + TimeUtil.getDay, x._1, (x._2 * 1.0 / size).toString)
+      pipeline.hset("newstock:" + TimeUtil.getDay, x._1, (x._2 * 1.0 / size).toString)
     })
 
-    pipline.sync()
+    pipeline.sync()
     jedis.quit
   }
 
+  /**
+    * 获得回报率排名占前num的用户
+    */
   def getTopUsers(arr: Array[String], num: Int): ListBuffer[String] = {
 
     var list = new ListBuffer[String]()
