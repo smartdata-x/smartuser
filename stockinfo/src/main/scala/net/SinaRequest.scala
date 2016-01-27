@@ -83,9 +83,8 @@ object SinaRequest extends BaseHttp {
 
       finalUrl += seq(i) + ","
 
-      if ((i > 0 && i % MAX_CODE_NUMBER == 0) || i == seq.length - 1) {
-        SILogger.warn(finalUrl)
-        SILogger.warn("Stock number in url: " + i)
+      if ((i > 0 && (i + 1) % MAX_CODE_NUMBER == 0) || i == seq.length - 1) {
+        SILogger.warn("Stock number in url: " + (i + 1))
         request(finalUrl)
         finalUrl = "http://hq.sinajs.cn/list="
       }

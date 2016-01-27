@@ -1,5 +1,7 @@
 package stock
 
+import log.SILogger
+
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -52,6 +54,8 @@ class SinaStockParser extends StockParser {
       if (contentArr(i).length > 30) {
         val stock = parseStock(contentArr(i), stockCodes(i))
         stockList += stock
+      } else {
+        SILogger.warn("Info of stock: " + stockCodes(i) + " not found.")
       }
     }
 

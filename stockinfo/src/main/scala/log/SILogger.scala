@@ -1,6 +1,6 @@
 package log
 
-import org.apache.log4j.Logger
+import org.apache.log4j.{BasicConfigurator, PropertyConfigurator, Logger}
 
 /**
   * Created by yangshuai on 2016/1/26.
@@ -8,6 +8,8 @@ import org.apache.log4j.Logger
 object SILogger {
 
   val logger = Logger.getLogger("STOCK_INFO")
+  BasicConfigurator.configure()
+  PropertyConfigurator.configure("/home/smartuser/log/stockinfo/log4j.properties")
 
   def debug(msg: String): Unit = {
     logger.debug(msg)
@@ -19,7 +21,7 @@ object SILogger {
 
   def warn(msg: String): Unit = {
     logger.warn(msg + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=======================================")
-    println(msg + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=======================================")
+//    println(msg + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=======================================")
   }
 
   def error(msg: String): Unit = {
