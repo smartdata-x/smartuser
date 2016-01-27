@@ -97,7 +97,6 @@ object SinaRequest extends BaseHttp {
     val arr = finalUrl.substring(25).split(",")
     SILogger.warn("Receive request stock number: " + arr.size)
 
-
     val req = url(finalUrl)
     val response = Http(req OK as.String)
 

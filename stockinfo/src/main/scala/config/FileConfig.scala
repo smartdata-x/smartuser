@@ -5,7 +5,7 @@ package config
   */
 object FileConfig {
 
-  val ROOT_DIR = "/home/smartuser"
+  var ROOT_DIR = "/home/smartuser"
 
   //股票信息
   val STOCK_INFO = ROOT_DIR + "/Stock"

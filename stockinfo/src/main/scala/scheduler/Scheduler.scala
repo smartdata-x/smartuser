@@ -1,5 +1,6 @@
 package scheduler
 
+import config.FileConfig
 import log.SILogger
 import net.SinaRequest
 import stock.Stock
@@ -15,6 +16,10 @@ object Scheduler {
   var stockList = new ListBuffer[Stock]()
 
   def main(args: Array[String]): Unit = {
+
+    if (args.length > 0) {
+      FileConfig.ROOT_DIR = "E:" + FileConfig.ROOT_DIR
+    }
 
     while (true) {
 
