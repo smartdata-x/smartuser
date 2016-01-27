@@ -11,4 +11,5 @@ class TimeUtilTest extends FlatSpec with Matchers {
     val result = TimeUtil.getPreWorkDay(0)
     println(result)
   }
+
 }

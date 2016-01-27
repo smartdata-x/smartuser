@@ -12,6 +12,22 @@ import java.util.{Calendar, Date}
 
   val holiday = List[String]("2016-01-01", "2016-01-03", "2016-01-04", "2016-02-07", "2016-02-13", "2016-02-15", "2016-02-06", "2016-02-14", "2016-04-02", "2016-04-04", "2016-04-05", "2016-04-30", "2016-05-02", "2016-05-03", "2016-06-09", "2016-06-11", "2016-06-13", "2016-06-12", "2016-09-15", "2016-09-17", "2016-09-19", "2016-09-18", "2016-10-01", "2016-10-07", "2016-10-10", "2016-10-08", "2016-10-09")
 
+  /**
+    * 今天是否工作日
+    */
+  def ifWorkDayToday: Boolean = {
+
+    val calendar = Calendar.getInstance
+    calendar.setTime(new Date)
+
+    val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+    if (dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY && !holiday.contains(getDay)) {
+      true
+    } else {
+      false
+    }
+  }
+
   def getTime(timeStamp: String): String = {
     val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss")
     val bigInt: BigInteger = new BigInteger(timeStamp)

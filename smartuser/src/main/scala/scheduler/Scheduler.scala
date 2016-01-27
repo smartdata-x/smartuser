@@ -50,8 +50,10 @@ object Scheduler {
       FileUtil.saveUserRank(userRank, userMap.size / 5)
 
       //计算新增股票所占百分比
-      val topUsers = getTopUsers(userRank, userMap.size / 5)
-      sendNewStockPercent(topUsers)
+      if (TimeUtil.ifWorkDayToday) {
+        val topUsers = getTopUsers(userRank, userMap.size / 5)
+        sendNewStockPercent(topUsers)
+      }
 
     } catch {
       case e: Exception =>
@@ -152,7 +154,6 @@ object Scheduler {
         }
       }
     }
-
 
     val size = times.size
     SULogger.warn("Send " + size + " stock info to redis.")
