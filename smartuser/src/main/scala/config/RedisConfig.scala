@@ -5,9 +5,19 @@ package config
   */
 object RedisConfig {
 
-  val ip = "222.73.34.96"
+  var _ip = ""
+  var _port = 0
+  var _auth = ""
 
-  val port = 6390
+  def init(ip: String, port: Int, auth: String): Unit = {
+    _ip = ip
+    _port = port
+    _auth = auth
+  }
+  
+  def ip: String = _ip
 
-  val auth = "7ifW4i@M"
+  def port: Int = _port
+
+  def auth: String = _auth
 }

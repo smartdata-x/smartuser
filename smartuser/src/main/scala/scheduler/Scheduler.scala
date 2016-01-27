@@ -1,9 +1,13 @@
 package scheduler
 
+import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
+
 import calculate.stock.RateOfReturnStrategy
 import config.{RedisConfig, SparkConfig, StrategyConfig}
 import log.SULogger
 import org.apache.spark.{SparkConf, SparkContext}
+import org.w3c.dom.Element
 import redis.clients.jedis.Jedis
 import stock.Stock
 import util.{FileUtil, TimeUtil}
@@ -24,6 +28,8 @@ object Scheduler {
 
   val OPEN_MARKET_HOUR = 9
   val CLOSE_MARKET_HOUR = 15
+
+  init()
 
   val conf =  new SparkConf().setMaster("local").setAppName("su").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
   val sc = new SparkContext(conf)
@@ -184,5 +190,18 @@ object Scheduler {
     }
 
     list
+  }
+
+  def init(): Unit = {
+
+    val file = new File("/home/smartuser/conf/config.xml")
+
+    val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
+    val redisRoot = document.getElementsByTagName("redis").item(0).asInstanceOf[Element]
+    val ip = redisRoot.getElementsByTagName("ip").item(0).getTextContent
+    val port = redisRoot.getElementsByTagName("port").item(0).getTextContent
+    val auth = redisRoot.getElementsByTagName("auth").item(0).getTextContent
+
+    RedisConfig.init(ip, port.toInt, auth)
   }
 }
