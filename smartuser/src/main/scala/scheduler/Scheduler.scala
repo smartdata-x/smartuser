@@ -1,7 +1,7 @@
 package scheduler
 
 import calculate.stock.RateOfReturnStrategy
-import config.{SparkConfig, StrategyConfig}
+import config.{RedisConfig, SparkConfig, StrategyConfig}
 import log.SULogger
 import org.apache.spark.{SparkConf, SparkContext}
 import redis.clients.jedis.Jedis
@@ -130,8 +130,8 @@ object Scheduler {
     */
   def sendNewStockPercent(userList: Seq[String]): Unit = {
 
-    val jedis = new Jedis("222.73.34.96", 6390)
-    jedis.auth("7ifW4i@M")
+    val jedis = new Jedis(RedisConfig.ip, RedisConfig.port)
+    jedis.auth(RedisConfig.auth)
     val pipeline = jedis.pipelined()
 
     val times = mutable.Map[String, Int]()
@@ -176,8 +176,7 @@ object Scheduler {
     if (arr.length < num)
       top = arr.length
 
-    var j = 0
-    for (i <- 0 until  top) {
+    for (i <- 0 until top) {
       val userId = arr(i).split("\t")(0)
       if (newStockMap.contains(userId)) {
         list.+=(userId)
