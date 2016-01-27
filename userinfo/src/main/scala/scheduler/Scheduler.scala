@@ -16,7 +16,7 @@ object Scheduler {
 
   var userMap = new mutable.HashMap[String, ListBuffer[String]]()
 
-  val conf =  new SparkConf().setMaster("local").setAppName("su").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
+  val conf =  new SparkConf().setMaster("local").setAppName("USER INFO").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
   val sc = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
