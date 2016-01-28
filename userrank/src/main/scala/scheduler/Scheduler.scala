@@ -44,7 +44,7 @@ object Scheduler {
       //计算用户回报率
       preUserMap = FileUtil.readUserInfoByDayAndHour(-3, 15)
       val userMap = FileUtil.readUserInfoByDayAndHour(-2, 9)
-      val userRank = sc.parallelize(userMap.toSeq).filter(_._2.nonEmpty).map(x => getReturn(x._1, x._2)).filter(_._3 != "empty").sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2 + "\t" + x._3).collect
+      val userRank = sc.parallelize(userMap.toSeq).filter(_._2.nonEmpty).map(x => getReturn(x._1, x._2)).filter(_._2 > 0).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2 + "\t" + x._3).collect
       FileUtil.saveUserRank(userRank, userMap.size / 5)
 
     } catch {

@@ -23,6 +23,8 @@ object Scheduler {
 
     while (true) {
 
+      stockList.clear
+
       SILogger.warn("Task begin.")
 
       val stockCodes = FileUtil.readAllStocks()
