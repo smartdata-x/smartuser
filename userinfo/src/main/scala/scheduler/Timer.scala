@@ -18,7 +18,7 @@ object Timer {
     val second = calendar.get(Calendar.SECOND)
     val remainSeconds = (60 - minute) * 60 - second
 
-    UILogger.warn("Next task will begin in " + remainSeconds / 60 + " hours and " + remainSeconds % 60 + " seconds.")
+    UILogger.warn("Next task will begin in " + remainSeconds / 60 + " minutes and " + remainSeconds % 60 + " seconds.")
     TimeUnit.SECONDS.sleep(remainSeconds)
   }
 }
