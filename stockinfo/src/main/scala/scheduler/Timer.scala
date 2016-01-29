@@ -42,6 +42,6 @@ object Timer {
 
     SILogger.warn("Wait to " + taskHour(index) + ":" + taskMinute(index))
     SILogger.warn("Seconds: " + remainSeconds)
-    TimeUnit.SECONDS.sleep(10)
+    TimeUnit.SECONDS.sleep(remainSeconds)
   }
 }
