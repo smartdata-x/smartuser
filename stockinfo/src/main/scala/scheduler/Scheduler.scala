@@ -14,6 +14,7 @@ import scala.collection.mutable.ListBuffer
 object Scheduler {
 
   var stockList = new ListBuffer[Stock]()
+  var stockStrList = new ListBuffer[String]()
 
   def main(args: Array[String]): Unit = {
 
@@ -27,11 +28,11 @@ object Scheduler {
 
       SILogger.warn("Task begin.")
 
-      val stockCodes = FileUtil.readAllStocks()
+      stockStrList = FileUtil.readAllStocks()
 
-      SILogger.warn("Distinct stock number: " + stockCodes.size)
+      SILogger.warn("Distinct stock number: " + stockStrList.size)
 
-      SinaRequest.requestStockList(stockCodes.toList)
+      SinaRequest.requestStockList(stockStrList.toList)
 
       Timer.waitToNextTask()
     }

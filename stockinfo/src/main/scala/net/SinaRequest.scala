@@ -6,9 +6,10 @@ import scheduler.Scheduler
 import stock.{StockParser, Stock}
 
 import dispatch._,Defaults._
-import util.FileUtil
+import util._
 
 
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success}
 
 /**
@@ -92,6 +93,17 @@ object SinaRequest extends BaseHttp {
     }
   }
 
+  def checkTime(stockList: ListBuffer[Stock]): Boolean = {
+
+    stockList.foreach(x => {
+      val arr = x.time.split(":")
+      if (arr(1).toInt < 30)
+        return false
+    })
+
+    true
+  }
+
   def request(finalUrl: String): Unit = {
 
     val arr = finalUrl.substring(25).split(",")
@@ -101,6 +113,7 @@ object SinaRequest extends BaseHttp {
     val response = Http(req OK as.String)
 
     response onComplete {
+
       case Success(content) =>
 
         val stockList = StockParser(StockConfig.SINA).parseStockList(arr, content)
@@ -109,9 +122,19 @@ object SinaRequest extends BaseHttp {
         requestNum -= 1
 
         if (requestNum == 0) {
+
           SILogger.warn("Write " + Scheduler.stockList.size + " stocks.")
-          FileUtil.writeStockList(Scheduler.stockList)
-          SILogger.warn("Task complete.")
+          var flag = true
+          if (TimeUtil.getCurrentHour == 9)
+            flag = checkTime(stockList)
+
+          if (flag) {
+            FileUtil.writeStockList(Scheduler.stockList)
+            SILogger.warn("Task complete.")
+          } else {
+            SILogger.warn("Send request again.")
+            requestStockList(Scheduler.stockStrList.toList)
+          }
         }
 
       case Failure(t) =>
