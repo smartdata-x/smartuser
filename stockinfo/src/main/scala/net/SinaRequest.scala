@@ -2,7 +2,7 @@ package net
 
 import config.{StockConfig, URLConfig}
 import log.SILogger
-import scheduler.Scheduler
+import scheduler.{Timer, Scheduler}
 import stock.{StockParser, Stock}
 
 import dispatch._,Defaults._
@@ -93,11 +93,11 @@ object SinaRequest extends BaseHttp {
     }
   }
 
-  def checkTime(stockList: ListBuffer[Stock]): Boolean = {
+  def checkTime(stockList: ListBuffer[Stock], currentHour: Int): Boolean = {
 
     stockList.foreach(x => {
       val arr = x.time.split(":")
-      if (arr(1).toInt < 30)
+      if (!(arr(0).toInt >= currentHour && arr(1).toInt >= Timer.timeMap.get(currentHour).get))
         return false
     })
 
@@ -125,8 +125,9 @@ object SinaRequest extends BaseHttp {
 
           SILogger.warn("Write " + Scheduler.stockList.size + " stocks.")
           var flag = true
-          if (TimeUtil.getCurrentHour == 9)
-            flag = checkTime(stockList)
+          val currentHour = TimeUtil.getCurrentHour
+          if (Timer.taskHour.contains(currentHour))
+            flag = checkTime(stockList, currentHour)
 
           if (flag) {
             FileUtil.writeStockList(Scheduler.stockList)

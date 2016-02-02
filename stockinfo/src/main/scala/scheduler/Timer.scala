@@ -13,7 +13,7 @@ import scala.util.control.Breaks._
 object Timer {
 
   val taskHour = Array[Int](9, 11, 13, 15)
-  val taskMinute = Array[Int](30, 30, 0, 0)
+  val timeMap = Map[Int, Int](9 -> 30, 11 -> 30, 13 -> 0, 15 -> 0)
 
   def waitToNextTask(): Unit = {
 
@@ -23,16 +23,19 @@ object Timer {
     val minute = calendar.get(Calendar.MINUTE)
     val second = calendar.get(Calendar.SECOND)
     var remainSeconds = 0
+    var currentHour = 0
 
     var index = 0
 
     if (hour >= taskHour.last) {
-      remainSeconds = ((24 - hour + taskHour(0)) * 60 + taskMinute(0) - minute) * 60 - second
+      currentHour = taskHour(0)
+      remainSeconds = ((24 - hour + currentHour) * 60 + timeMap.get(currentHour).get - minute) * 60 - second
     } else {
       breakable {
         for (i <- taskHour.indices) {
-          if (hour < taskHour(i) || (hour == taskHour(i) && minute < taskMinute(i))) {
-            remainSeconds = ((taskHour(i) - hour) * 60 + taskMinute(i) - minute) * 60 - second
+          currentHour = taskHour(i)
+          if (hour < taskHour(i) || (hour == currentHour && minute < timeMap.get(currentHour).get)) {
+            remainSeconds = ((currentHour - hour) * 60 + timeMap.get(currentHour).get - minute) * 60 - second
             index = i
             break
           }
@@ -40,7 +43,8 @@ object Timer {
       }
     }
 
-    SILogger.warn("Wait to " + taskHour(index) + ":" + taskMinute(index))
+    currentHour = taskHour(index)
+    SILogger.warn("Wait to " + currentHour + ":" + timeMap.get(currentHour).get)
     SILogger.warn("Seconds: " + remainSeconds)
     TimeUnit.SECONDS.sleep(remainSeconds)
   }
