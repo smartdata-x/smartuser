@@ -64,6 +64,7 @@ object Scheduler {
     userList.map(x => {
       val arr = x.split("\t")
       pipeline.hset("newstock:" + TimeUtil.getDay, arr(0), arr(1))
+      pipeline.expire("newstock:" + TimeUtil.getDay, 60 * 60 * 48)
     })
 
     pipeline.sync()
