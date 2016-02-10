@@ -134,6 +134,7 @@ object SinaRequest extends BaseHttp {
             SILogger.warn("Task complete.")
           } else {
             SILogger.warn("Send request again.")
+            Scheduler.stockList.clear()
             requestStockList(Scheduler.stockStrList.toList)
           }
         }
