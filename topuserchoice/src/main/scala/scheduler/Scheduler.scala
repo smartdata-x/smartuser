@@ -63,7 +63,7 @@ object Scheduler {
 
     userList.map(x => {
       val arr = x.split("\t")
-      pipeline.hset("newstock:" + TimeUtil.getDay, arr(0), arr(1))
+      pipeline.zadd("newstock:" + TimeUtil.getDay, arr(1).toDouble, arr(0))
       pipeline.expire("newstock:" + TimeUtil.getDay, 60 * 60 * 48)
     })
 
