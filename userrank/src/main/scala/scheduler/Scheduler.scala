@@ -28,22 +28,26 @@ object Scheduler {
 
   def main(args: Array[String]): Unit = {
 
+    var offset = 0
+    if (args.length > 0)
+      offset = args(0).toInt
+
     URLogger.warn("Begin to calculate rate of return.")
 
     try {
 
       //计算昨日9点对应于今日15点的股票的回报率
-      prePriceMap = FileUtil.readStockCodeByDayAndHour(-1, OPEN_MARKET_HOUR)
+      prePriceMap = FileUtil.readStockCodeByDayAndHour(-1 - offset, OPEN_MARKET_HOUR)
       URLogger.warn("Pre size: " + prePriceMap.size)
-      val currentPrice = FileUtil.readStockCodeByDayAndHour(0, CLOSE_MARKET_HOUR)
+      val currentPrice = FileUtil.readStockCodeByDayAndHour(0 - offset, CLOSE_MARKET_HOUR)
       URLogger.warn("Current size: " + currentPrice.size)
       val rateOfReturnArr = sc.parallelize(currentPrice.toSeq).map(x => getRateOfReturn(x._1, x._2)).filter(_.length > 0).collect
       URLogger.warn("Rate of return number: " + rateOfReturnArr.length)
-      FileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, TimeUtil.getPreWorkDay(-1), TimeUtil.getDay)
+      FileUtil.writeRateOfReturnStrategyOneFile(rateOfReturnArr, TimeUtil.getPreWorkDay(-1 - offset), TimeUtil.getDay)
 
       //计算用户回报率
-      preUserMap = FileUtil.readUserInfoByDayAndHour(-3, 15)
-      val userMap = FileUtil.readUserInfoByDayAndHour(-2, 9)
+      preUserMap = FileUtil.readUserInfoByDayAndHour(-3 - offset, 15)
+      val userMap = FileUtil.readUserInfoByDayAndHour(-2 - offset, 9)
       val userRank = sc.parallelize(userMap.toSeq).filter(_._2.nonEmpty).map(x => getReturn(x._1, x._2)).filter(_._2 > 0).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + x._2 + "\t" + x._3).collect
       FileUtil.saveUserRank(userRank, userMap.size / 5)
 

@@ -1,5 +1,7 @@
 package scheduler
 
+import java.util.Calendar
+
 import config.SparkConfig
 import data.{FileUtil, HbaseUtil}
 import log.UILogger
@@ -21,14 +23,37 @@ object Scheduler {
 
   def main(args: Array[String]): Unit = {
 
-    while(true) {
+    if (args.length == 0) {
 
-      UILogger.warn("Task begin.")
-      HbaseUtil.readUserInfo(sc)
-      FileUtil.saveUserStockInfo()
+      while(true) {
 
-      UILogger.warn("Task complete.")
-      Timer.waitToNextTask()
+        UILogger.warn("Task begin.")
+        HbaseUtil.readUserInfo(sc)
+        FileUtil.saveUserStockInfo()
+
+        UILogger.warn("Task complete.")
+        Timer.waitToNextTask()
+      }
+
+    } else {
+
+      val arr = args(0).split("-")
+      val year = arr(0).toInt
+      val month = arr(1).toInt - 1
+      val day = arr(2).toInt
+      val hour = arr(3).toInt
+
+      val calendar = Calendar.getInstance()
+      calendar.set(year, month, day)
+      calendar.set(Calendar.HOUR_OF_DAY, hour)
+
+      val timeStamp = calendar.getTimeInMillis
+      HbaseUtil.readUserInfo(sc, timeStamp)
+      FileUtil.saveUserStockInfo(timeStamp, hour)
+
+      sc.stop
+
     }
+
   }
 }

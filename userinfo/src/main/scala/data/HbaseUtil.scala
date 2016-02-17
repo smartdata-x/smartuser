@@ -92,4 +92,33 @@ object HbaseUtil {
       }
     })
   }
+
+  /**
+    * 读取用户自选股信息
+    */
+  def readUserInfo(sc:SparkContext, ts:Long): Unit = {
+
+    val scan = new Scan()
+    val currentTimeStamp = ts
+    scan.setTimeRange(currentTimeStamp - 60 * 60 * 1000,currentTimeStamp)
+    val conf = sinaTable.getConfigure(sinaTable.tableName,sinaTable.columnFamily,sinaTable.column)
+    sinaTable.setScan(scan)
+
+    val users = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
+    UILogger.warn("Total user number: " + users.count.toString)
+
+    users.foreach(x => {
+      try {
+        val result = x._2
+        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamily), Bytes.toBytes(sinaTable.column)))
+        val userId = getUserId(value)
+        val userStockList = getAllStockCodes(value)
+        if (userStockList.nonEmpty)
+          Scheduler.userMap.put(userId, userStockList)
+      } catch {
+        case e:Exception =>
+          UILogger.exception(e)
+      }
+    })
+  }
 }
