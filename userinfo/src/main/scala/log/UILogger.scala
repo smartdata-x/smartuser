@@ -18,7 +18,7 @@ object UILogger {
   }
 
   def warn(msg: String): Unit = {
-    logger.warn(msg + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=======================================")
+    logger.warn(msg)
   }
 
   def error(msg: String): Unit = {

@@ -14,7 +14,7 @@ object Rank extends App {
 
   val map = jedis.hgetAll("newstock:2016-02-16")
 
-  var myScalaMap = map.asScala.toSeq.sortWith(_._2 > _._2).take(10)
+  var myScalaMap = map.asScala.toSeq.sortWith(_._2 > _._2).take(20)
   myScalaMap.foreach(println)
 
 
