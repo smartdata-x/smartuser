@@ -10,6 +10,8 @@ libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.7.1" % "provid
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.1"
 
+libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.4"
+
 libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2" % "provided"
 
 libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"

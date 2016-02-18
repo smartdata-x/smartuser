@@ -17,5 +17,7 @@ object FileConfig {
   val RANK_USER = ROOT_DIR + "/Rank_User"
   // 用户回报率检验
   val USER_CHOICE_CHECKER = ROOT_DIR + "/Choice_Checker"
+  // 用户回报率检验百分比
+  val USER_CHOICE_CHECKER_PERCENT = ROOT_DIR + "/Checker_Percent"
 }
 

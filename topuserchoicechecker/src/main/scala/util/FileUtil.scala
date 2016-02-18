@@ -57,7 +57,6 @@ object FileUtil {
     new File(destPath).listFiles().foreach(file => {
       map.put(file.getName, readFile(file.getAbsolutePath).toSet)
     })
-
     map
   }
 
@@ -103,6 +102,18 @@ object FileUtil {
     writer.close()
   }
 
+  def createFile(path: String, line: String): Unit = {
+    val writer = new PrintWriter(path, "UTF-8")
+    writer.println(line)
+    writer.close()
+  }
+
+  /**
+    * 保存当天股票的涨幅值
+    * @param arr
+    * @param offset
+    * @author C.J.YOU
+    */
   def saveUserChoiceChecker(arr: Array[String],offset:Int): Unit ={
     val dateStr = TimeUtil.getPreWorkDay(offset)
     val destPath = FileConfig.USER_CHOICE_CHECKER + "/" + dateStr + "/" + "15"
@@ -110,5 +121,33 @@ object FileUtil {
     mkDir(FileConfig.USER_CHOICE_CHECKER + "/" + dateStr)
 
     createFile(destPath, arr)
+  }
+
+  /**
+    * 读取当天的choicechecker
+    * @param offset
+    * @return
+    */
+  def readChoiceCheckerByDay(offset:Int,hour:Int): ListBuffer[String] ={
+
+    var day = TimeUtil.getDay
+
+    if (offset != 0) {
+      day = TimeUtil.getPreWorkDay(offset)
+    }
+
+    val destPath = FileConfig.USER_CHOICE_CHECKER + "/" + day + "/" + hour.toString
+
+    readFile(destPath)
+
+  }
+  // 用户检验的top
+  def saveUserChoiceCheckerPercent(percent:String,offset:Int,top:Int): Unit ={
+    val dateStr = TimeUtil.getPreWorkDay(offset)
+    val destPath = FileConfig.USER_CHOICE_CHECKER_PERCENT + "/" + dateStr + "/" + top.toString
+
+    mkDir(FileConfig.USER_CHOICE_CHECKER_PERCENT + "/" + dateStr)
+
+    createFile(destPath, percent)
   }
 }

@@ -7,6 +7,7 @@ import stock.Stock
 import util.FileUtil
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by C.J.YOU on 2016/2/16.
@@ -22,7 +23,11 @@ object Scheduler {
   var openStockPrice = mutable.Map[String, Stock]()
   var closeStockPrice = mutable.Map[String, Stock]()
 
-  val conf =  new SparkConf().setMaster("local").setAppName("TOP USER CHOICE CHECKER").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
+  var userChoiceChecker = ListBuffer[String]()
+
+  val conf =  new SparkConf().setMaster("local").setAppName("TOP USER CHOICE CHECKER")
+    .set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
+    .set("spark.driver.allowMultipleContexts","true")
   val sc = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
@@ -39,6 +44,16 @@ object Scheduler {
     val result = sc.parallelize(curUserMap.toSeq).filter(_._2.nonEmpty).flatMap(x => getNewStocks(x._1, x._2)).filter(filterA).map((_,1)).reduceByKey(_+_).sortBy(_._2, ascending = false)
       .map(x => x._1 + "\t" + (x._2 * 1.0 / topUsers.size) + "\t" + getStockCodePriceChecker(x._1)).collect
     FileUtil.saveUserChoiceChecker(result,args(1).toInt)
+
+    userChoiceChecker = FileUtil.readChoiceCheckerByDay(args(1).toInt,15)
+    TUCLogger.warn("userChoiceChecker size: " + userChoiceChecker.size)
+    val top10 = sc.parallelize(userChoiceChecker.toSeq).map(getUserChoiceCheck).keyBy(_._2.toFloat).sortByKey(false).top(10).filter(x => filterPositive(x._2._3))
+      // .foreach(x => println("SSS:"+x))
+    TUCLogger.warn("top10 size: " + top10.size)
+    val top100 = sc.parallelize(userChoiceChecker.toSeq).map(getUserChoiceCheck).keyBy(_._2.toFloat).sortByKey(false).top(100).filter(x => filterPositive(x._2._3))
+    TUCLogger.warn("top100 size: " + top100.size)
+    FileUtil.saveUserChoiceCheckerPercent((top10.size * 1.0 / 10 ).toString,args(1).toInt,10)
+    FileUtil.saveUserChoiceCheckerPercent((top100.size * 1.0 / 100 ).toString,args(1).toInt,100)
     sc.stop
   }
 
@@ -51,8 +66,15 @@ object Scheduler {
     if (preSet.isEmpty)
       return Set[String]()
 
-    set.--(preSet.get)
+    set.-- (preSet.get)
   }
+
+  /**
+    * 过滤不是A股股票
+    * @param code
+    * @return
+    *@author C.J.YOU
+    */
   def filterA(code:String): Boolean ={
     val head = code.charAt(0)
     if (head == '0' || head == '3'|| head == '6' || head == '9') {
@@ -61,7 +83,15 @@ object Scheduler {
       false
     }
   }
+
+  /**
+    * 获取当天股票的涨幅值
+    * @param stockCode
+    * @return
+    * @author C.J.YOU
+    */
   def getStockCodePriceChecker(stockCode:String):String = {
+
     val validStockCode = Stock.getTypeOfStockCode(stockCode)
     if(closeStockPrice.contains(validStockCode)) {
       val todayOpenPrice = closeStockPrice.get (validStockCode).get.todayOpeningPrice
@@ -73,9 +103,26 @@ object Scheduler {
       priceCheck
 
     }else{
-      TUCLogger.warn(validStockCode +":stockCode not contains in Stock of today>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-      val error = "isNotA"
+      TUCLogger.warn(validStockCode +":stockCode not contains in Stock of today >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+      val error = "stop"
       error
     }
+  }
+
+  def getUserChoiceCheck(str:String): (String,String,String) ={
+
+    val strArray = str.split("\t")
+    val stockCode = strArray(0)
+    val userChoice = strArray(1)
+    val choiceCheck = strArray(2)
+    (stockCode,userChoice,choiceCheck)
+  }
+
+  def filterPositive(choiceChecker:String): Boolean ={
+
+    if(choiceChecker == "stop") false
+    else if(choiceChecker.startsWith("-")) false
+    else if (choiceChecker.toFloat == 0.0) false
+    else true
   }
 }
