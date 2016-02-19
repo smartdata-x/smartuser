@@ -47,5 +47,5 @@
 每只股票的关注人数 / 20%的用户数
 
 ### 5.TopUserChoiceChecker
-在TopUserChoice的基础上计算新增的股票在当日的涨幅值
+在TopUserChoice的基础上计算新增的股票在当日的涨幅值,计算top10,top100中股票上涨所占的百分比
 
