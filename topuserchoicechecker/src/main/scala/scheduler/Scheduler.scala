@@ -2,6 +2,7 @@ package scheduler
 
 import config.SparkConfig
 import log.TUCLogger
+import message.SendMessage
 import org.apache.spark.{SparkConf, SparkContext}
 import stock.Stock
 import util.FileUtil
@@ -33,12 +34,28 @@ object Scheduler {
   def main(args: Array[String]): Unit = {
 
     topUsers = FileUtil.readTopUserList(args(0).toInt)
+    if(topUsers.isEmpty){
+      SendMessage.sendMessage(1,"聪明账户", "当天Rank_User的信息获取异常")
+      System.exit(-1)
+    }
     TUCLogger.warn("Top user number: " + topUsers.size)
     preUserMap = FileUtil.readUserInfoByDayAndHour(args(0).toInt, 15)
+    if(preUserMap.isEmpty){
+      SendMessage.sendMessage(1,"聪明账户", "昨日15时用户信息获取异常")
+      System.exit(-1)
+    }
     val curUserMap = FileUtil.readUserInfoByDayAndHour(args(1).toInt, 9)
+    if(curUserMap.isEmpty){
+      SendMessage.sendMessage(1,"聪明账户", "今日9时用户信息获取异常")
+      System.exit(-1)
+    }
     // openStockPrice = FileUtil.readStockCodeByDayAndHour(0, OPEN_MARKET_HOUR)
     TUCLogger.warn("openStockPrice size: " + openStockPrice.size)
     closeStockPrice = FileUtil.readStockCodeByDayAndHour(args(2).toInt, CLOSE_MARKET_HOUR)
+    if(closeStockPrice.isEmpty){
+      SendMessage.sendMessage(1,"聪明账户", "今日大盘信息获取异常")
+      System.exit(-1)
+    }
     TUCLogger.warn("closeStockPrice size: " + closeStockPrice.size)
     // 增加当天股票价格的checker
     val result = sc.parallelize(curUserMap.toSeq).filter(_._2.nonEmpty).flatMap(x => getNewStocks(x._1, x._2)).filter(filterA).map((_,1)).reduceByKey(_+_).sortBy(_._2, ascending = false)
