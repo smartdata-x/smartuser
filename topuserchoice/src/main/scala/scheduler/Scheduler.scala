@@ -3,7 +3,7 @@ package scheduler
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
-import config.{RedisConfig, SparkConfig}
+import config.RedisConfig
 import log.TUCLogger
 import org.apache.spark.{SparkConf, SparkContext}
 import org.w3c.dom.Element
@@ -20,12 +20,12 @@ object Scheduler {
   var preUserMap = mutable.Map[String, Set[String]]()
   var topUsers = mutable.ListBuffer[String]()
 
-  val conf =  new SparkConf().setMaster("local").setAppName("TOP USER CHOICE").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
+  val conf =  new SparkConf().setAppName("TOP USER CHOICE")
   val sc = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
 
-    init(args(0))
+    initConfiguration(args(0))
 
     topUsers = FileUtil.readTopUserList
     TUCLogger.warn("Top user number: " + topUsers.size)
@@ -71,7 +71,7 @@ object Scheduler {
     jedis.quit
   }
 
-  def init(path: String): Unit = {
+  def initConfiguration(path: String): Unit = {
 
     val file = new File(path)
 
@@ -83,4 +83,5 @@ object Scheduler {
 
     RedisConfig.init(ip, port.toInt, auth)
   }
+
 }
