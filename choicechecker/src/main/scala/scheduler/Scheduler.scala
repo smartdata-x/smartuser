@@ -88,9 +88,7 @@ object Scheduler {
 
   /**
     * 过滤不是A股股票
-    * @param code
-    * @return
-    *@author C.J.YOU
+    * @author C.J.YOU
     */
   def filterA(code:String): Boolean ={
     val head = code.charAt(0)
