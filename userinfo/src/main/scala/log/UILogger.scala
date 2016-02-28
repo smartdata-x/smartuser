@@ -1,6 +1,6 @@
 package log
 
-import org.apache.log4j.Logger
+import org.apache.log4j.{PropertyConfigurator, BasicConfigurator, Logger}
 
 /**
   * Created by yangshuai on 2016/1/26.
@@ -8,6 +8,8 @@ import org.apache.log4j.Logger
 object UILogger {
 
   val logger = Logger.getLogger("USER_INFO")
+  BasicConfigurator.configure()
+  PropertyConfigurator.configure("/home/smartuser/log/userinfo/log4j.properties")
 
   def debug(msg: String): Unit = {
     logger.debug(msg)
