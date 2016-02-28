@@ -57,6 +57,7 @@ object Scheduler {
     } finally {
       sc.stop()
     }
+
   }
 
   /**

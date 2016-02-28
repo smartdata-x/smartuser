@@ -20,7 +20,7 @@ object Scheduler {
   var preUserMap = mutable.Map[String, Set[String]]()
   var topUsers = mutable.ListBuffer[String]()
 
-  val conf =  new SparkConf().setAppName("TOP USER CHOICE")
+  val conf =  new SparkConf().setAppName("TOP_USER_CHOICE")
   val sc = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
@@ -32,9 +32,14 @@ object Scheduler {
     preUserMap = FileUtil.readUserInfoByDayAndHour(-1, 15)
     val curUserMap = FileUtil.readUserInfoByDayAndHour(0, 9)
 
-    val result = sc.parallelize(curUserMap.toSeq).filter(_._2.nonEmpty).flatMap(x => getNewStocks(x._1, x._2)).map((_,1)).reduceByKey(_+_).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + (x._2 * 1.0 / topUsers.size)).collect
+    val result = sc.parallelize(curUserMap.toSeq)
+      .filter(_._2.nonEmpty)
+      .flatMap(x => getNewStocks(x._1, x._2))
+      .map((_,1)).reduceByKey(_+_).sortBy(_._2, ascending = false)
+      .map(x => x._1 + "\t" + (x._2 * 1.0 / topUsers.size)).collect
 
     sendNewStockPercent(result)
+
     sc.stop
   }
 
