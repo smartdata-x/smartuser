@@ -9,7 +9,7 @@ object URLogger {
 
   val logger = Logger.getLogger("USER_RANK")
   BasicConfigurator.configure()
-  PropertyConfigurator.configure("/home/smartuser/log/userrank/log4j.properties")
+  PropertyConfigurator.configure("/home/smartuser/conf/userrank_log4j.properties")
 
   def debug(msg: String): Unit = {
     logger.debug(msg)

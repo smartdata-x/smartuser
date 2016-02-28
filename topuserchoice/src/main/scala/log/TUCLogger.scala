@@ -9,7 +9,7 @@ object TUCLogger {
 
   val logger = Logger.getLogger("TOP_USER_CHOICE")
   BasicConfigurator.configure()
-  PropertyConfigurator.configure("/home/smartuser/log/topuserchoice/log4j.properties")
+  PropertyConfigurator.configure("/home/smartuser/conf/topuserchoice_log4j.properties")
 
   def debug(msg: String): Unit = {
     logger.debug(msg)

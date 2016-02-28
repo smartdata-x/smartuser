@@ -9,7 +9,7 @@ object UILogger {
 
   val logger = Logger.getLogger("USER_INFO")
   BasicConfigurator.configure()
-  PropertyConfigurator.configure("/home/smartuser/log/userinfo/log4j.properties")
+  PropertyConfigurator.configure("/home/smartuser/conf/userinfo_log4j.properties")
 
   def debug(msg: String): Unit = {
     logger.debug(msg)

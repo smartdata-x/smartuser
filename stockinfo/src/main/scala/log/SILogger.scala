@@ -9,7 +9,7 @@ object SILogger {
 
   val logger = Logger.getLogger("STOCK_INFO")
   BasicConfigurator.configure()
-  PropertyConfigurator.configure("/home/smartuser/log/stockinfo/log4j.properties")
+  PropertyConfigurator.configure("/home/smartuser/conf/stockinfo_log4j.properties")
 
   def debug(msg: String): Unit = {
     logger.debug(msg)
@@ -20,8 +20,7 @@ object SILogger {
   }
 
   def warn(msg: String): Unit = {
-    logger.warn(msg + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=======================================")
-//    println(msg + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<=======================================")
+    logger.warn(msg)
   }
 
   def error(msg: String): Unit = {
