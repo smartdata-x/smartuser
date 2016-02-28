@@ -36,18 +36,18 @@ object Scheduler {
     topUsers = FileUtil.readTopUserList(args(0).toInt)
     if(topUsers.isEmpty){
       SendMessage.sendMessage(1,"聪明账户", "当天Rank_User的信息获取异常")
-      System.exit(-1)
+      sys.exit(-1)
     }
     TUCLogger.warn("Top user number: " + topUsers.size)
     preUserMap = FileUtil.readUserInfoByDayAndHour(args(0).toInt, 15)
     if(preUserMap.isEmpty){
       SendMessage.sendMessage(1,"聪明账户", "昨日15时用户信息获取异常")
-      System.exit(-1)
+      sys.exit(-1)
     }
     val curUserMap = FileUtil.readUserInfoByDayAndHour(args(1).toInt, 9)
     if(curUserMap.isEmpty){
       SendMessage.sendMessage(1,"聪明账户", "今日9时用户信息获取异常")
-      System.exit(-1)
+      sys.exit(-1)
     }
     // openStockPrice = FileUtil.readStockCodeByDayAndHour(0, OPEN_MARKET_HOUR)
     TUCLogger.warn("openStockPrice size: " + openStockPrice.size)
@@ -64,13 +64,13 @@ object Scheduler {
 
     userChoiceChecker = FileUtil.readChoiceCheckerByDay(args(1).toInt,15)
     TUCLogger.warn("userChoiceChecker size: " + userChoiceChecker.size)
-    val top10 = sc.parallelize(userChoiceChecker.toSeq).map(getUserChoiceCheck).keyBy(_._2.toFloat).sortByKey(false).top(10).filter(x => filterPositive(x._2._3))
+    val top10 = sc.parallelize(userChoiceChecker.toSeq).map(getUserChoiceCheck).keyBy(_._2.toFloat).sortByKey(ascending = false).top(10).filter(x => filterPositive(x._2._3))
       // .foreach(x => println("SSS:"+x))
-    TUCLogger.warn("top10 size: " + top10.size)
-    val top100 = sc.parallelize(userChoiceChecker.toSeq).map(getUserChoiceCheck).keyBy(_._2.toFloat).sortByKey(false).top(100).filter(x => filterPositive(x._2._3))
-    TUCLogger.warn("top100 size: " + top100.size)
-    FileUtil.saveUserChoiceCheckerPercent((top10.size * 1.0 / 10 ).toString,args(1).toInt,10)
-    FileUtil.saveUserChoiceCheckerPercent((top100.size * 1.0 / 100 ).toString,args(1).toInt,100)
+    TUCLogger.warn("top10 size: " + top10.length)
+    val top100 = sc.parallelize(userChoiceChecker.toSeq).map(getUserChoiceCheck).keyBy(_._2.toFloat).sortByKey(ascending = false).top(100).filter(x => filterPositive(x._2._3))
+    TUCLogger.warn("top100 size: " + top100.length)
+    FileUtil.saveUserChoiceCheckerPercent((top10.length * 1.0 / 10 ).toString,args(1).toInt,10)
+    FileUtil.saveUserChoiceCheckerPercent((top100.length * 1.0 / 100 ).toString,args(1).toInt,100)
     sc.stop
   }
 
@@ -92,18 +92,11 @@ object Scheduler {
     */
   def filterA(code:String): Boolean ={
     val head = code.charAt(0)
-    if (head == '0' || head == '3'|| head == '6' || head == '9') {
-      true
-    } else{
-      false
-    }
+    if (head == '0' || head == '3'|| head == '6' || head == '9') true else false
   }
 
   /**
     * 获取当天股票的涨幅值
-    * @param stockCode
-    * @return
-    * @author C.J.YOU
     */
   def getStockCodePriceChecker(stockCode:String):String = {
 
