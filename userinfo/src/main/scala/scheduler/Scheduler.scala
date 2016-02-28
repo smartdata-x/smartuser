@@ -10,16 +10,11 @@ import log.UILogger
 import org.apache.spark.{SparkConf, SparkContext}
 import org.w3c.dom.Element
 
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
-
 /**
   * Created by yangshuai on 2016/1/26.
   * 主流程
   */
 object Scheduler {
-
-  var userMap = new mutable.HashMap[String, ListBuffer[String]]()
 
   val conf =  new SparkConf().setAppName("USER_INFO")
   val sc = new SparkContext(conf)
@@ -33,8 +28,8 @@ object Scheduler {
       while(true) {
 
         UILogger.warn("Task begin.")
-        HbaseUtil.readUserInfo(sc)
-        FileUtil.saveUserStockInfo()
+        val userMap = HbaseUtil.readUserInfo(sc)
+        FileUtil.saveUserStockInfo(userMap)
 
         UILogger.warn("Task complete.")
         Timer.waitToNextTask()
@@ -53,11 +48,10 @@ object Scheduler {
       calendar.set(Calendar.HOUR_OF_DAY, hour)
 
       val timeStamp = calendar.getTimeInMillis
-      HbaseUtil.readUserInfo(sc, timeStamp)
-      FileUtil.saveUserStockInfo(timeStamp, hour)
+      val userMap = HbaseUtil.readUserInfo(sc, timeStamp)
+      FileUtil.saveUserStockInfo(userMap, timeStamp, hour)
 
       sc.stop
-
     }
 
   }

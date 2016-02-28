@@ -8,9 +8,9 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.SparkContext
-import scheduler.Scheduler
+import org.apache.spark.storage.StorageLevel
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
   * Created by yangshuai on 2016/1/26.
@@ -67,7 +67,7 @@ object HbaseUtil {
   /**
     * 读取用户自选股信息
     */
-  def readUserInfo(sc:SparkContext): Unit = {
+  def readUserInfo(sc:SparkContext): Map[String, ArrayBuffer[String]] = {
 
     val scan = new Scan()
     val currentTimeStamp = System.currentTimeMillis()
@@ -76,28 +76,25 @@ object HbaseUtil {
     sinaTable.setScan(scan)
 
     val users = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-    UILogger.warn("Total user number: " + users.count.toString)
 
-    users.foreach(x => {
-      try {
-        val result = x._2
-        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamily), Bytes.toBytes(sinaTable.column)))
-        val userId = getUserId(value)
-        val userStockList = getAllStockCodes(value)
-        if (userStockList.nonEmpty)
-          Scheduler.userMap.put(userId, userStockList)
-      } catch {
-        case e:Exception =>
-          UILogger.exception(e)
-      }
+    users.map(x => {
+      val result = x._2
+      val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamily), Bytes.toBytes(sinaTable.column)))
+      val userId = getUserId(value)
+      val userStockList = getAllStockCodes(value)
+      if (userStockList.nonEmpty)
+        (userId, userStockList)
+      else
+        null
     })
-
+      .filter(_ != null)
+      .collect().toMap[String, ListBuffer[String]].asInstanceOf[Map[String, ArrayBuffer[String]]]
   }
 
   /**
     * 读取用户自选股信息
     */
-  def readUserInfo(sc:SparkContext, ts:Long): Unit = {
+  def readUserInfo(sc:SparkContext, ts:Long): Map[String, ArrayBuffer[String]] = {
 
     val scan = new Scan()
     val currentTimeStamp = ts
@@ -106,20 +103,19 @@ object HbaseUtil {
     sinaTable.setScan(scan)
 
     val users = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
-    UILogger.warn("Total user number: " + users.count.toString)
 
-    users.foreach(x => {
-      try {
-        val result = x._2
-        val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamily), Bytes.toBytes(sinaTable.column)))
-        val userId = getUserId(value)
-        val userStockList = getAllStockCodes(value)
-        if (userStockList.nonEmpty)
-          Scheduler.userMap.put(userId, userStockList)
-      } catch {
-        case e:Exception =>
-          UILogger.exception(e)
-      }
+    users.map(x => {
+      val result = x._2
+      val value = Bytes.toString(result.getValue(Bytes.toBytes(sinaTable.columnFamily), Bytes.toBytes(sinaTable.column)))
+      val userId = getUserId(value)
+      val userStockList = getAllStockCodes(value)
+      if (userStockList.nonEmpty)
+        (userId, userStockList)
+      else
+        null
     })
+      .filter(_ != null)
+      .collect().toMap[String, ListBuffer[String]].asInstanceOf[Map[String, ArrayBuffer[String]]]
   }
+
 }

@@ -7,6 +7,8 @@ import log.UILogger
 import scheduler.Scheduler
 import util.TimeUtil
 
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+
 /**
   * Created by yangshuai on 2016/1/26.
   */
@@ -35,10 +37,8 @@ object FileUtil {
 
   /**
     * 保存用户关注的股票信息
-    *
-    * @author yangshuai
     */
-  def saveUserStockInfo(): Unit = {
+  def saveUserStockInfo(userMap: Map[String, ArrayBuffer[String]]): Unit = {
 
     val fileDayDir = TimeUtil.getDay(System.currentTimeMillis().toString)
     val fileName = TimeUtil.getCurrentHour
@@ -48,7 +48,7 @@ object FileUtil {
     mkDir(FileConfig.USER_INFO + "/" + fileDayDir)
     mkDir(destPath)
 
-    for (item <- Scheduler.userMap) {
+    for (item <- userMap) {
 
       val userId = item._1
       val stockCodeList = item._2
@@ -56,14 +56,13 @@ object FileUtil {
         createFile(destPath + "/" + userId, stockCodeList)
       }
     }
+
   }
 
   /**
     * 保存用户关注的股票信息
-    *
-    * @author yangshuai
     */
-  def saveUserStockInfo(ts:Long, hour:Int): Unit = {
+  def saveUserStockInfo(userMap: Map[String, ArrayBuffer[String]], ts:Long, hour:Int): Unit = {
 
     val fileDayDir = TimeUtil.getDay(ts.toString)
     val fileName = hour.toString
@@ -73,7 +72,7 @@ object FileUtil {
     mkDir(FileConfig.USER_INFO + "/" + fileDayDir)
     mkDir(destPath)
 
-    for (item <- Scheduler.userMap) {
+    for (item <- userMap) {
 
       val userId = item._1
       val stockCodeList = item._2
@@ -81,5 +80,7 @@ object FileUtil {
         createFile(destPath + "/" + userId, stockCodeList)
       }
     }
+
   }
+
 }

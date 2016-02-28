@@ -1,8 +1,12 @@
-name := "topuserchoicechecker"
+name := "choicechecker"
 
 version := "1.0"
 
 scalaVersion := "2.10.4"
+
+resolvers += "Kunyan Repo" at "http://222.73.34.92:8081/nexus/content/groups/public/"
+
+libraryDependencies += "com.kunyan" % "scalautil" % "1.1"
 
 libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.10.4" % "provided"
 
@@ -14,12 +18,9 @@ libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.4"
 
 libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2" % "provided"
 
-libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"
+libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5" % "test"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % "test"
-
-libraryDependencies += "redis.clients" % "jedis" % "2.8.0"
-
 
 assemblyMergeStrategy in assembly := {
   case PathList("javax", "servlet", xs @ _*) => MergeStrategy.last
