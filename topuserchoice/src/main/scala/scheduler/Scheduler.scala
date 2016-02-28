@@ -25,7 +25,7 @@ object Scheduler {
 
   def main(args: Array[String]): Unit = {
 
-    init()
+    init(args(0))
 
     topUsers = FileUtil.readTopUserList
     TUCLogger.warn("Top user number: " + topUsers.size)
@@ -71,9 +71,9 @@ object Scheduler {
     jedis.quit
   }
 
-  def init(): Unit = {
+  def init(path: String): Unit = {
 
-    val file = new File("/home/smartuser/conf/config.xml")
+    val file = new File(path)
 
     val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
     val redisRoot = document.getElementsByTagName("redis").item(0).asInstanceOf[Element]
