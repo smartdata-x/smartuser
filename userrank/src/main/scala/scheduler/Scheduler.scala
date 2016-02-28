@@ -1,7 +1,7 @@
 package scheduler
 
 import calculate.stock.RateOfReturnStrategy
-import config.{SparkConfig, StrategyConfig}
+import config.StrategyConfig
 import log.URLogger
 import org.apache.spark.{SparkConf, SparkContext}
 import stock.Stock
@@ -23,7 +23,7 @@ object Scheduler {
   val OPEN_MARKET_HOUR = 9
   val CLOSE_MARKET_HOUR = 15
 
-  val conf =  new SparkConf().setMaster("local").setAppName("USER RANK").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
+  val conf =  new SparkConf().setAppName("USER_RANK")
   val sc = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
