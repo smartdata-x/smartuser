@@ -3,7 +3,7 @@ package scheduler
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
-import config.{RedisConfig, SparkConfig}
+import config.RedisConfig
 import log.TUCLogger
 import org.apache.spark.{SparkConf, SparkContext}
 import org.w3c.dom.Element
@@ -20,21 +20,26 @@ object Scheduler {
   var preUserMap = mutable.Map[String, Set[String]]()
   var topUsers = mutable.ListBuffer[String]()
 
-  val conf =  new SparkConf().setMaster("local").setAppName("TOP USER CHOICE").set("spark.serializer", SparkConfig.SPARK_SERIALIZER).set("spark.kryoserializer.buffer.max", SparkConfig.SPARK_KRYOSERIALIZER_BUFFER_MAX)
+  val conf =  new SparkConf().setAppName("TOP_USER_CHOICE")
   val sc = new SparkContext(conf)
 
   def main(args: Array[String]): Unit = {
 
-    init()
+    initConfiguration(args(0))
 
     topUsers = FileUtil.readTopUserList
     TUCLogger.warn("Top user number: " + topUsers.size)
     preUserMap = FileUtil.readUserInfoByDayAndHour(-1, 15)
     val curUserMap = FileUtil.readUserInfoByDayAndHour(0, 9)
 
-    val result = sc.parallelize(curUserMap.toSeq).filter(_._2.nonEmpty).flatMap(x => getNewStocks(x._1, x._2)).map((_,1)).reduceByKey(_+_).sortBy(_._2, ascending = false).map(x => x._1 + "\t" + (x._2 * 1.0 / topUsers.size)).collect
+    val result = sc.parallelize(curUserMap.toSeq)
+      .filter(_._2.nonEmpty)
+      .flatMap(x => getNewStocks(x._1, x._2))
+      .map((_,1)).reduceByKey(_+_).sortBy(_._2, ascending = false)
+      .map(x => x._1 + "\t" + (x._2 * 1.0 / topUsers.size)).collect
 
     sendNewStockPercent(result)
+
     sc.stop
   }
 
@@ -63,7 +68,7 @@ object Scheduler {
 
     userList.map(x => {
       val arr = x.split("\t")
-      pipeline.hset("newstock:" + TimeUtil.getDay, arr(0), arr(1))
+      pipeline.zadd("newstock:" + TimeUtil.getDay, arr(1).toDouble, arr(0))
       pipeline.expire("newstock:" + TimeUtil.getDay, 60 * 60 * 48)
     })
 
@@ -71,9 +76,9 @@ object Scheduler {
     jedis.quit
   }
 
-  def init(): Unit = {
+  def initConfiguration(path: String): Unit = {
 
-    val file = new File("/home/smartuser/conf/config.xml")
+    val file = new File(path)
 
     val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
     val redisRoot = document.getElementsByTagName("redis").item(0).asInstanceOf[Element]
@@ -83,4 +88,5 @@ object Scheduler {
 
     RedisConfig.init(ip, port.toInt, auth)
   }
+
 }

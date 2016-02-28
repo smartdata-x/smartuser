@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> 
+<?xml version="1.0" encoding="UTF-8"?>
 <redis>
 	<ip>222.73.34.96</ip>
 	<port>6390</port>

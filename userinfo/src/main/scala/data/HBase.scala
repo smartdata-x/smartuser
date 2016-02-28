@@ -22,12 +22,12 @@ class HBase {
     _tableName = value
   }
 
-  private[this] var _columnFamliy: String = new Predef.String
+  private[this] var _columnFamily: String = new Predef.String
 
-  def columnFamily: String = _columnFamliy
+  def columnFamily: String = _columnFamily
 
   def columnFamily_=(value: String): Unit = {
-    _columnFamliy = value
+    _columnFamily = value
   }
 
   private[this] var _column: String = new Predef.String
@@ -46,14 +46,14 @@ class HBase {
     conf.set(TableInputFormat.SCAN, scanToString)
   }
 
-  def getConfigure(table:String,columnFamliy:String,column:String): Configuration = {
+  def getConfigure(table:String, columnFamily:String, column:String): Configuration = {
 
     conf = HBaseConfiguration.create()
-    conf.set("hbase.rootdir", HbaseConfig.HBASE_ROOT_DIR)
-    conf.set("hbase.zookeeper.quorum", HbaseConfig.HBASE_ZOOKEEPER_QUORUM)
-    conf.set("hbase.zookeeper.property.clientPort", HbaseConfig.HBASE_ZOOKEEPER_PROPERTY_CLIENTPORT)
+    conf.set("hbase.rootdir", HbaseConfig.dir)
+    conf.set("hbase.zookeeper.quorum", HbaseConfig.quorum)
+    conf.set("hbase.zookeeper.property.clientPort", HbaseConfig.port)
     conf.set(TableInputFormat.INPUT_TABLE, table)
-    conf.set(TableInputFormat.SCAN_COLUMN_FAMILY,columnFamliy)
+    conf.set(TableInputFormat.SCAN_COLUMN_FAMILY,columnFamily)
     conf.set(TableInputFormat.SCAN_COLUMNS,column)
     conf
   }
