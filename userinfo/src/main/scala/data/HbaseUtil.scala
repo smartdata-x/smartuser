@@ -91,6 +91,7 @@ object HbaseUtil {
           UILogger.exception(e)
       }
     })
+
   }
 
   /**
