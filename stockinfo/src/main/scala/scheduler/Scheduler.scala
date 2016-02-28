@@ -18,10 +18,6 @@ object Scheduler {
 
   def main(args: Array[String]): Unit = {
 
-    if (args.length > 0) {
-      FileConfig.ROOT_DIR = "E:" + FileConfig.ROOT_DIR
-    }
-
     while (true) {
 
       stockList.clear

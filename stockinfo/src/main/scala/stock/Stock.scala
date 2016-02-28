@@ -43,7 +43,7 @@ class Stock(
 
   ) {
 
-  override def toString(): String ={
+  override def toString: String ={
 
     code+"\t"+name+"\t"+todayOpeningPrice+"\t"+yesterdayClosingPrice+"\t"+currentPrice+"\t"+todayHighestPrice+"\t"+ todayLowestPrice+"\t"+
     transactionNumber+"\t"+transactionMoney+"\t"+highestBuyNumber+"\t"+highestBuyPrice+"\t"+ secondHighestBuyNumber+"\t"+secondHighestBuyPrice+"\t"+ thirdHighestBuyNumber+"\t"+

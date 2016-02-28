@@ -91,7 +91,7 @@ object FileUtil {
         lines += line
         line = br.readLine()
       }
-      lines
+
     } finally {
       br.close()
     }
