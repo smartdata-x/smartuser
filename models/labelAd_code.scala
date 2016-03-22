@@ -6,7 +6,7 @@ import scala.util.control.Breaks
   * Created by Christiph on 2016/3/22.
   */
   
-object targetMan {
+object TargetMan {
   def main(args:Array[String]): Unit ={
 
     val conf = new SparkConf()
@@ -21,10 +21,10 @@ object targetMan {
 
     val url_o = url_oo.map(x=>x.trim)
     val url_e = url_ee.map(_.split(",")).filter(x=>x.size==2).map(parts=>parts(0))
-    val url_total = url_o.union(url_e).distinct().filter(x=>x.size>0).take(1000)
+    val url_Total = url_o.union(url_e).distinct().filter(x=>x.size>0).take(1000)
 
     var key = new ArrayBuffer[String]()
-    for (i <- url_total) {
+    for (i <- url_Total) {
       if (i.contains("http://www")) {
         key ++= Array(i.substring(11,i.length))
       } else if(i.contains("https://www")){
@@ -62,10 +62,9 @@ object targetMan {
     case class cc(sessionid: String,url: String,label: Integer)
     val lines = lablelineRdd.map(p=>cc(p._1,p._2,p._3))
     val wc=lines.toDF()
-    wc.show(5)
     wc.registerTempTable("wc")
     sqlContext.cacheTable("wc")
-    wc.show
+	wc.show
 
     val c1 = sqlContext.sql("select sessionid,count(url) as luxury_visit, count(distinct url) as luxury_url from wc where label = 1 group by sessionid order by luxury_visit desc")
     c1.registerTempTable("c1")
@@ -81,6 +80,6 @@ object targetMan {
     c3.describe().show
     c3.where($"luxury_visit">** && $"visit_rate">** && $"luxury_url">** && $"url_rate">**).save("file:///home/cc/")
 
-    val targetAd = target.sort("url_rate").limit(10000)
+    target.sort("url_rate").limit(10000).save(file:///home/cc")
   }
 }

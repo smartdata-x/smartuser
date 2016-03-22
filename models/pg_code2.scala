@@ -7,7 +7,7 @@ import SparkContext._
   
   */
   
-object pageRank {  
+object PageRank {  
     def main(args: Array[String]) {  
         val conf = new SparkConf()
             .setAppName("pageRank")
