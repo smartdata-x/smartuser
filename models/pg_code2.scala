@@ -19,10 +19,7 @@ object PageRank {
   val lines = sc.textFile("/user/root/316/pg_data/total.txt")  
 		
   //create edges
-  val links = lines.map(_.split(" "))
-		           .filter(_.length == 2)
-			       .map(parts => (parts(0), parts(1)))
-				   .distinct().groupByKey()  
+  val links = lines.map(_.split(" ")).filter(_.length == 2).map(parts => (parts(0), parts(1))).distinct().groupByKey()  
   val nodes = scala.collection.mutable.ArrayBuffer.empty ++ links.keys.collect()
   val newNodes = scala.collection.mutable.ArrayBuffer[String]()  
   for {s <- links.values.collect()  
