@@ -58,11 +58,9 @@ object TargetMan {
     (x(0),x(2),lableTmp)
     }
 	
-    val lableline = data.map(x => x.split("\u0001")).filter(x => x.size == 4).map(filterFunc)
-					  
-    val lablelineRdd = lableline.filter(x=>x._2.length>=30).map(x=>Triple(x._1,x._2.substring(0,30),x._3))
-							  
-    val a = lablelineRdd.map(x => (x(0) + "_" + x(1) , x(2))).reduceByKey(_ + _)
+    val lableline = data.map(x => x.split("\u0001")).filter(x => x.size == 4).map(filterFunc)				  
+    val lablelineRdd = lableline.filter(x=>x._2.length>=30).map(x=>Triple(x._1,x._2.substring(0,30),x._3))						  
+    //val a = lablelineRdd.map(x => (x(0) + "_" + x(1) , x(2))).reduceByKey(_ + _)
 
     case class cc(sessionid: String,url: String,label: Integer)
     val lines = lablelineRdd.map(p=>cc(p._1,p._2,p._3))
