@@ -35,8 +35,9 @@ object Scheduler {
     val result = sc.parallelize(curUserMap.toSeq)
       .filter(_._2.nonEmpty)
       .flatMap(x => getNewStocks(x._1, x._2))
-      .map((_,1)).reduceByKey(_+_).sortBy(_._2, ascending = false)
-      .map(x => x._1 + "\t" + (x._2 * 1.0 / topUsers.size)).collect
+      .sortBy(_._2, ascending = false)
+      .map(x => x._1 + "\t" + (x._2 * 1.0 / topUsers.size))
+      .collect
 
     sendNewStockPercent(result)
 
