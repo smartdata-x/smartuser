@@ -18,24 +18,24 @@ object TargetClassification {
   
     val conf = new SparkConf().setAppName("Target")
     val sc = new SparkContext(conf)
-	
+
     // input total data
     val data1 = sc.textFile("file:///home/cc/targetData/*")
-	            .map(_.split("\t")).filter(x => x.size == 6)
-				.map(x => (x(1), x(2), getUrlU2(x(3)), getUrlU2(x(4))))
-				.filter(x => !x._2.contains("spider") && !x._2.contains("Spider"))
+                .map(_.split("\t")).filter(x => x.size == 6)
+                .map(x => (x(1), x(2), getUrlU2(x(3)), getUrlU2(x(4))))
+                .filter(x => !x._2.contains("spider") && !x._2.contains("Spider"))
     val data = data1.filter(x => x._3 != "qq.com" && x._3 != "sina.com.cn")
     data.cache()
-	
-	// input original url
+
+    // input original url
     val urlOriginal = sc.textFile("file:///home/cc/inputnew/stock_original.txt")
-	            .map(x => x.trim)
+                .map(x => x.trim)
     val totalUrl = urlOriginal.map(x => getUrlK(x))
-	            .distinct().filter(x => x.length > 0)
-				.filter(x => !x.contains("163"))
-				.collect.mkString(",", ",", ",")
+                .distinct().filter(x => x.length > 0)
+                .filter(x => !x.contains("163"))
+                .collect.mkString(",", ",", ",")
     
-	// label the target url
+    // label the target url
     val labelLineRddUr = data.filter(x => totalUrl.contains(x._3)).map(x => {
       val url = x._3
       val domain = url
@@ -44,7 +44,7 @@ object TargetClassification {
     labelLineRddUr.cache()
     val urlNumUr = labelLineRddUr.map(_._1.split("\t")).map(x => (x(0), 1)).reduceByKey(_ + _)
     
-	// label the target reference
+    // label the target reference
     val labelLineRddRe = data.filter(x => totalUrl.contains(x._4)).map(x => {
       val url = x._4
       val domain = url
@@ -53,18 +53,18 @@ object TargetClassification {
     labelLineRddRe.cache()
     val urlNumRe = labelLineRddRe.map(_._1.split("\t")).map(x => (x(0), 1)).reduceByKey(_ + _)
     
-	// label the AD or IP manually 
+    // label the AD or IP manually 
     val finalTable = urlNumUr.join(urlNumRe)
     val stockP = finalTable.filter(x => x._1.size < 40).filter(x => x._2._1 >= 10 || x._2._2 >= 10).map(x => (x._1, 1))
     val stockN = finalTable.filter(x => x._1.size < 40).filter(x => x._2._1 == 1 && x._2._2 == 1).map(x => (x._1, 0))
     val stockSample = stockP.union(stockN)
-	
-	// transform the training data to the standard format
+ 
+    // transform the training data to the standard format and save
     val features = sc.textFile("file:///home/cc/ffff/finalTableL")
-	            .map(x => x.replace("(", "")).map(x => x.replace(")", ""))
-				.map(_.split(",")).filter(x => x(0).contains("."))
-				.filter(x => x.size == 5)
-				.map(x => (x(0), (x(1).toDouble, x(2).toDouble, x(3).toDouble, x(4).toDouble)))
+                .map(x => x.replace("(", "")).map(x => x.replace(")", ""))
+                .map(_.split(",")).filter(x => x(0).contains("."))
+                .filter(x => x.size == 5)
+                .map(x => (x(0), (x(1).toDouble, x(2).toDouble, x(3).toDouble, x(4).toDouble)))
     val stockTrain1 = stockSample.leftOuterJoin(features).values
     val stockTrain = stockTrain1.map(x =>
       try {
@@ -87,7 +87,7 @@ object TargetClassification {
       val sc = new SparkContext(conf)
 
     val input = sc.textFile("file:///home/cc/ffff/richIpmodel/trainingdata/p*")
-	            .filter(x => !x.contains("()"))
+                .filter(x => !x.contains("()"))
     
     val parsedData = input.map { line =>
       val parts = line.split(",")
