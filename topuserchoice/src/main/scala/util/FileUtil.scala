@@ -37,6 +37,8 @@ object FileUtil {
     val date = TimeUtil.getPreWorkDay(-1)
     val path = FileConfig.RANK_USER + "/" + date + "/15-9"
 
+    TUCLogger.warn(s"Rank User: $path")
+
     readFile(path).map(_.split("\t")(0))
   }
 
